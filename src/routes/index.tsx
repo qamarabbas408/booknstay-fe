@@ -12,6 +12,7 @@ import HotelsPage from '../pages/HotelsPage';
 import MyBookingsPage from '../pages/MyBookingsPage';
 import EventRegistrationPage from '../pages/EventRegistrationPage';
 import EventCreationPage from '../pages/EventCreationPage';
+import VendorDashboardPage from '../pages/VendorDashboardPage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
         path: 'event/create',
         element: <EventCreationPage />,
       },
+      {
+        path: 'v/dashboard',
+        element: <VendorDashboardPage />,
+      },
     ],
   },
   // Protected Vendor Routes
@@ -66,7 +71,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: 'dashboard',
-        element: <VendorDashboard />,
+        element: <VendorDashboardPage />,
       },
       {
         path: 'hotels',
