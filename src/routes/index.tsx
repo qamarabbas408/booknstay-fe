@@ -3,9 +3,11 @@ import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../layouts/Mainlayout';
 import Homepage from '../pages/Homepage';
 import ProtectedRoute from './ProtectedRoute';
-// Dummy components for now - create these files as simple functional components
-const Login = () => <div className="p-20">Login Page</div>;
-const HotelDetails = () => <div className="p-20">Hotel Details Page</div>;
+import LoginPage from '../pages/LoginPage';
+import RegisterNowPage from '../pages/RegisterNowPage';
+import HotelDetails from '../pages/HotelDetails';
+import EventsPage from '../pages/EventsPage';
+import EventDetails from '../pages/EventDetails';
 const VendorDashboard = () => <div className="p-20">Vendor Dashboard</div>;
 
 export const router = createBrowserRouter([
@@ -23,7 +25,19 @@ export const router = createBrowserRouter([
       },
       {
         path: 'login',
-        element: <Login />,
+        element: <LoginPage />,
+      },
+       {
+        path: 'register',
+        element: <RegisterNowPage />,
+      },
+       {
+        path: 'events',
+        element: <EventsPage />,
+      },
+       {
+        path: 'event/:id',
+        element: <EventDetails />,
       },
     ],
   },

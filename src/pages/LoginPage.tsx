@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Sparkles, Chrome, Apple } from 'lucide-react';
 
-const SignInPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -344,4 +344,4 @@ const SignInPage: React.FC = () => {
   );
 };
 
-export default SignInPage;
+export default LoginPage;

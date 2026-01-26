@@ -187,20 +187,6 @@ const RegisterNowPage: React.FC = () => {
         <div className="absolute bottom-20 left-20 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Navigation */}
-      <nav className="glass border-b border-white/40 shadow-sm relative z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="text-3xl font-display gradient-text">BookNStay</div>
-            <Sparkles className="text-indigo-500" size={20} />
-          </div>
-          
-          <a href="/" className="flex items-center text-slate-700 hover:text-indigo-600 transition-colors group">
-            <ArrowLeft size={20} className="mr-2 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-semibold">Back to Home</span>
-          </a>
-        </div>
-      </nav>
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-6 py-12 relative z-10">
