@@ -13,6 +13,8 @@ import MyBookingsPage from '../pages/MyBookingsPage';
 import EventRegistrationPage from '../pages/EventRegistrationPage';
 import EventCreationPage from '../pages/EventCreationPage';
 import VendorDashboardPage from '../pages/VendorDashboardPage';
+import HelpCenter from '../pages/HelpCenter';
+import AddBooking from '../pages/AddBooking';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -50,6 +52,11 @@ export const router = createBrowserRouter([
         path: 'bookings',
         element: <MyBookingsPage />,
       },
+      //variant to add booking / create 
+       {
+        path: 'booking/add',
+        element: <AddBooking />,
+      },
        {
         path: 'event/registration',
         element: <EventRegistrationPage />,
@@ -61,6 +68,10 @@ export const router = createBrowserRouter([
       {
         path: 'v/dashboard',
         element: <VendorDashboardPage />,
+      },
+      {
+        path: 'help',
+        element: <HelpCenter />,
       },
     ],
   },
