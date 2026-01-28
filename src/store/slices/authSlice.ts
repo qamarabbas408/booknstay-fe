@@ -1,12 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { authApi } from '../services/AuthApi';
+import  type { User } from '../services/AuthApi';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'guest' | 'vendor' | 'admin';
-}
 
 interface AuthState {
   user: User | null;
@@ -15,25 +11,50 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: null,
-  token: null,
-  isAuthenticated: false,
+  user: JSON.parse(localStorage.getItem('user') || 'null'),
+  token: localStorage.getItem('token'),
+  isAuthenticated: !!localStorage.getItem('token'),
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ user: User; token: string }>) => {
-      state.user = action.payload.user;
-      state.token = action.payload.token;
+    setCredentials: (
+      state,
+      action: PayloadAction<{ user: User; access_token: string }>
+    ) => {
+      const { user, access_token } = action.payload;
+      state.user = user;
+      state.token = access_token;
       state.isAuthenticated = true;
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('user', JSON.stringify(user));
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addMatcher(authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
+        state.token = payload.access_token;
+        state.user = payload.user;
+        state.isAuthenticated = true;
+        localStorage.setItem('token', payload.access_token);
+        localStorage.setItem('user', JSON.stringify(payload.user));
+      })
+      .addMatcher(authApi.endpoints.register.matchFulfilled, (state, { payload }) => {
+        state.token = payload.access_token;
+        state.user = payload.user;
+        state.isAuthenticated = true;
+        localStorage.setItem('token', payload.access_token);
+        localStorage.setItem('user', JSON.stringify(payload.user));
+      });
   },
 });
 

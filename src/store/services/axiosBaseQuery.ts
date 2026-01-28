@@ -1,8 +1,8 @@
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
 import axios, { type AxiosRequestConfig, AxiosError } from 'axios';
-
+import { APIENDPOINTS } from '../../utils/ApiConstants';
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000/api', // Your future backend URL
+  baseURL: APIENDPOINTS.base_url, // Your future backend URL
   headers: {
     'Content-Type': 'application/json',
   },

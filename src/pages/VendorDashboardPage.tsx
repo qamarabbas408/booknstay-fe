@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../store/hooks';
+import { logout } from '../store/slices/authSlice';
+import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut } from 'lucide-react';
 
 // Mock data for hotel vendor dashboard
 interface Stat {
@@ -216,11 +219,18 @@ const mockNotifications: Notification[] = [
 ];
 
 const VendorDashboardPage: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
 
   const unreadNotifications = mockNotifications.filter(n => !n.read).length;
 
@@ -327,8 +337,8 @@ const VendorDashboardPage: React.FC = () => {
       <aside className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white/90 backdrop-blur-md border-r border-slate-200 shadow-lg z-30 transition-transform duration-300 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
-        <div className="p-6">
-          <nav className="space-y-2">
+        <div className="p-6 h-full flex flex-col">
+          <nav className="space-y-2 flex-1">
             {[
               { id: 'overview', label: 'Overview', icon: <BarChart2 size={20} /> },
               { id: 'bookings', label: 'Bookings', icon: <Calendar size={20} /> },
@@ -354,6 +364,16 @@ const VendorDashboardPage: React.FC = () => {
               </button>
             ))}
           </nav>
+
+          <div className="pt-4 border-t border-slate-200">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all"
+            >
+              <LogOut size={20} />
+              <span className="ml-3 font-medium">Sign Out</span>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -781,5 +801,7 @@ const VendorDashboardPage: React.FC = () => {
     </div>
   );
 };
+
+
 
 export default VendorDashboardPage;

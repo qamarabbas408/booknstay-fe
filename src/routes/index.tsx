@@ -6,7 +6,6 @@ import RegisterNowPage from '../pages/RegisterNowPage';
 import HotelDetails from '../pages/HotelDetails';
 import EventsPage from '../pages/EventsPage';
 import EventDetails from '../pages/EventDetails';
-const VendorDashboard = () => <div className="p-20">Vendor Dashboard</div>;
 import MainLayout from '../layouts/MainLayout';
 import HotelsPage from '../pages/HotelsPage';
 import MyBookingsPage from '../pages/MyBookingsPage';

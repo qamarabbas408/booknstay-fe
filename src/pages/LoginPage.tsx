@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, Sparkles, Chrome, Apple } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast, Toaster } from 'react-hot-toast';
+import { useLoginMutation } from '../store/services/AuthApi';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, Sparkles, Chrome, Apple, Loader2 } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  
+  const navigate = useNavigate();
+  const [login, { isLoading }] = useLoginMutation();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => setIsLoading(false), 2000);
+    try {
+      const { user } = await login({ email, password }).unwrap();
+      toast.success('Login successful!');
+      if (user.role === 'vendor') {
+        navigate('/vendor/dashboard');
+      } else {
+        navigate('/bookings');
+      }
+    } catch (err) {
+      console.error('Failed to login:', err);
+      toast.error('Invalid email or password. Please try again.');
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">
+      <Toaster position="top-center" />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -289,6 +304,7 @@ const LoginPage: React.FC = () => {
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
+                    <Loader2 className="mr-2 animate-spin" size={24} />
                     <span className="animate-pulse">Signing in...</span>
                   </span>
                 ) : (
