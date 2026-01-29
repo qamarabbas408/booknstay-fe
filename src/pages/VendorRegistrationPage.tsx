@@ -27,7 +27,7 @@ interface FormData {
   confirmPassword: string;
 }
 
-const RegisterNowPage: React.FC = () => {
+const VendorRegisterationPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     businessName: '',
@@ -715,4 +715,4 @@ const RegisterNowPage: React.FC = () => {
   );
 };
 
-export default RegisterNowPage;
+export default VendorRegisterationPage;

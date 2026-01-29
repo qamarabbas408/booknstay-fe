@@ -2,7 +2,8 @@ import { createBrowserRouter } from 'react-router-dom';
 import Homepage from '../pages/Homepage';
 import ProtectedRoute from './ProtectedRoute';
 import LoginPage from '../pages/LoginPage';
-import RegisterNowPage from '../pages/RegisterNowPage';
+// import VendorRegisterationPage from '../pages/VendorRegisterationPage';
+import VendorRegisterationPage from '../pages/VendorRegistrationPage';
 import HotelDetails from '../pages/HotelDetails';
 import EventsPage from '../pages/EventsPage';
 import EventDetails from '../pages/EventDetails';
@@ -14,6 +15,7 @@ import EventCreationPage from '../pages/EventCreationPage';
 import VendorDashboardPage from '../pages/VendorDashboardPage';
 import HelpCenter from '../pages/HelpCenter';
 import AddBooking from '../pages/AddBooking';
+import GuestRegisterationPage from '../pages/GuestRegistrationPage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -36,8 +38,12 @@ export const router = createBrowserRouter([
         element: <LoginPage />,
       },
        {
-        path: 'register',
-        element: <RegisterNowPage />,
+        path: 'register/vendor',
+        element: <VendorRegisterationPage />,
+      },
+      {
+        path: 'register/guest',
+        element: <GuestRegisterationPage />,
       },
        {
         path: 'events',

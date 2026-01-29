@@ -29,6 +29,7 @@ export interface RegisterRequest {
   password: string;
   password_confirmation: string;
   role?: string;
+  interests?: number[];
 }
 
 export const authApi = api.injectEndpoints({
