@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Star, Filter, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car, Loader2 } from 'lucide-react';
 import { useGetHotelsQuery } from '../store/services/hotelApi';
+import { useGetAmenitiesQuery } from '../store/services/miscApi';
 
 const HotelsPage: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -11,15 +12,17 @@ const HotelsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('recommended');
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<number[]>([]);
+  
+  const { data: amenitiesData } = useGetAmenitiesQuery();
 
-  const amenitiesList = [
-    { id: 'wifi', label: 'Free WiFi', icon: Wifi },
-    { id: 'pool', label: 'Pool', icon: Waves },
-    { id: 'breakfast', label: 'Breakfast', icon: Coffee },
-    { id: 'parking', label: 'Parking', icon: Car },
-    { id: 'spa', label: 'Spa', icon: Sparkles },
-    { id: 'gym', label: 'Gym', icon: Dumbbell },
-  ];
+  const iconMap: Record<string, React.ElementType> = {
+    Wifi,
+    Waves,
+    Coffee,
+    Car,
+    Sparkles,
+    Dumbbell,
+  };
 
   const toggleFavorite = (id: number) => {
     setFavorites(prev => 
@@ -328,25 +331,25 @@ const HotelsPage: React.FC = () => {
               <div className="mb-6">
                 <h4 className="font-bold text-slate-900 mb-4">Amenities</h4>
                 <div className="space-y-3">
-                  {amenitiesList.map((amenity) => {
-                    const Icon = amenity.icon;
+                  {amenitiesData?.map((amenity) => {
+                    const Icon = iconMap[amenity.icon] || Sparkles;
                     return (
                       <label key={amenity.id} className="flex items-center cursor-pointer group">
                         <input
                           type="checkbox"
-                          checked={selectedAmenities.includes(amenity.id)}
+                          checked={selectedAmenities.includes(amenity.slug)}
                           onChange={() => {
                             setSelectedAmenities(prev =>
-                              prev.includes(amenity.id) 
-                                ? prev.filter(a => a !== amenity.id) 
-                                : [...prev, amenity.id]
+                              prev.includes(amenity.slug) 
+                                ? prev.filter(a => a !== amenity.slug) 
+                                : [...prev, amenity.slug]
                             );
                           }}
                           className="w-5 h-5 text-indigo-600 border-2 border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                         />
                         <Icon size={18} className="ml-3 text-slate-400 group-hover:text-indigo-600 transition-colors" />
                         <span className="ml-2 font-medium text-slate-700 group-hover:text-slate-900">
-                          {amenity.label}
+                          {amenity.name}
                         </span>
                       </label>
                     );
@@ -574,25 +577,25 @@ const HotelsPage: React.FC = () => {
                 <div>
                   <h4 className="font-bold text-slate-900 mb-4">Amenities</h4>
                   <div className="space-y-3">
-                    {amenitiesList.map((amenity) => {
-                      const Icon = amenity.icon;
+                    {amenitiesData?.map((amenity) => {
+                      const Icon = iconMap[amenity.icon] || Sparkles;
                       return (
                         <label key={amenity.id} className="flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={selectedAmenities.includes(amenity.id)}
+                            checked={selectedAmenities.includes(amenity.slug)}
                             onChange={() => {
                               setSelectedAmenities(prev =>
-                                prev.includes(amenity.id) 
-                                  ? prev.filter(a => a !== amenity.id) 
-                                  : [...prev, amenity.id]
+                                prev.includes(amenity.slug) 
+                                  ? prev.filter(a => a !== amenity.slug) 
+                                  : [...prev, amenity.slug]
                               );
                             }}
                             className="w-5 h-5 text-indigo-600 border-2 border-slate-300 rounded"
                           />
                           <Icon size={18} className="ml-3 text-slate-400" />
                           <span className="ml-2 font-medium text-slate-700">
-                            {amenity.label}
+                            {amenity.name}
                           </span>
                         </label>
                       );
