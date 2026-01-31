@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast, Toaster } from 'react-hot-toast';
+import { CustomToaster, showToast } from '../components/CustomToaster';
 import { useLoginMutation } from '../store/services/AuthApi';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Sparkles, Chrome, Apple, Loader2 } from 'lucide-react';
 
@@ -16,7 +16,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     const { user } = await login({ email, password }).unwrap();
     
-    toast.success('Login successful!');
+    showToast.success('Login successful!');
 
     // 1. Business Logic: Check Vendor Status
     if (user.role === 'vendor') {
@@ -40,13 +40,13 @@ const handleSubmit = async (e: React.FormEvent) => {
     // If Laravel returns 403 (Forbidden) because of status, 
     // it will be caught here.
     const errorMessage = err.data?.message || 'Invalid credentials';
-    toast.error(errorMessage);
+    showToast.error(errorMessage);
   }
 };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">
-      <Toaster position="top-center" />
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         

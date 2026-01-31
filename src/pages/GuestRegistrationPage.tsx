@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import { CustomToaster, showToast } from '../components/CustomToaster';
 import { 
   ArrowLeft, Mail, Phone, User, Lock, CheckCircle, 
   Sparkles, ChevronRight, Heart, Compass, Music, 
@@ -73,7 +73,7 @@ const GuestRegisterationPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
+      showToast.error("Passwords do not match!");
       return;
     }
 
@@ -93,18 +93,18 @@ const GuestRegisterationPage: React.FC = () => {
         interests: interestIds,
       }).unwrap();
 
-      toast.success('Welcome aboard! Let the adventures begin.');
+      showToast.success('Welcome aboard! Let the adventures begin.');
       navigate('/bookings'); // Redirect to bookings page for guests
     } catch (err: any) {
       console.error('Failed to register:', err);
       const errorMessages = err.data?.errors ? Object.values(err.data.errors).flat().join('\n') : 'Registration failed. Please try again.';
-      toast.error(errorMessages, { duration: 4000 });
+      showToast.error(errorMessages, { duration: 4000 });
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50/30">
-      <Toaster position="top-center" />
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         

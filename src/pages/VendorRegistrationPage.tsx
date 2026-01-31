@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import { CustomToaster, showToast } from '../components/CustomToaster';
 import { useRegisterVendorMutation } from '../store/services/AuthApi';
 
 import { ArrowLeft, Building2, Mail, Phone, MapPin, User, Lock, Upload, CheckCircle, AlertCircle, Globe, DollarSign, Image, FileText, Sparkles, ChevronRight, Loader2 } from 'lucide-react';
@@ -72,7 +72,7 @@ const VendorRegisterationPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
+      showToast.error("Passwords do not match!");
       return;
     }
 
@@ -113,13 +113,13 @@ const VendorRegisterationPage: React.FC = () => {
 
     try {
       await register(registrationData).unwrap();
-      toast.success('Registration successful! Welcome to BookNStay Partners.');
+      showToast.success('Registration successful! Welcome to BookNStay Partners.');
       navigate('/vendor/dashboard');
     } catch (err: any)
      {
       console.error('Failed to register:', err);
       const errorMessages = err.data?.errors ? Object.values(err.data.errors).flat().join('\n') : 'Registration failed. Please try again.';
-      toast.error(errorMessages, { duration: 4000 });
+      showToast.error(errorMessages, { duration: 4000 });
     }
   };
 
@@ -133,7 +133,7 @@ const VendorRegisterationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      <Toaster position="top-center" />
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
