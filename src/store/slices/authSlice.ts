@@ -47,9 +47,6 @@ const authSlice = createSlice({
         state.token = payload.access_token;
         state.user = payload.user;
         state.isAuthenticated = true;
-        // localStorage.setItem('token', payload.access_token);
-        // localStorage.setItem('user', JSON.stringify(payload.user));
-        // state.isAuthenticated = true;
       });
   },
 });

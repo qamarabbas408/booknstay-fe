@@ -11,22 +11,38 @@ const LoginPage: React.FC = () => {
   
   const navigate = useNavigate();
   const [login, { isLoading }] = useLoginMutation();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  try {
+    const { user } = await login({ email, password }).unwrap();
+    
+    toast.success('Login successful!');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const { user } = await login({ email, password }).unwrap();
-      toast.success('Login successful!');
-      if (user.role === 'vendor') {
-        navigate('/vendor/dashboard');
+    // 1. Business Logic: Check Vendor Status
+    if (user.role === 'vendor') {
+      if (user.status === 'pending') {
+        // Redirect to your "Waiting Room" UI
+        navigate('/registration-pending', { replace: true });
       } else {
-        navigate('/bookings');
+        // Approved vendors go to dashboard
+        navigate('/vendor/dashboard', { replace: true });
       }
-    } catch (err) {
-      console.error('Failed to login:', err);
-      toast.error('Invalid email or password. Please try again.');
+      return; // Exit
     }
-  };
+
+    // 2. Logic for Guests
+    if (user.role === 'guest') {
+      navigate('/bookings', { replace: true });
+      return;
+    }
+
+  } catch (err: any) {
+    // If Laravel returns 403 (Forbidden) because of status, 
+    // it will be caught here.
+    const errorMessage = err.data?.message || 'Invalid credentials';
+    toast.error(errorMessage);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">

@@ -24,6 +24,7 @@ import VendorDashboardPage from '../pages/VendorDashboardPage';
 import EventCreationPage from '../pages/EventCreationPage';
 import EventRegistrationPage from '../pages/EventRegistrationPage'; // Usually for managing event attendees
 import WaitingApprovalPage from '../pages/WaitingApprovalPage';
+import NotFoundPage from '../pages/NotFoundPage';
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +70,9 @@ export const router = createBrowserRouter([
           { path: 'event/registration', element: <EventRegistrationPage /> },
         ],
       },
+
+      // 4. CATCH-ALL ROUTE (Not Found) 
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);
