@@ -1,100 +1,9 @@
-import React, { useState } from 'react';
-import { Search, MapPin, Star, Filter, ChevronDown, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car, Flame } from 'lucide-react';
-
-// Mock hotel data
-interface Hotel {
-  id: number;
-  name: string;
-  location: string;
-  pricePerNight: number;
-  rating: number;
-  reviewCount: number;
-  image: string;
-  stars: number;
-  badges?: string[];
-  featured?: boolean;
-  amenities?: string[];
-}
-
-const mockHotels: Hotel[] = [
-  {
-    id: 1,
-    name: "Grand Azure Resort",
-    location: "Maldives",
-    pricePerNight: 250,
-    rating: 4.9,
-    reviewCount: 1248,
-    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
-    stars: 5,
-    badges: ["All-inclusive", "Private beach", "Infinity pool"],
-    featured: true,
-    amenities: ["wifi", "pool", "breakfast", "spa", "beach"]
-  },
-  {
-    id: 2,
-    name: "The Urban Boutique",
-    location: "New York, USA",
-    pricePerNight: 180,
-    rating: 4.7,
-    reviewCount: 892,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
-    stars: 4,
-    badges: ["Free WiFi", "Gym", "Central location"],
-    amenities: ["wifi", "gym", "parking"]
-  },
-  {
-    id: 3,
-    name: "Coastal Haven Villa",
-    location: "Santorini, Greece",
-    pricePerNight: 320,
-    rating: 4.8,
-    reviewCount: 673,
-    image: "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?auto=format&fit=crop&w=800&q=80",
-    stars: 5,
-    badges: ["Sea view", "Breakfast included", "Spa"],
-    featured: true,
-    amenities: ["breakfast", "spa", "pool", "wifi"]
-  },
-  {
-    id: 4,
-    name: "Mountain Peak Lodge",
-    location: "Aspen, Colorado",
-    pricePerNight: 420,
-    rating: 4.9,
-    reviewCount: 532,
-    image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80",
-    stars: 5,
-    badges: ["Ski-in/Ski-out", "Fireplace", "Mountain view"],
-    amenities: ["wifi", "gym", "spa", "parking"]
-  },
-  {
-    id: 5,
-    name: "Downtown Loft Suites",
-    location: "Los Angeles, USA",
-    pricePerNight: 195,
-    rating: 4.6,
-    reviewCount: 445,
-    image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80",
-    stars: 4,
-    badges: ["Rooftop bar", "Pet friendly", "Modern design"],
-    amenities: ["wifi", "gym", "parking", "breakfast"]
-  },
-  {
-    id: 6,
-    name: "Tropical Paradise Resort",
-    location: "Bali, Indonesia",
-    pricePerNight: 165,
-    rating: 4.7,
-    reviewCount: 889,
-    image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80",
-    stars: 4,
-    badges: ["Jungle view", "Yoga classes", "Organic restaurant"],
-    featured: true,
-    amenities: ["pool", "spa", "breakfast", "wifi"]
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { Search, MapPin, Star, Filter, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car, Loader2 } from 'lucide-react';
+import { useGetHotelsQuery } from '../store/services/hotelApi';
 
 const HotelsPage: React.FC = () => {
+  const [page, setPage] = useState(1);
   const [priceRange, setPriceRange] = useState<[number, number]>([50, 500]);
   const [selectedStars, setSelectedStars] = useState<number[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
@@ -118,24 +27,32 @@ const HotelsPage: React.FC = () => {
     );
   };
 
-  const filteredHotels = mockHotels
-    .filter(h => {
-      const matchesPrice = h.pricePerNight >= priceRange[0] && h.pricePerNight <= priceRange[1];
-      const matchesStars = selectedStars.length === 0 || selectedStars.includes(h.stars);
-      const matchesAmenities = selectedAmenities.length === 0 || 
-        selectedAmenities.every(amenity => h.amenities?.includes(amenity));
-      const matchesSearch = searchQuery === '' || 
-        h.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        h.location.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      return matchesPrice && matchesStars && matchesAmenities && matchesSearch;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'price-low') return a.pricePerNight - b.pricePerNight;
-      if (sortBy === 'price-high') return b.pricePerNight - a.pricePerNight;
-      if (sortBy === 'rating') return b.rating - a.rating;
-      return 0;
-    });
+  // API Query
+  const { data: hotelsData, isLoading, isFetching } = useGetHotelsQuery({
+    page,
+    limit: 12,
+    search: searchQuery || undefined,
+    min_price: priceRange[0],
+    max_price: priceRange[1],
+    sort_by: sortBy === 'price-low' ? 'price_low' : sortBy === 'price-high' ? 'price_high' : undefined,
+  });
+
+  const hotels = hotelsData?.data || [];
+  const pagination = hotelsData?.pagination;
+
+  // Client-side filtering for features not supported by backend yet (Stars & Amenities)
+  const filteredHotels = hotels.filter(h => {
+    const matchesStars = selectedStars.length === 0 || selectedStars.includes(h.stars);
+    const matchesAmenities = selectedAmenities.length === 0 || 
+      selectedAmenities.every(amenity => h.amenities?.includes(amenity));
+    
+    return matchesStars && matchesAmenities;
+  });
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, priceRange, sortBy, selectedStars, selectedAmenities]);
 
   const clearFilters = () => {
     setPriceRange([50, 500]);
@@ -145,6 +62,23 @@ const HotelsPage: React.FC = () => {
 
   const activeFiltersCount = selectedStars.length + selectedAmenities.length + 
     (priceRange[0] !== 50 || priceRange[1] !== 500 ? 1 : 0);
+
+  const HotelImage = ({ src, alt }: { src: string; alt: string }) => {
+    const [imgSrc, setImgSrc] = useState(src);
+
+    useEffect(() => {
+      setImgSrc(src);
+    }, [src]);
+
+    return (
+      <img
+        src={imgSrc}
+        alt={alt}
+        onError={() => setImgSrc('https://placehold.co/800x600?text=No+Image')}
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+      />
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
@@ -424,7 +358,11 @@ const HotelsPage: React.FC = () => {
 
           {/* Results Grid */}
           <main className="flex-1">
-            {filteredHotels.length === 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="animate-spin text-indigo-600" size={48} />
+              </div>
+            ) : filteredHotels.length === 0 ? (
               <div className="glass rounded-2xl p-12 text-center">
                 <div className="text-6xl mb-4">🏨</div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-2">No hotels found</h3>
@@ -446,11 +384,7 @@ const HotelsPage: React.FC = () => {
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <div className="relative h-56 overflow-hidden">
-                        <img
-                          src={hotel.image}
-                          alt={hotel.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
+                        <HotelImage src={hotel.image} alt={hotel.name} />
                         
                         {/* Favorite Button */}
                         <button
@@ -541,23 +475,29 @@ const HotelsPage: React.FC = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex justify-center items-center mt-12 gap-2">
-                  <button className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-indigo-400 font-semibold transition-all disabled:opacity-50">
-                    Previous
-                  </button>
-                  <button className="px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold shadow-lg">
-                    1
-                  </button>
-                  <button className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-indigo-400 font-semibold transition-all">
-                    2
-                  </button>
-                  <button className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-indigo-400 font-semibold transition-all">
-                    3
-                  </button>
-                  <button className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-indigo-400 font-semibold transition-all">
-                    Next
-                  </button>
-                </div>
+                {pagination && pagination.lastPage > 1 && (
+                  <div className="flex justify-center items-center mt-12 gap-2">
+                    <button
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1 || isFetching}
+                      className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-indigo-400 font-semibold transition-all disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    
+                    <span className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl font-semibold">
+                      Page {pagination.currentPage} of {pagination.lastPage}
+                    </span>
+
+                    <button
+                      onClick={() => setPage(p => Math.min(pagination.lastPage, p + 1))}
+                      disabled={page === pagination.lastPage || isFetching}
+                      className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-indigo-400 font-semibold transition-all disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </main>
@@ -662,7 +602,7 @@ const HotelsPage: React.FC = () => {
               </div>
 
               {/* Apply Buttons */}
-              <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm pt-6 mt-8 border-t border-slate-200 space-y-3">
+              <div className="sticky bottom-0  bg-transparent  pt-6 mt-8 border-t border-slate-200 space-y-3">
                 <button
                   onClick={() => setShowFilters(false)}
                   className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
@@ -672,7 +612,7 @@ const HotelsPage: React.FC = () => {
                 {activeFiltersCount > 0 && (
                   <button
                     onClick={clearFilters}
-                    className="w-full border-2 border-slate-200 text-slate-700 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all"
+                    className="w-full glass border-2 border-slate-200 text-slate-700 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all"
                   >
                     Clear All Filters
                   </button>
