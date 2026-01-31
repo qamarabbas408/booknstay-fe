@@ -47,18 +47,17 @@ const HotelsPage: React.FC = () => {
     min_price: priceRange[0],
     max_price: priceRange[1],
     sort_by: sortBy === 'price-low' ? 'price_low' : sortBy === 'price-high' ? 'price_high' : undefined,
+    amenities: selectedAmenities,
   });
 
   const hotels = hotelsData?.data || [];
   const pagination = hotelsData?.pagination;
 
-  // Client-side filtering for features not supported by backend yet (Stars & Amenities)
+  // Client-side filtering for features not supported by backend yet (Stars)
   const filteredHotels = hotels.filter(h => {
     const matchesStars = selectedStars.length === 0 || selectedStars.includes(h.stars);
-    const matchesAmenities = selectedAmenities.length === 0 || 
-      selectedAmenities.every(amenity => h.amenities?.includes(amenity));
     
-    return matchesStars && matchesAmenities;
+    return matchesStars;
   });
 
   // Reset page when filters change

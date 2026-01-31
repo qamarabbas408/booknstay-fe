@@ -32,16 +32,24 @@ export interface HotelQueryParams {
   sort_by?: string;
   page?: number;
   limit?: number;
+  amenities?: string[];
 }
 
 export const hotelApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getHotels: builder.query<HotelsResponse, HotelQueryParams>({
-      query: (params) => ({
-        url: '/hotels',
-        method: 'GET',
-        params,
-      }),
+      query: (params) => {
+        const { amenities, ...rest } = params;
+        const queryParams: Record<string, any> = { ...rest };
+        if (amenities && amenities.length > 0) {
+          queryParams['amenities[]'] = amenities;
+        }
+        return {
+          url: '/hotels',
+          method: 'GET',
+          params: queryParams,
+        };
+      },
     }),
   }),
 });
