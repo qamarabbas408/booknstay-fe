@@ -1,97 +1,73 @@
 import { createBrowserRouter } from 'react-router-dom';
-import Homepage from '../pages/Homepage';
+import MainLayout from '../layouts/MainLayout';
 import ProtectedRoute from './ProtectedRoute';
+
+// Public Pages
+import Homepage from '../pages/Homepage';
 import LoginPage from '../pages/LoginPage';
-// import VendorRegisterationPage from '../pages/VendorRegisterationPage';
-import VendorRegisterationPage from '../pages/VendorRegistrationPage';
+import GuestRegistrationPage from '../pages/GuestRegistrationPage';
+import VendorRegistrationPage from '../pages/VendorRegistrationPage';
+import HelpCenter from '../pages/HelpCenter';
+
+// Listing Pages
+import HotelsPage from '../pages/HotelsPage';
 import HotelDetails from '../pages/HotelDetails';
 import EventsPage from '../pages/EventsPage';
 import EventDetails from '../pages/EventDetails';
-import MainLayout from '../layouts/MainLayout';
-import HotelsPage from '../pages/HotelsPage';
+
+// Guest Pages
 import MyBookingsPage from '../pages/MyBookingsPage';
-import EventRegistrationPage from '../pages/EventRegistrationPage';
-import EventCreationPage from '../pages/EventCreationPage';
-import VendorDashboardPage from '../pages/VendorDashboardPage';
-import HelpCenter from '../pages/HelpCenter';
 import AddBooking from '../pages/AddBooking';
-import GuestRegisterationPage from '../pages/GuestRegistrationPage';
+
+// Vendor Pages
+import VendorDashboardPage from '../pages/VendorDashboardPage';
+import EventCreationPage from '../pages/EventCreationPage';
+import EventRegistrationPage from '../pages/EventRegistrationPage'; // Usually for managing event attendees
+import WaitingApprovalPage from '../pages/WaitingApprovalPage';
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />,
     children: [
+      // 1. PUBLIC ROUTES
+      { index: true, element: <Homepage /> },
+      { path: 'login', element: <LoginPage /> },
+      { path: 'register/vendor', element: <VendorRegistrationPage /> },
+      { path: 'register/guest', element: <GuestRegistrationPage /> },
+      { path: 'help', element: <HelpCenter /> },
+
+      // Hotel Discovery
+      { path: 'hotels', element: <HotelsPage /> },
+      { path: 'hotel/:id', element: <HotelDetails /> },
+
+      // Event Discovery
+      { path: 'events', element: <EventsPage /> },
+      { path: 'event/:id', element: <EventDetails /> },
+
+      // Waiting 
+      { path: 'registration-pending', element: <WaitingApprovalPage/> },
+
+
+      // 2. GUEST PROTECTED ROUTES (Need to be logged in as 'guest' or 'vendor')
       {
-        index: true,
-        element: <Homepage />,
+        element: <ProtectedRoute allowedRoles={['guest', 'vendor']} />,
+        children: [
+          { path: 'bookings', element: <MyBookingsPage /> },
+          { path: 'booking/add', element: <AddBooking /> },
+        ],
       },
+
+      // 3. VENDOR PROTECTED ROUTES (Specifically for business management)
       {
-        path: 'hotel/:id',
-        element: <HotelDetails />,
-      },
-        {
-        path: 'hotels',
-        element: <HotelsPage />,
-      },
-      {
-        path: 'login',
-        element: <LoginPage />,
-      },
-       {
-        path: 'register/vendor',
-        element: <VendorRegisterationPage />,
-      },
-      { 
-        path: '/register/guest',
-        element: <GuestRegisterationPage />,
-      },
-       {
-        path: 'events',
-        element: <EventsPage />,
-      },
-       {
-        path: 'event/:id',
-        element: <EventDetails />,
-      },
-      {
-        path: 'bookings',
-        element: <MyBookingsPage />,
-      },
-      //variant to add booking / create 
-       {
-        path: 'booking/add',
-        element: <AddBooking />,
-      },
-       {
-        path: 'event/registration',
-        element: <EventRegistrationPage />,
-      },
-      {
-        path: 'event/create',
-        element: <EventCreationPage />,
-      },
-      {
-        path: 'v/dashboard',
-        element: <VendorDashboardPage />,
-      },
-      {
-        path: 'help',
-        element: <HelpCenter />,
-      },
-    ],
-  },
-  // Protected Vendor Routes
-  {
-    path: '/vendor',
-    element: <ProtectedRoute allowedRoles={['vendor']} />,
-    children: [
-      {
-        path: 'dashboard',
-        element: <VendorDashboardPage />,
-      },
-      {
-        path: 'hotels',
-        element: <div className="p-20">Manage Hotels</div>,
+        path: 'vendor',
+        element: <ProtectedRoute allowedRoles={['vendor']} />,
+        children: [
+          { path: 'dashboard', element: <VendorDashboardPage /> },
+          { path: 'hotels', element: <div className="p-20">Manage My Hotels</div> },
+          { path: 'event/create', element: <EventCreationPage /> },
+          { path: 'event/registration', element: <EventRegistrationPage /> },
+        ],
       },
     ],
   },

@@ -3,9 +3,6 @@ import axios, { type AxiosRequestConfig, AxiosError } from 'axios';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
 const axiosInstance = axios.create({
   baseURL: APIENDPOINTS.base_url, // Your future backend URL
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Axios Interceptor for Auth (Optional but recommended)
@@ -24,13 +21,22 @@ export const axiosBaseQuery =
       method: AxiosRequestConfig['method'];
       data?: AxiosRequestConfig['data'];
       params?: AxiosRequestConfig['params'];
+      headers?: AxiosRequestConfig['headers']; // Add this
     },
     unknown,
     unknown
   > =>
-  async ({ url, method, data, params }) => {
+  async ({ url, method, data, params, headers }) => { // Add headers here
     try {
-      const result = await axiosInstance({ url, method, data, params });
+      // Axios will now automatically detect FormData in 'data' 
+      // and set the correct Content-Type if we don't force it to JSON
+      const result = await axiosInstance({ 
+        url, 
+        method, 
+        data, 
+        params, 
+        headers 
+      });
       return { data: result.data };
     } catch (axiosError) {
       let err = axiosError as AxiosError;

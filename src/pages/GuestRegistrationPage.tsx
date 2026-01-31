@@ -6,7 +6,7 @@ import {
   Sparkles, ChevronRight, Heart, Compass, Music, 
   Palmtree, Map, ShieldCheck, Wind, Briefcase, Loader2
 } from 'lucide-react';
-import { useRegisterMutation } from '../store/services/AuthApi';
+import { useRegisterGuestMutation } from '../store/services/AuthApi';
 import { useGetInterestsQuery } from '../store/services/miscApi';
 
 interface GuestFormData {
@@ -50,7 +50,7 @@ const GuestRegisterationPage: React.FC = () => {
   });
 
   const navigate = useNavigate();
-  const [register, { isLoading: isRegistering }] = useRegisterMutation();
+  const [register, { isLoading: isRegistering }] = useRegisterGuestMutation();
   const { data: interests, isLoading: isLoadingInterests } = useGetInterestsQuery();
 
   const totalSteps = 3;

@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Building2, Mail, Phone, MapPin, User, Lock, Upload, CheckCircle, AlertCircle, Globe, DollarSign, Image, FileText, Sparkles, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+import { useRegisterVendorMutation } from '../store/services/AuthApi';
+
+import { ArrowLeft, Building2, Mail, Phone, MapPin, User, Lock, Upload, CheckCircle, AlertCircle, Globe, DollarSign, Image, FileText, Sparkles, ChevronRight, Loader2 } from 'lucide-react';
 
 interface FormData {
   // Step 1: Business Information
@@ -47,8 +51,10 @@ const VendorRegisterationPage: React.FC = () => {
     password: '',
     confirmPassword: ''
   });
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+  const navigate = useNavigate();
+  const [register, { isLoading: isRegistering }] = useRegisterVendorMutation();
 
   const totalSteps = 4;
 
@@ -58,19 +64,63 @@ const VendorRegisterationPage: React.FC = () => {
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files).map(f => f.name);
+      const newFiles = Array.from(e.target.files);
       setUploadedFiles(prev => [...prev, ...newFiles]);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert('Registration successful! Welcome to BookNStay Partners.');
-    }, 2000);
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+
+
+    const registrationData = new FormData();
+    registrationData.append('ownerName', formData.ownerName);
+    registrationData.append('email', formData.email);
+    registrationData.append('password', formData.password);
+    registrationData.append('password_confirmation', formData.confirmPassword);
+    registrationData.append('role', 'vendor');
+
+    registrationData.append('businessName', formData.businessName);
+    registrationData.append('businessType', formData.businessType);
+    registrationData.append('phone', formData.phone);
+    if (formData.website) {
+      registrationData.append('website', formData.website);
+    }
+    registrationData.append('address', formData.address);
+    registrationData.append('city', formData.city);
+    registrationData.append('country', formData.country);
+    registrationData.append('zipCode', formData.zipCode);
+    registrationData.append('description', formData.description);
+    if (formData.rooms) {
+      registrationData.append('rooms', formData.rooms.toString());
+    }
+    if (formData.capacity) {
+      registrationData.append('capacity', formData.capacity.toString());
+    }
+    registrationData.append('priceRange', formData.priceRange);
+
+    uploadedFiles.forEach(file => {
+      registrationData.append('images[]', file);
+    });
+
+    for (let pair of registrationData.entries()) {
+    console.log(pair[0] + ': ' + pair[1]);
+}
+
+    try {
+      await register(registrationData).unwrap();
+      toast.success('Registration successful! Welcome to BookNStay Partners.');
+      navigate('/vendor/dashboard');
+    } catch (err: any)
+     {
+      console.error('Failed to register:', err);
+      const errorMessages = err.data?.errors ? Object.values(err.data.errors).flat().join('\n') : 'Registration failed. Please try again.';
+      toast.error(errorMessages, { duration: 4000 });
+    }
   };
 
   const nextStep = () => {
@@ -83,6 +133,7 @@ const VendorRegisterationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      <Toaster position="top-center" />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -536,10 +587,10 @@ const VendorRegisterationPage: React.FC = () => {
                   {uploadedFiles.length > 0 && (
                     <div className="mt-4 space-y-2">
                       {uploadedFiles.map((file, idx) => (
-                        <div key={idx} className="flex items-center justify-between bg-indigo-50 px-4 py-3 rounded-lg">
-                          <div className="flex items-center">
+                        <div key={idx} className="flex items-center justify-between bg-indigo-50 px-4 py-3 rounded-lg overflow-hidden">
+                          <div className="flex items-center overflow-hidden">
                             <Image size={18} className="text-indigo-600 mr-3" />
-                            <span className="text-sm text-slate-700 font-medium">{file}</span>
+                            <span className="text-sm text-slate-700 font-medium truncate">{file.name}</span>
                           </div>
                           <CheckCircle size={18} className="text-green-600" />
                         </div>
@@ -682,11 +733,12 @@ const VendorRegisterationPage: React.FC = () => {
               ) : (
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isRegistering}
                   className="px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                 >
-                  {isSubmitting ? (
+                  {isRegistering ? (
                     <>
+                      <Loader2 className="mr-2 animate-spin" size={20} />
                       <span className="animate-pulse">Processing...</span>
                     </>
                   ) : (
@@ -705,9 +757,9 @@ const VendorRegisterationPage: React.FC = () => {
         <div className="mt-8 text-center">
           <p className="text-slate-600">
             Need help?{' '}
-            <a href="#" className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline">
+            <Link to="/help" className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline">
               Contact our partner team
-            </a>
+            </Link>
           </p>
         </div>
       </div>

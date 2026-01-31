@@ -41,9 +41,16 @@ export const authApi = api.injectEndpoints({
         data: credentials,
       }),
     }),
-    register: builder.mutation<AuthResponse, RegisterRequest>({
+    registerVendor: builder.mutation<AuthResponse, RegisterRequest | FormData>({
       query: (credentials) => ({
-        url: APIENDPOINTS.ENDPOINTS.register,
+        url: APIENDPOINTS.ENDPOINTS.registerVendor,
+        method: 'POST',
+        data: credentials,
+      }),
+    }),
+    registerGuest : builder.mutation<AuthResponse, RegisterRequest | FormData>({
+      query: (credentials) => ({
+        url: APIENDPOINTS.ENDPOINTS.registerGuest,
         method: 'POST',
         data: credentials,
       }),
@@ -51,4 +58,4 @@ export const authApi = api.injectEndpoints({
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation } = authApi;
+export const { useLoginMutation, useRegisterVendorMutation,useRegisterGuestMutation } = authApi;

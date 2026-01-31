@@ -308,7 +308,7 @@ const EventDetails = () => {
                   {ticketTypes.map((ticket) => (
                     <div
                       key={ticket.id}
-                      onClick={() => setSelectedTicket(ticket.id)}
+                      // onClick={() => setSelectedTicket(ticket.id)}s
                       className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
                         selectedTicket === ticket.id
                           ? 'border-purple-500 bg-purple-50'

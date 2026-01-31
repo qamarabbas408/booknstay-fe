@@ -1,3 +1,5 @@
+import WaitingApprovalPage from "../pages/WaitingApprovalPage";
+
 export const AppRoutes = {
     login :"/login",
     register :"/register",
@@ -10,6 +12,7 @@ export const AppRoutes = {
     vendorBookings : "vendor/bookings",
     vendorProfile : "vendor/profile",
     vendorSettings : "vendor/settings",
+    registrationPending: "/registration-pending"
 
 
 }

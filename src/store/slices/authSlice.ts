@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { authApi } from '../services/AuthApi';
-import  type { User } from '../services/AuthApi';
+import type { User } from '../services/AuthApi';
 
 
 interface AuthState {
@@ -10,10 +10,11 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
+
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  user: null,
+  token: null,
+  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
@@ -28,15 +29,11 @@ const authSlice = createSlice({
       state.user = user;
       state.token = access_token;
       state.isAuthenticated = true;
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
     },
   },
   extraReducers: (builder) => {
@@ -45,15 +42,14 @@ const authSlice = createSlice({
         state.token = payload.access_token;
         state.user = payload.user;
         state.isAuthenticated = true;
-        localStorage.setItem('token', payload.access_token);
-        localStorage.setItem('user', JSON.stringify(payload.user));
       })
-      .addMatcher(authApi.endpoints.register.matchFulfilled, (state, { payload }) => {
+      .addMatcher(authApi.endpoints.registerGuest.matchFulfilled, (state, { payload }) => {
         state.token = payload.access_token;
         state.user = payload.user;
         state.isAuthenticated = true;
-        localStorage.setItem('token', payload.access_token);
-        localStorage.setItem('user', JSON.stringify(payload.user));
+        // localStorage.setItem('token', payload.access_token);
+        // localStorage.setItem('user', JSON.stringify(payload.user));
+        // state.isAuthenticated = true;
       });
   },
 });
