@@ -11,6 +11,7 @@ const HotelsPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('recommended');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<number[]>([]);
   
   const { data: amenitiesData } = useGetAmenitiesQuery();
@@ -30,11 +31,19 @@ const HotelsPage: React.FC = () => {
     );
   };
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // API Query
   const { data: hotelsData, isLoading, isFetching } = useGetHotelsQuery({
     page,
     limit: 12,
-    search: searchQuery || undefined,
+    search: debouncedSearchQuery || undefined,
     min_price: priceRange[0],
     max_price: priceRange[1],
     sort_by: sortBy === 'price-low' ? 'price_low' : sortBy === 'price-high' ? 'price_high' : undefined,
@@ -55,7 +64,7 @@ const HotelsPage: React.FC = () => {
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [searchQuery, priceRange, sortBy, selectedStars, selectedAmenities]);
+  }, [debouncedSearchQuery, priceRange, sortBy, selectedStars, selectedAmenities]);
 
   const clearFilters = () => {
     setPriceRange([50, 500]);
