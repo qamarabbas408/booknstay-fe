@@ -48,17 +48,13 @@ const HotelsPage: React.FC = () => {
     max_price: priceRange[1],
     sort_by: sortBy === 'price-low' ? 'price_low' : sortBy === 'price-high' ? 'price_high' : undefined,
     amenities: selectedAmenities,
+    stars: selectedStars,
   });
 
   const hotels = hotelsData?.data || [];
   const pagination = hotelsData?.pagination;
 
-  // Client-side filtering for features not supported by backend yet (Stars)
-  const filteredHotels = hotels.filter(h => {
-    const matchesStars = selectedStars.length === 0 || selectedStars.includes(h.stars);
-    
-    return matchesStars;
-  });
+  const filteredHotels = hotels;
 
   // Reset page when filters change
   useEffect(() => {
