@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag } from 'lucide-react';
+import { useGetEventCategoriesQuery } from '../store/services/miscApi';
 
 interface TicketType {
   id: number;
@@ -22,7 +23,8 @@ const EventCreationPage = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
 
-  const categories = ['Music', 'Technology', 'Food & Wine', 'Art & Culture', 'Sports', 'Business', 'Comedy', 'Film'];
+  const { data: categoriesData, isLoading: isLoadingCategories } = useGetEventCategoriesQuery();
+  const categories = categoriesData?.data || [];
 
   const addTicketType = () => {
     const newId = tickets.length ? Math.max(...tickets.map(t => t.id)) + 1 : 1;
@@ -96,25 +98,7 @@ const EventCreationPage = () => {
         }
       `}</style>
 
-      {/* Navigation */}
-      <nav className="glass sticky top-0 z-50 border-b border-white/40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button className="flex items-center text-slate-700 font-semibold hover:text-purple-600 transition-colors">
-            <ChevronLeft size={20} className="mr-1" />
-            Back to Events
-          </button>
-          
-          <div className="text-2xl font-display bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            BookNStay
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <button className="hidden md:block text-slate-700 font-semibold px-5 py-2 hover:bg-slate-100 rounded-xl transition-colors">
-              Help Center
-            </button>
-          </div>
-        </div>
-      </nav>
+    
 
       <div className="max-w-7xl mx-auto px-6 py-10">
         {/* Header */}
@@ -167,11 +151,12 @@ const EventCreationPage = () => {
                   <select
                     value={category}
                     onChange={e => setCategory(e.target.value)}
-                    className="w-full p-4 rounded-xl border-2 border-slate-200 transition-all bg-white"
+                    className="w-full p-4 rounded-xl border-2 border-slate-200 transition-all bg-white disabled:opacity-50"
+                    disabled={isLoadingCategories}
                   >
-                    <option value="">Select a category</option>
+                    <option value="">{isLoadingCategories ? 'Loading categories...' : 'Select a category'}</option>
                     {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
                 </div>
@@ -439,7 +424,7 @@ const EventCreationPage = () => {
                   </div>
                   <div className="bg-indigo-50 p-3 rounded-lg">
                     <p className="text-xs text-indigo-600 font-semibold mb-1">CATEGORY</p>
-                    <p className="text-slate-900 font-bold">{category || 'Not selected'}</p>
+                    <p className="text-slate-900 font-bold">{categories.find(c => c.id.toString() === category)?.name || 'Not selected'}</p>
                   </div>
                   <div className="bg-pink-50 p-3 rounded-lg">
                     <p className="text-xs text-pink-600 font-semibold mb-1">DATE & TIME</p>
