@@ -5,6 +5,7 @@ import { useGetEventsQuery } from '../store/services/eventApi';
 import EventFilters from '../components/EventFilters';
 import {type FilterState } from '../components/EventFilters';
 import PulseLoader from '../components/PulseLoader';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const EventsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Events');
@@ -284,8 +285,10 @@ const EventsPage = () => {
 
         {/* Events Grid */}
         {isEventsLoading ? (
-          <div className="flex justify-center py-20">
-            <PulseLoader />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <SkeletonLoader key={i} type="event" />
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

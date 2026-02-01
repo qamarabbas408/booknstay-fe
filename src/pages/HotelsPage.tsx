@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Star, Filter, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car } from 'lucide-react';
 import { useGetHotelsQuery } from '../store/services/hotelApi';
 import { useGetAmenitiesQuery } from '../store/services/miscApi';
-import PulseLoader from '../components/PulseLoader';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const HotelsPage: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -384,8 +384,10 @@ const HotelsPage: React.FC = () => {
           {/* Results Grid */}
           <main className="flex-1">
             {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <PulseLoader />
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <SkeletonLoader key={i} type="hotel" />
+                ))}
               </div>
             ) : filteredHotels.length === 0 ? (
               <div className="glass rounded-2xl p-12 text-center">

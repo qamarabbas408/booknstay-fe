@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Calendar, MapPin, Star, Ticket, ChevronRight, Sparkles, TrendingUp } from 'lucide-react';
+import { useGetHotelsQuery } from '../store/services/hotelApi';
+import { useGetEventsQuery } from '../store/services/eventApi';
+import PulseLoader from '../components/PulseLoader';
 
 // Mock data interfaces for type safety
 interface Item {
@@ -14,64 +18,6 @@ interface Item {
   featured?: boolean;
 }
 
-const featuredItems: Item[] = [
-  {
-    id: 1,
-    type: 'hotel',
-    title: "Grand Azure Resort",
-    location: "Maldives",
-    price: "$250/night",
-    rating: 4.9,
-    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
-    featured: true
-  },
-  {
-    id: 2,
-    type: 'event',
-    title: "Summer Music Festival",
-    location: "Wembley Arena",
-    price: "$85",
-    date: "Aug 15",
-    image: "https://images.unsplash.com/photo-1459749411177-042180ce673c?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 3,
-    type: 'hotel',
-    title: "The Urban Boutique",
-    location: "New York, USA",
-    price: "$180/night",
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 4,
-    type: 'event',
-    title: "Tech Innovation Expo",
-    location: "Silicon Valley",
-    price: "$120",
-    date: "Sept 10",
-    image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 5,
-    type: 'hotel',
-    title: "Coastal Haven Villa",
-    location: "Santorini, Greece",
-    price: "$320/night",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 6,
-    type: 'event',
-    title: "International Film Festival",
-    location: "Cannes, France",
-    price: "$200",
-    date: "Oct 5",
-    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80"
-  }
-];
-
 const categories = [
   { name: 'Luxury Hotels', icon: '✨', color: 'from-amber-500 to-orange-600' },
   { name: 'Music Events', icon: '🎵', color: 'from-purple-500 to-pink-600' },
@@ -80,12 +26,41 @@ const categories = [
 ];
 
 const Homepage: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'all' | 'hotels' | 'events'>('all');
   const [searchFocus, setSearchFocus] = useState(false);
 
+  const { data: hotelsData, isLoading: isLoadingHotels } = useGetHotelsQuery({ limit: 3 });
+  const { data: eventsData, isLoading: isLoadingEvents } = useGetEventsQuery({ limit: 3 });
+
+  const hotels: Item[] = hotelsData?.data?.map((hotel) => ({
+    id: hotel.id,
+    type: 'hotel',
+    title: hotel.name,
+    location: hotel.location,
+    price: `$${hotel.pricePerNight}/night`,
+    rating: hotel.rating,
+    image: hotel.image,
+    featured: hotel.featured,
+  })) || [];
+
+  const events: Item[] = eventsData?.data?.map((event) => ({
+    id: event.id,
+    type: 'event',
+    title: event.title,
+    location: event.location,
+    price: event.price,
+    rating: event.rating,
+    image: event.image,
+    date: event.start_date,
+    featured: event.featured,
+  })) || [];
+
   const filteredItems = activeTab === 'all' 
-    ? featuredItems 
-    : featuredItems.filter(item => activeTab === 'hotels' ? item.type === 'hotel' : item.type === 'event');
+    ? [...hotels, ...events]
+    : activeTab === 'hotels' ? hotels : events;
+
+  const isLoading = isLoadingHotels || isLoadingEvents;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
@@ -204,96 +179,108 @@ const Homepage: React.FC = () => {
         </div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredItems.map((item, idx) => (
-            <div 
-              key={item.id} 
-              className="bg-white rounded-3xl overflow-hidden shadow-md card-hover cursor-pointer border border-slate-100 animate-fadeInUp"
-              style={{animationDelay: `${idx * 0.1}s`}}
-            >
-              <div className="relative h-64 overflow-hidden group">
-                <img 
-                  src={item.image} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
-                {/* Type Badge */}
-                <div className="absolute top-4 left-4">
-                  <div className={`glass px-4 py-2 rounded-full backdrop-blur-md ${
-                    item.type === 'hotel' 
-                      ? 'bg-emerald-500/90' 
-                      : 'bg-purple-500/90'
-                  }`}>
-                    <span className="text-white text-xs font-bold uppercase tracking-wider">
-                      {item.type}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Featured Badge */}
-                {item.featured && (
-                  <div className="absolute top-4 right-4 bg-linear-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full">
-                    <span className="text-white text-xs font-bold flex items-center">
-                      <Sparkles size={12} className="mr-1" />
-                      Featured
-                    </span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-bold text-xl text-slate-900 leading-tight pr-2">{item.title}</h3>
-                  {item.rating && (
-                    <div className="flex items-center bg-amber-50 px-2.5 py-1 rounded-lg flex-shrink-0">
-                      <Star size={14} fill="#f59e0b" className="text-amber-500 mr-1" />
-                      <span className="text-sm font-bold text-amber-700">{item.rating}</span>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex items-center text-slate-500 text-sm mb-2">
-                  <MapPin size={16} className="mr-1.5 text-slate-400" />
-                  <span>{item.location}</span>
-                </div>
-                
-                {item.date && (
-                  <div className="flex items-center text-indigo-600 text-sm mb-4 font-semibold">
-                    <Calendar size={16} className="mr-1.5" />
-                    <span>{item.date}</span>
-                  </div>
-                )}
-                
-                <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-4">
-                  <div>
-                    <div className="text-sm text-slate-500 mb-0.5">From</div>
-                    <div className="text-2xl font-display text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-purple-600">
-                      {item.price}
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <PulseLoader />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredItems.map((item, idx) => (
+              <div 
+                key={`${item.type}-${item.id}`} 
+                className="bg-white rounded-3xl overflow-hidden shadow-md card-hover cursor-pointer border border-slate-100 animate-fadeInUp"
+                style={{animationDelay: `${idx * 0.1}s`}}
+              >
+                <div className="relative h-64 overflow-hidden group">
+                  <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://placehold.co/800x600?text=No+Image';
+                    }}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  {/* Type Badge */}
+                  <div className="absolute top-4 left-4">
+                    <div className={`glass px-4 py-2 rounded-full backdrop-blur-md ${
+                      item.type === 'hotel' 
+                        ? 'bg-emerald-500/90' 
+                        : 'bg-purple-500/90'
+                    }`}>
+                      <span className="text-white text-xs font-bold uppercase tracking-wider">
+                        {item.type}
+                      </span>
                     </div>
                   </div>
                   
-                  {item.type === 'event' ? (
-                    <button className="flex items-center font-bold bg-linear-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
-                      <Ticket size={18} className="mr-2 group-hover:rotate-12 transition-transform" />
-                      Get Tickets
-                    </button>
-                  ) : (
-                    <button className="flex items-center font-bold text-slate-700 hover:text-indigo-600 transition-colors group">
-                      <span>Book Now</span>
-                      <ChevronRight size={20} className="ml-1 group-hover:translate-x-1 transition-transform" />
-                    </button>
+                  {/* Featured Badge */}
+                  {item.featured && (
+                    <div className="absolute top-4 right-4 bg-linear-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full">
+                      <span className="text-white text-xs font-bold flex items-center">
+                        <Sparkles size={12} className="mr-1" />
+                        Featured
+                      </span>
+                    </div>
                   )}
                 </div>
+                
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-bold text-xl text-slate-900 leading-tight pr-2">{item.title}</h3>
+                    {item.rating && (
+                      <div className="flex items-center bg-amber-50 px-2.5 py-1 rounded-lg flex-shrink-0">
+                        <Star size={14} fill="#f59e0b" className="text-amber-500 mr-1" />
+                        <span className="text-sm font-bold text-amber-700">{item.rating}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center text-slate-500 text-sm mb-2">
+                    <MapPin size={16} className="mr-1.5 text-slate-400" />
+                    <span>{item.location}</span>
+                  </div>
+                  
+                  {item.date && (
+                    <div className="flex items-center text-indigo-600 text-sm mb-4 font-semibold">
+                      <Calendar size={16} className="mr-1.5" />
+                      <span>{item.date}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-4">
+                    <div>
+                      <div className="text-sm text-slate-500 mb-0.5">From</div>
+                      <div className="text-2xl font-display text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-purple-600">
+                        {item.price}
+                      </div>
+                    </div>
+                    
+                    {item.type === 'event' ? (
+                      <button className="flex items-center font-bold bg-linear-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
+                        <Ticket size={18} className="mr-2 group-hover:rotate-12 transition-transform" />
+                        Get Tickets
+                      </button>
+                    ) : (
+                      <button className="flex items-center font-bold bg-linear-to-r from-indigo-600 to-blue-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
+                        <span>Book Now</span>
+                        <ChevronRight size={20} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Load More */}
         <div className="text-center mt-12">
-          <button className="bg-slate-900 text-white px-10 py-4 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl">
+          <button 
+            onClick={() => navigate(activeTab === 'events' ? '/events' : '/hotels')}
+            className="bg-slate-900 text-white px-10 py-4 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl"
+          >
             Discover More Experiences
           </button>
         </div>
