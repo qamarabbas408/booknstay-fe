@@ -188,7 +188,7 @@ const EventCreationPage = () => {
                   <div>
                     <label className="block text-slate-700 font-semibold mb-2">
                       <Calendar size={16} className="inline mr-2 text-purple-600" />
-                      Event Date *
+                      Start Date *
                     </label>
                     <input
                       type="date"
@@ -201,6 +201,32 @@ const EventCreationPage = () => {
                     <label className="block text-slate-700 font-semibold mb-2">
                       <Clock size={16} className="inline mr-2 text-purple-600" />
                       Start Time
+                    </label>
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={e => setTime(e.target.value)}
+                      className="w-full p-4 rounded-xl border-2 border-slate-200 transition-all bg-white"
+                    />
+                  </div>
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-2">
+                      <Calendar size={16} className="inline mr-2 text-purple-600" />
+                       End Date 
+                    </label>
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={e => setDate(e.target.value)}
+                      className="w-full p-4 rounded-xl border-2 border-slate-200 transition-all bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-2">
+                      <Clock size={16} className="inline mr-2 text-purple-600" />
+                      End Time
                     </label>
                     <input
                       type="time"
