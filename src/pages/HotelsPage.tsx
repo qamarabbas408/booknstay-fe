@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Star, Filter, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car, Loader2 } from 'lucide-react';
+import { Search, MapPin, Star, Filter, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car } from 'lucide-react';
 import { useGetHotelsQuery } from '../store/services/hotelApi';
 import { useGetAmenitiesQuery } from '../store/services/miscApi';
+import PulseLoader from '../components/PulseLoader';
 
 const HotelsPage: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -384,7 +385,7 @@ const HotelsPage: React.FC = () => {
           <main className="flex-1">
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
-                <Loader2 className="animate-spin text-indigo-600" size={48} />
+                <PulseLoader />
               </div>
             ) : filteredHotels.length === 0 ? (
               <div className="glass rounded-2xl p-12 text-center">

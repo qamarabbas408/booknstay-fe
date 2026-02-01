@@ -4,10 +4,11 @@ import { CustomToaster, showToast } from '../components/CustomToaster';
 import { 
   ArrowLeft, Mail, Phone, User, Lock, CheckCircle, 
   Sparkles, ChevronRight, Heart, Compass, Music, 
-  Palmtree, Map, ShieldCheck, Wind, Briefcase, Loader2
+  Palmtree, Map, ShieldCheck, Wind, Briefcase
 } from 'lucide-react';
 import { useRegisterGuestMutation } from '../store/services/AuthApi';
 import { useGetInterestsQuery } from '../store/services/miscApi';
+import PulseLoader from '../components/PulseLoader';
 
 interface GuestFormData {
   // Step 1: Personal Info
@@ -239,7 +240,7 @@ const GuestRegisterationPage: React.FC = () => {
 
                     {isLoadingInterests ? (
                       <div className="flex justify-center items-center h-48">
-                        <Loader2 className="animate-spin text-indigo-600" size={32} />
+                        <PulseLoader />
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-3">

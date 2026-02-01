@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, MapPin, Star, Ticket, ChevronRight, Sparkles, Filter, Clock, Music, Users, Zap, ChevronDown, ChevronUp, Loader2, X } from 'lucide-react';
+import { Search, Calendar, MapPin, Star, Ticket, ChevronRight, Sparkles, Filter, Clock, Music, Users, Zap, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useGetEventCategoriesQuery } from '../store/services/miscApi';
 import { useGetEventsQuery } from '../store/services/eventApi';
 import EventFilters from '../components/EventFilters';
 import {type FilterState } from '../components/EventFilters';
+import PulseLoader from '../components/PulseLoader';
 
 const EventsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Events');
@@ -218,7 +219,7 @@ const EventsPage = () => {
       <section className="max-w-7xl mx-auto px-6 -mt-8 relative z-20">
         {isCategoriesLoading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="animate-spin text-white" size={32} />
+            <PulseLoader />
           </div>
         ) : (
           <>
@@ -284,7 +285,7 @@ const EventsPage = () => {
         {/* Events Grid */}
         {isEventsLoading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin text-purple-600" size={48} />
+            <PulseLoader />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
