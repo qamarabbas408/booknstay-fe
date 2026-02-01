@@ -191,7 +191,7 @@ const GetTicketsModal: React.FC = () => {
                 alt={eventData.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40"></div>
+              <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/80 to-slate-900/40"></div>
             </div>
             
             <div className="relative z-10 p-8 lg:p-10 flex flex-col justify-between h-full min-h-[400px] lg:min-h-[600px]">
@@ -266,7 +266,7 @@ const GetTicketsModal: React.FC = () => {
                             <div className="flex items-center space-x-3 mb-2">
                               <h4 className="text-xl font-bold text-slate-900">{tier.name}</h4>
                               {tier.id === 'platinum' && (
-                                <span className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${tier.color}`}>
+                                <span className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-linear-to-r ${tier.color}`}>
                                   BEST VALUE
                                 </span>
                               )}
@@ -283,7 +283,7 @@ const GetTicketsModal: React.FC = () => {
                           </div>
                           
                           <div className="text-right ml-4">
-                            <div className="text-3xl font-display text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                            <div className="text-3xl font-display text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-purple-600">
                               ${tier.price}
                             </div>
                             <div className="text-sm text-slate-500">per ticket</div>
@@ -330,7 +330,7 @@ const GetTicketsModal: React.FC = () => {
 
                   {/* Promo Code */}
                   <div className="mb-8">
-                    <div className="flex items-center space-x-2 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+                    <div className="flex items-center space-x-2 p-4 bg-linear-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
                       <Tag size={20} className="text-indigo-600" />
                       <input
                         type="text"
@@ -363,7 +363,7 @@ const GetTicketsModal: React.FC = () => {
                     
                     <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
                       <span className="text-lg font-bold text-slate-900">Total</span>
-                      <span className="text-3xl font-display text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                      <span className="text-3xl font-display text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-purple-600">
                         ${finalTotal.toFixed(2)}
                       </span>
                     </div>
@@ -372,7 +372,7 @@ const GetTicketsModal: React.FC = () => {
                   {/* Continue Button */}
                   <button
                     onClick={() => setStep('checkout')}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-5 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 flex items-center justify-center group"
+                    className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-5 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 flex items-center justify-center group"
                   >
                     <span>Continue to Checkout</span>
                     <ChevronRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
@@ -471,10 +471,10 @@ const GetTicketsModal: React.FC = () => {
                     </div>
 
                     {/* Order Summary in Checkout */}
-                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
+                    <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-semibold text-slate-700">Order Total</span>
-                        <span className="text-3xl font-display text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                        <span className="text-3xl font-display text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-purple-600">
                           ${finalTotal.toFixed(2)}
                         </span>
                       </div>
@@ -485,7 +485,7 @@ const GetTicketsModal: React.FC = () => {
 
                     <button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-5 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40"
+                      className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-5 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40"
                     >
                       Complete Purchase
                     </button>

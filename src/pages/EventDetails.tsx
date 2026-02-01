@@ -34,7 +34,7 @@ const EventDetails = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -116,7 +116,7 @@ const EventDetails = () => {
           alt="Event" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent"></div>
         
         <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-6 pb-8">
           <div className="flex flex-wrap gap-2 mb-4">
@@ -152,7 +152,7 @@ const EventDetails = () => {
           {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-8 animate-slideUp">
             {/* Quick Info */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
+            <div className="bg-linear-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <div className="bg-amber-50 px-3 py-1.5 rounded-lg flex items-center">
@@ -196,7 +196,7 @@ const EventDetails = () => {
               <div className="space-y-3">
                 {schedule.map((item, idx) => (
                   <div key={idx} className="bg-white rounded-xl p-5 border border-slate-200 flex items-start space-x-4">
-                    <div className="bg-gradient-to-br from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg font-bold text-sm flex-shrink-0">
+                    <div className="bg-linear-to-br from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg font-bold text-sm flex-shrink-0">
                       {item.time}
                     </div>
                     <div>
@@ -363,7 +363,7 @@ const EventDetails = () => {
                   disabled={!selectedTicket}
                   className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center ${
                     selectedTicket
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
+                      ? 'bg-linear-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
@@ -392,7 +392,7 @@ const EventDetails = () => {
               </div>
 
               {/* Guarantee Badge */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+              <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
                 <div className="flex items-start space-x-3">
                   <div className="bg-green-500 rounded-full p-2 flex-shrink-0">
                     <CheckCircle size={20} className="text-white" />

@@ -237,8 +237,8 @@ const Navbar: React.FC = () => {
                   >
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white border-2 ${
                       user.role === 'vendor' 
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 border-purple-300' 
-                        : 'bg-gradient-to-r from-indigo-600 to-blue-600 border-indigo-300'
+                        ? 'bg-linear-to-r from-purple-600 to-pink-600 border-purple-300' 
+                        : 'bg-linear-to-r from-indigo-600 to-blue-600 border-indigo-300'
                     }`}>
                       {user.role === 'vendor' ? <Building2 size={18} /> : <User size={18} />}
                     </div>
@@ -254,14 +254,14 @@ const Navbar: React.FC = () => {
                       {/* Profile Header */}
                       <div className={`px-5 py-4 ${
                         user.role === 'vendor' 
-                          ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100' 
-                          : 'bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-indigo-100'
+                          ? 'bg-linear-to-r from-purple-50 to-pink-50 border-b border-purple-100' 
+                          : 'bg-linear-to-r from-indigo-50 to-blue-50 border-b border-indigo-100'
                       }`}>
                         <div className="flex items-center space-x-3 mb-2">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white ${
                             user.role === 'vendor' 
-                              ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
-                              : 'bg-gradient-to-r from-indigo-600 to-blue-600'
+                              ? 'bg-linear-to-r from-purple-600 to-pink-600' 
+                              : 'bg-linear-to-r from-indigo-600 to-blue-600'
                           }`}>
                             {user.role === 'vendor' ? <Building2 size={22} /> : <User size={22} />}
                           </div>
@@ -351,7 +351,7 @@ const Navbar: React.FC = () => {
 
                       {/* Switch Account Type (Optional) */}
                       {user.role === 'guest' && (
-                        <div className="p-2 border-t border-slate-100 bg-gradient-to-r from-purple-50/50 to-pink-50/50">
+                        <div className="p-2 border-t border-slate-100 bg-linear-to-r from-purple-50/50 to-pink-50/50">
                           <Link
                             to="/vendor/register"
                             className="flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-purple-600 hover:bg-purple-50 rounded-xl transition-colors"
@@ -386,7 +386,7 @@ const Navbar: React.FC = () => {
                 <div className="relative" ref={authModalRef}>
                   <button
                     onClick={() => setShowAuthModal(!showAuthModal)}
-                    className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 flex items-center space-x-2"
+                    className="bg-linear-to-r from-indigo-600 to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 flex items-center space-x-2"
                   >
                     <LogIn size={18} />
                     <span>Get Started</span>
@@ -396,7 +396,7 @@ const Navbar: React.FC = () => {
                   {/* Auth Type Selector Dropdown */}
                   {showAuthModal && (
                     <div className="dropdown-enter absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-                      <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
+                      <div className="p-4 bg-linear-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
                         <h3 className="font-bold text-slate-900 mb-1">Choose Account Type</h3>
                         <p className="text-xs text-slate-600">Select how you want to use BookNStay</p>
                       </div>
@@ -409,7 +409,7 @@ const Navbar: React.FC = () => {
                           onClick={() => setShowAuthModal(false)}
                         >
                           <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 flex items-center justify-center text-white flex-shrink-0">
+                            <div className="w-12 h-12 rounded-xl bg-linear-to-r from-indigo-600 to-blue-600 flex items-center justify-center text-white flex-shrink-0">
                               <User size={24} />
                             </div>
                             <div className="flex-1">
@@ -431,7 +431,7 @@ const Navbar: React.FC = () => {
                           onClick={() => setShowAuthModal(false)}
                         >
                           <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center text-white flex-shrink-0">
+                            <div className="w-12 h-12 rounded-xl bg-linear-to-r from-purple-600 to-pink-600 flex items-center justify-center text-white flex-shrink-0">
                               <Building2 size={24} />
                             </div>
                             <div className="flex-1">
@@ -513,14 +513,14 @@ const Navbar: React.FC = () => {
                 {isAuthenticated && user && (
                   <div className={`mx-4 mb-6 p-4 rounded-2xl border-2 ${
                     user.role === 'vendor'
-                      ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
-                      : 'bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-200'
+                      ? 'bg-linear-to-r from-purple-50 to-pink-50 border-purple-200'
+                      : 'bg-linear-to-r from-indigo-50 to-blue-50 border-indigo-200'
                   }`}>
                     <div className="flex items-center space-x-3 mb-2">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white ${
                         user.role === 'vendor'
-                          ? 'bg-gradient-to-r from-purple-600 to-pink-600'
-                          : 'bg-gradient-to-r from-indigo-600 to-blue-600'
+                          ? 'bg-linear-to-r from-purple-600 to-pink-600'
+                          : 'bg-linear-to-r from-indigo-600 to-blue-600'
                       }`}>
                         {user.role === 'vendor' ? <Building2 size={22} /> : <User size={22} />}
                       </div>
@@ -553,8 +553,8 @@ const Navbar: React.FC = () => {
                         className={`mobile-menu-item flex items-center space-x-3 px-4 py-4 rounded-xl transition-all ${
                           isActive
                             ? user?.role === 'vendor'
-                              ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
-                              : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                              ? 'bg-linear-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
+                              : 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
                             : 'text-slate-700 hover:bg-slate-50'
                         }`}
                         style={{ animationDelay: `${index * 0.1}s` }}
@@ -594,7 +594,7 @@ const Navbar: React.FC = () => {
                       ) : (
                         <Link
                           to="/vendor/register"
-                          className="mobile-menu-item flex items-center justify-between px-4 py-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 text-purple-700 hover:border-purple-300 transition-all"
+                          className="mobile-menu-item flex items-center justify-between px-4 py-4 rounded-xl bg-linear-to-r from-purple-50 to-pink-50 border-2 border-purple-200 text-purple-700 hover:border-purple-300 transition-all"
                         >
                           <div className="flex items-center space-x-3">
                             <Building2 size={22} />
@@ -631,7 +631,7 @@ const Navbar: React.FC = () => {
                     {/* Guest Login */}
                     <Link
                       to="/login?type=guest"
-                      className="mobile-menu-item flex items-center justify-between w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg"
+                      className="mobile-menu-item flex items-center justify-between w-full bg-linear-to-r from-indigo-600 to-blue-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg"
                     >
                       <div className="flex items-center space-x-3">
                         <User size={20} />
@@ -643,7 +643,7 @@ const Navbar: React.FC = () => {
                     {/* Vendor Login */}
                     <Link
                       to="/login?type=vendor"
-                      className="mobile-menu-item flex items-center justify-between w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
+                      className="mobile-menu-item flex items-center justify-between w-full bg-linear-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
                     >
                       <div className="flex items-center space-x-3">
                         <Building2 size={20} />

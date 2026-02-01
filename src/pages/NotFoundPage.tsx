@@ -13,7 +13,7 @@ const NotFoundPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4 overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4 overflow-hidden">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -139,7 +139,7 @@ const NotFoundPage: React.FC = () => {
             
             {/* Centered Icon */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center border-4 border-white shadow-2xl animate-float">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-linear-to-br from-indigo-100 to-purple-100 flex items-center justify-center border-4 border-white shadow-2xl animate-float">
                 <HelpCircle size={80} className="text-indigo-600" strokeWidth={1.5} />
               </div>
             </div>
@@ -172,7 +172,7 @@ const NotFoundPage: React.FC = () => {
                   className="glass rounded-2xl p-6 text-center card-hover shadow-md border border-white/40 group"
                   style={{animationDelay: `${0.4 + index * 0.1}s`}}
                 >
-                  <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                     <Icon size={28} />
                   </div>
                   <h3 className="font-bold text-slate-900 mb-1 text-lg">{link.label}</h3>
@@ -195,7 +195,7 @@ const NotFoundPage: React.FC = () => {
                   placeholder="Search hotels, events, or destinations..."
                   className="flex-1 px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-indigo-400 outline-none transition-all text-slate-800 font-medium"
                 />
-                <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/40 transition-all">
+                <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/40 transition-all">
                   Search
                 </button>
               </div>
@@ -207,7 +207,7 @@ const NotFoundPage: React.FC = () => {
             {/* Contact Support */}
             <div className="glass rounded-2xl p-6 border border-white/40 shadow-md">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white flex-shrink-0">
                   <Mail size={24} />
                 </div>
                 <div className="flex-1">
@@ -229,7 +229,7 @@ const NotFoundPage: React.FC = () => {
             {/* Report Issue */}
             <div className="glass rounded-2xl p-6 border border-white/40 shadow-md">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center text-white flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-linear-to-r from-purple-500 to-pink-600 flex items-center justify-center text-white flex-shrink-0">
                   <Sparkles size={24} />
                 </div>
                 <div className="flex-1">
@@ -250,7 +250,7 @@ const NotFoundPage: React.FC = () => {
           <div className="text-center mt-8 animate-fadeInUp" style={{animationDelay: '1s'}}>
             <Link
               to="/"
-              className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all group"
+              className="inline-flex items-center justify-center space-x-2 bg-linear-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all group"
             >
               <Home size={24} />
               <span>Return to Homepage</span>

@@ -134,9 +134,9 @@ export const showToast = {
         <div
           className={`${
             t.visible ? 'toast-enter' : 'toast-exit'
-          } flex items-start space-x-3 bg-gradient-to-r from-emerald-50 to-green-50 backdrop-blur-xl border border-emerald-200 rounded-2xl p-4 shadow-xl max-w-md`}
+          } flex items-start space-x-3 bg-linear-to-r from-emerald-50 to-green-50 backdrop-blur-xl border border-emerald-200 rounded-2xl p-4 shadow-xl max-w-md`}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-r from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0">
             <CheckCircle size={20} className="text-white" />
           </div>
           <div className="flex-1 pt-0.5">
@@ -162,9 +162,9 @@ export const showToast = {
         <div
           className={`${
             t.visible ? 'toast-enter' : 'toast-exit'
-          } flex items-start space-x-3 bg-gradient-to-r from-red-50 to-pink-50 backdrop-blur-xl border border-red-200 rounded-2xl p-4 shadow-xl max-w-md`}
+          } flex items-start space-x-3 bg-linear-to-r from-red-50 to-pink-50 backdrop-blur-xl border border-red-200 rounded-2xl p-4 shadow-xl max-w-md`}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-pink-600 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-r from-red-500 to-pink-600 flex items-center justify-center flex-shrink-0">
             <XCircle size={20} className="text-white" />
           </div>
           <div className="flex-1 pt-0.5">
@@ -190,9 +190,9 @@ export const showToast = {
         <div
           className={`${
             t.visible ? 'toast-enter' : 'toast-exit'
-          } flex items-start space-x-3 bg-gradient-to-r from-amber-50 to-yellow-50 backdrop-blur-xl border border-amber-200 rounded-2xl p-4 shadow-xl max-w-md`}
+          } flex items-start space-x-3 bg-linear-to-r from-amber-50 to-yellow-50 backdrop-blur-xl border border-amber-200 rounded-2xl p-4 shadow-xl max-w-md`}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-r from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
             <AlertCircle size={20} className="text-white" />
           </div>
           <div className="flex-1 pt-0.5">
@@ -218,9 +218,9 @@ export const showToast = {
         <div
           className={`${
             t.visible ? 'toast-enter' : 'toast-exit'
-          } flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-xl border border-blue-200 rounded-2xl p-4 shadow-xl max-w-md`}
+          } flex items-start space-x-3 bg-linear-to-r from-blue-50 to-indigo-50 backdrop-blur-xl border border-blue-200 rounded-2xl p-4 shadow-xl max-w-md`}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
             <Info size={20} className="text-white" />
           </div>
           <div className="flex-1 pt-0.5">
@@ -246,9 +246,9 @@ export const showToast = {
         <div
           className={`${
             t.visible ? 'toast-enter' : 'toast-exit'
-          } flex items-start space-x-3 bg-gradient-to-r from-indigo-50 to-purple-50 backdrop-blur-xl border border-indigo-200 rounded-2xl p-4 shadow-xl max-w-md`}
+          } flex items-start space-x-3 bg-linear-to-r from-indigo-50 to-purple-50 backdrop-blur-xl border border-indigo-200 rounded-2xl p-4 shadow-xl max-w-md`}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
             <Loader size={20} className="text-white toast-spinner" />
           </div>
           <div className="flex-1 pt-0.5">
@@ -268,13 +268,13 @@ export const showToast = {
         <div
           className={`${
             t.visible ? 'toast-enter' : 'toast-exit'
-          } flex items-start space-x-3 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 backdrop-blur-xl border-2 border-purple-300 rounded-2xl p-4 shadow-2xl max-w-md`}
+          } flex items-start space-x-3 bg-linear-to-r from-purple-50 via-pink-50 to-orange-50 backdrop-blur-xl border-2 border-purple-300 rounded-2xl p-4 shadow-2xl max-w-md`}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-r from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0">
             <Sparkles size={20} className="text-white" />
           </div>
           <div className="flex-1 pt-0.5">
-            <h4 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-0.5">
+            <h4 className="font-bold text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600 mb-0.5">
               {title || 'Special Offer!'}
             </h4>
             <p className="text-sm text-purple-700 leading-relaxed">{message}</p>

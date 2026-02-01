@@ -217,7 +217,7 @@ const AddBooking: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
@@ -227,7 +227,7 @@ const AddBooking: React.FC = () => {
                 <ChevronLeft size={24} />
               </button>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   New Booking
                 </h1>
                 <p className="text-sm text-slate-600">Create a new reservation</p>
@@ -255,7 +255,7 @@ const AddBooking: React.FC = () => {
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all ${
                       currentStep >= step.num
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                        ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
                         : 'bg-slate-200 text-slate-500'
                     }`}
                   >
@@ -272,7 +272,7 @@ const AddBooking: React.FC = () => {
                 {idx < 3 && (
                   <div
                     className={`h-1 flex-1 mx-2 rounded transition-all ${
-                      currentStep > step.num ? 'bg-gradient-to-r from-indigo-600 to-purple-600' : 'bg-slate-200'
+                      currentStep > step.num ? 'bg-linear-to-r from-indigo-600 to-purple-600' : 'bg-slate-200'
                     }`}
                   ></div>
                 )}
@@ -455,7 +455,7 @@ const AddBooking: React.FC = () => {
                         <div className="flex flex-col md:flex-row gap-6">
                           {/* Room Image/Icon */}
                           <div className="flex-shrink-0">
-                            <div className="w-full md:w-32 h-32 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center text-6xl">
+                            <div className="w-full md:w-32 h-32 bg-linear-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center text-6xl">
                               {room.image}
                             </div>
                           </div>
@@ -918,7 +918,7 @@ const AddBooking: React.FC = () => {
                 <div className="pt-2">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-lg font-bold text-slate-900">Total Amount:</span>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    <span className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                       ${calculateTotal()}
                     </span>
                   </div>
@@ -963,7 +963,7 @@ const AddBooking: React.FC = () => {
               disabled={!canProceedToNextStep()}
               className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
                 canProceedToNextStep()
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg'
+                  ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
@@ -975,7 +975,7 @@ const AddBooking: React.FC = () => {
               disabled={!canProceedToNextStep()}
               className={`px-8 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
                 canProceedToNextStep()
-                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:shadow-lg'
+                  ? 'bg-linear-to-r from-green-600 to-emerald-600 text-white hover:shadow-lg'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >

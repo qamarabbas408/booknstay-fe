@@ -45,7 +45,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">
       <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
@@ -208,7 +208,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           {/* Feature highlights */}
           <div className="space-y-4 max-w-md">
             <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
                 <span className="text-white text-lg">✓</span>
               </div>
               <div>
@@ -218,7 +218,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
             
             <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0 mt-1">
                 <span className="text-white text-lg">✓</span>
               </div>
               <div>
@@ -228,7 +228,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
             
             <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-orange-600 flex items-center justify-center flex-shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-pink-500 to-orange-600 flex items-center justify-center flex-shrink-0 mt-1">
                 <span className="text-white text-lg">✓</span>
               </div>
               <div>
@@ -316,7 +316,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed shimmer-button"
+                className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed shimmer-button"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">

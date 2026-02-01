@@ -1,0 +1,58 @@
+import { api } from './api';
+
+export interface Event {
+  id: number;
+  title: string;
+  category: string;
+  location: string;
+  venue: string;
+  price: string;
+  start_date: string;
+  end_date: string;
+  image: string;
+  rating: number;
+  attendees: number;
+  featured: boolean;
+  trending: boolean;
+  is_sold_out: boolean;
+  total_capacity: number;
+  tickets_left: number | null;
+}
+
+export interface EventsResponse {
+  status: string;
+  data: Event[];
+  pagination: {
+    total: number;
+    perPage: number;
+    currentPage: number;
+    lastPage: number;
+  };
+}
+
+export interface EventQueryParams {
+  search?: string;
+  category?: string;
+  min_price?: number;
+  max_price?: number;
+  featured?: boolean;
+  trending?: boolean;
+  date_filter?: string;
+  sort_by?: string;
+  page?: number;
+  limit?: number;
+}
+
+export const eventApi = api.injectEndpoints({
+  endpoints: (builder) => ({
+    getEvents: builder.query<EventsResponse, EventQueryParams>({
+      query: (params) => ({
+        url: '/events',
+        method: 'GET',
+        params,
+      }),
+    }),
+  }),
+});
+
+export const { useGetEventsQuery } = eventApi;

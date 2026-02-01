@@ -22,10 +22,9 @@ import AddBooking from '../pages/AddBooking';
 // Vendor Pages
 import VendorDashboardPage from '../pages/VendorDashboardPage';
 import EventCreationPage from '../pages/EventCreationPage';
-import EventRegistrationPage from '../pages/EventRegistrationPage'; // Usually for managing event attendees
 import WaitingApprovalPage from '../pages/WaitingApprovalPage';
 import NotFoundPage from '../pages/NotFoundPage';
-
+import EventBookingPage from '../pages/EventBookingPage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -67,7 +66,7 @@ export const router = createBrowserRouter([
           { path: 'dashboard', element: <VendorDashboardPage /> },
           { path: 'hotels', element: <div className="p-20">Manage My Hotels</div> },
           { path: 'event/create', element: <EventCreationPage /> },
-          { path: 'event/registration', element: <EventRegistrationPage /> },
+          { path: 'event/booking/:id', element: <EventBookingPage /> },
         ],
       },
 

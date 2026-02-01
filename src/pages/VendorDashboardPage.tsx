@@ -240,7 +240,7 @@ const VendorDashboardPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       {/* Top Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm z-40">
         <div className="h-full px-4 lg:px-6 flex items-center justify-between">
@@ -251,7 +251,7 @@ const VendorDashboardPage: React.FC = () => {
             >
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
-            <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <div className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Hotel Vendor
             </div>
           </div>
@@ -325,7 +325,7 @@ const VendorDashboardPage: React.FC = () => {
                 <p className="text-sm font-medium text-slate-900">Qamar Hotel</p>
                 <p className="text-xs text-slate-500">Admin</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 bg-linear-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
                 Q
               </div>
             </div>
@@ -355,7 +355,7 @@ const VendorDashboardPage: React.FC = () => {
                 }}
                 className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${
                   activeSection === item.id
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                    ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
                     : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -399,7 +399,7 @@ const VendorDashboardPage: React.FC = () => {
                 <Download size={18} />
                 <span className="hidden md:inline">Export</span>
               </button>
-              <button className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
+              <button className="px-4 py-2 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
                 <Plus size={18} />
                 <span className="hidden md:inline">New Booking</span>
               </button>
@@ -422,7 +422,7 @@ const VendorDashboardPage: React.FC = () => {
                   </div>
                 </div>
                 <h3 className="text-sm text-slate-600 mb-1">{stat.title}</h3>
-                <div className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <div className="text-3xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   {stat.value}
                 </div>
               </div>
@@ -430,7 +430,7 @@ const VendorDashboardPage: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 mb-8 text-white">
+          <div className="bg-linear-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 mb-8 text-white">
             <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-4 rounded-xl transition-all text-center">
@@ -599,7 +599,7 @@ const VendorDashboardPage: React.FC = () => {
                 <Hotel className="text-indigo-600 mr-3" size={24} />
                 Room Inventory
               </h2>
-              <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2">
+              <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2">
                 <Plus size={18} />
                 Add Room Type
               </button>
@@ -643,7 +643,7 @@ const VendorDashboardPage: React.FC = () => {
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">
                       <div 
-                        className="bg-gradient-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all"
+                        className="bg-linear-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all"
                         style={{ width: `${((room.total - room.available) / room.total) * 100}%` }}
                       ></div>
                     </div>
@@ -786,7 +786,7 @@ const VendorDashboardPage: React.FC = () => {
                 </div>
 
                 <div className="flex gap-3 pt-6 border-t border-slate-200">
-                  <button className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+                  <button className="flex-1 px-4 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
                     Confirm Booking
                   </button>
                   <button className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl font-semibold hover:shadow-md transition-all">

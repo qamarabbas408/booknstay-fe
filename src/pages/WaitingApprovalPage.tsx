@@ -29,7 +29,7 @@ const WaitingApprovalPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -146,7 +146,7 @@ const WaitingApprovalPage: React.FC = () => {
         <div className="glass rounded-3xl shadow-2xl border border-white/40 overflow-hidden animate-scaleIn">
           
           {/* Header Section */}
-          <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white p-8 md:p-12 text-center overflow-hidden">
+          <div className="relative bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 text-white p-8 md:p-12 text-center overflow-hidden">
             {/* Decorative Elements */}
             <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 right-0 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl"></div>
@@ -194,7 +194,7 @@ const WaitingApprovalPage: React.FC = () => {
             {/* User Info */}
             <div className="bg-indigo-50 rounded-2xl p-6 mb-8 border border-indigo-100 animate-fadeInUp" style={{animationDelay: '0.1s'}}>
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-linear-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white flex-shrink-0">
                   <Shield size={24} />
                 </div>
                 <div className="flex-1">
@@ -262,7 +262,7 @@ const WaitingApprovalPage: React.FC = () => {
             </div>
 
             {/* What's Next Section */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100 animate-fadeInUp" style={{animationDelay: '0.3s'}}>
+            <div className="bg-linear-to-br from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100 animate-fadeInUp" style={{animationDelay: '0.3s'}}>
               <div className="flex items-center space-x-2 mb-4">
                 <Sparkles size={20} className="text-purple-600" />
                 <h3 className="font-bold text-lg text-slate-900">What happens next?</h3>
@@ -300,7 +300,7 @@ const WaitingApprovalPage: React.FC = () => {
               <button
                 onClick={handleCheckStatus}
                 disabled={isChecking}
-                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center space-x-2 bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isChecking ? (
                   <>

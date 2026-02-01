@@ -152,7 +152,7 @@ const MyBookingsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -213,7 +213,7 @@ const MyBookingsPage: React.FC = () => {
       `}</style>
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white py-16 overflow-hidden">
+      <div className="relative bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 text-white py-16 overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         
         {/* Decorative elements */}
@@ -262,7 +262,7 @@ const MyBookingsPage: React.FC = () => {
               onClick={() => setActiveTab('upcoming')}
               className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold transition-all ${
                 activeTab === 'upcoming'
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                  ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
@@ -272,7 +272,7 @@ const MyBookingsPage: React.FC = () => {
               onClick={() => setActiveTab('past')}
               className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold transition-all ${
                 activeTab === 'past'
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                  ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
@@ -309,7 +309,7 @@ const MyBookingsPage: React.FC = () => {
         {/* Empty State */}
         {!hasBookings ? (
           <div className="glass p-12 md:p-16 rounded-3xl text-center border border-white/40 animate-fadeInUp">
-            <div className="w-24 h-24 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-24 h-24 bg-linear-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Calendar size={48} className="text-indigo-600" />
             </div>
             <h2 className="text-2xl md:text-3xl font-display text-slate-900 mb-3">
@@ -321,7 +321,7 @@ const MyBookingsPage: React.FC = () => {
                 : 'Start exploring amazing hotels and unforgettable events — your next adventure awaits!'}
             </p>
             {!searchQuery && (
-              <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-indigo-500/30 transition-all">
+              <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-indigo-500/30 transition-all">
                 Browse Hotels & Events
               </button>
             )}
@@ -445,7 +445,7 @@ const MyBookingsPage: React.FC = () => {
                             </>
                           )}
                           
-                          <button className="flex-1 sm:flex-none flex items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
+                          <button className="flex-1 sm:flex-none flex items-center justify-center bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
                             <span>View Details</span>
                             <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                           </button>
@@ -469,7 +469,7 @@ const MyBookingsPage: React.FC = () => {
                 <Phone size={18} className="mr-2" />
                 Contact Support
               </button>
-              <button className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+              <button className="flex items-center px-6 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
                 <Mail size={18} className="mr-2" />
                 Send Message
               </button>

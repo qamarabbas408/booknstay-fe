@@ -30,7 +30,7 @@ const HotelDetails = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -87,7 +87,7 @@ const HotelDetails = () => {
             Back to Results
           </button>
           
-          <div className="text-2xl font-display bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <div className="text-2xl font-display bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             BookNStay
           </div>
           
@@ -188,7 +188,7 @@ const HotelDetails = () => {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
+              <div className="bg-linear-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
                 <p className="text-lg text-slate-700 font-serif leading-relaxed">
                   Experience paradise at our luxury beachfront resort. Immerse yourself in crystal-clear waters, 
                   pristine white sand beaches, and world-class amenities. Each villa offers breathtaking ocean views 
@@ -266,7 +266,7 @@ const HotelDetails = () => {
               <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200">
                 <div className="mb-6">
                   <div className="text-sm text-slate-500 mb-1">Starting from</div>
-                  <div className="text-4xl font-display bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  <div className="text-4xl font-display bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     $250
                     <span className="text-lg text-slate-600 font-normal ml-2">/night</span>
                   </div>
@@ -318,7 +318,7 @@ const HotelDetails = () => {
                   </div>
                 </div>
 
-                <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all mb-4">
+                <button className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all mb-4">
                   Reserve Now
                 </button>
 
@@ -340,7 +340,7 @@ const HotelDetails = () => {
                 </div>
               </div>
 
-              <div className="mt-6 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200">
+              <div className="mt-6 p-6 bg-linear-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200">
                 <div className="flex items-start space-x-3">
                   <div className="bg-emerald-500 rounded-full p-2 flex-shrink-0">
                     <Check size={16} className="text-white" />

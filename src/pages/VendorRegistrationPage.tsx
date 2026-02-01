@@ -132,7 +132,7 @@ const VendorRegisterationPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
@@ -283,7 +283,7 @@ const VendorRegisterationPage: React.FC = () => {
                 {step < 4 && (
                   <div className="flex-1 h-1 bg-slate-200 mx-2 rounded-full overflow-hidden">
                     <div 
-                      className={`h-full bg-gradient-to-r from-indigo-600 to-purple-600 progress-bar ${
+                      className={`h-full bg-linear-to-r from-indigo-600 to-purple-600 progress-bar ${
                         step < currentStep ? 'w-full' : 'w-0'
                       }`}
                       style={{'--progress-width': step < currentStep ? '100%' : '0%'} as React.CSSProperties}
@@ -662,7 +662,7 @@ const VendorRegisterationPage: React.FC = () => {
                 </div>
 
                 {/* Benefits Summary */}
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
+                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
                   <h3 className="font-bold text-slate-900 mb-4 flex items-center">
                     <Sparkles className="mr-2 text-indigo-600" size={20} />
                     What You'll Get
@@ -725,7 +725,7 @@ const VendorRegisterationPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 flex items-center group"
+                  className="px-8 py-4 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 flex items-center group"
                 >
                   <span>Continue</span>
                   <ChevronRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
@@ -734,7 +734,7 @@ const VendorRegisterationPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isRegistering}
-                  className="px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="px-10 py-4 bg-linear-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                 >
                   {isRegistering ? (
                     <>

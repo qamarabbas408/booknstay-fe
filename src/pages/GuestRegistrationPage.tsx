@@ -103,7 +103,7 @@ const GuestRegisterationPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50/30">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-teal-50/30">
       <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
@@ -149,7 +149,7 @@ const GuestRegisterationPage: React.FC = () => {
             
             <h1 className="text-6xl md:text-7xl font-display text-slate-900 leading-none">
               Travel <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">Beyond Limits.</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-blue-500">Beyond Limits.</span>
             </h1>
             
             <p className="text-xl text-slate-600 font-serif max-w-md leading-relaxed">
@@ -317,7 +317,7 @@ const GuestRegisterationPage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isRegistering}
-                      className="w-full py-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-200 disabled:opacity-50"
+                      className="w-full py-4 bg-linear-to-r from-indigo-600 to-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-200 disabled:opacity-50"
                     >
                       {isRegistering ? 'Creating Account...' : 'Join BookNStay'}
                     </button>

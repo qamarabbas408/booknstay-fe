@@ -1,167 +1,100 @@
-import React, { useState } from 'react';
-import { Search, Calendar, MapPin, Star, Ticket, ChevronRight, Sparkles, Filter, Clock, Music, Users, Zap } from 'lucide-react';
-
-interface Event {
-  id: number;
-  title: string;
-  category: string;
-  location: string;
-  venue: string;
-  price: string;
-  date: string;
-  time: string;
-  image: string;
-  rating: number;
-  attendees: number;
-  featured?: boolean;
-  trending?: boolean;
-}
-
-const events: Event[] = [
-  {
-    id: 1,
-    title: "Summer Music Festival 2026",
-    category: "Music",
-    location: "London, UK",
-    venue: "Wembley Arena",
-    price: "$85",
-    date: "Aug 15, 2026",
-    time: "7:00 PM",
-    image: "https://images.unsplash.com/photo-1459749411177-042180ce673c?auto=format&fit=crop&w=800&q=80",
-    rating: 4.9,
-    attendees: 12500,
-    featured: true,
-    trending: true
-  },
-  {
-    id: 2,
-    title: "Tech Innovation Expo",
-    category: "Technology",
-    location: "San Francisco, USA",
-    venue: "Silicon Valley Convention Center",
-    price: "$120",
-    date: "Sept 10, 2026",
-    time: "9:00 AM",
-    image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80",
-    rating: 4.8,
-    attendees: 8000,
-    featured: true
-  },
-  {
-    id: 3,
-    title: "International Film Festival",
-    category: "Film",
-    location: "Cannes, France",
-    venue: "Palais des Festivals",
-    price: "$200",
-    date: "Oct 5, 2026",
-    time: "6:00 PM",
-    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
-    rating: 4.9,
-    attendees: 15000,
-    trending: true
-  },
-  {
-    id: 4,
-    title: "Art & Design Week",
-    category: "Art",
-    location: "New York, USA",
-    venue: "Metropolitan Gallery",
-    price: "$65",
-    date: "Nov 12, 2026",
-    time: "10:00 AM",
-    image: "https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?auto=format&fit=crop&w=800&q=80",
-    rating: 4.7,
-    attendees: 5000
-  },
-  {
-    id: 5,
-    title: "Food & Wine Festival",
-    category: "Food",
-    location: "Barcelona, Spain",
-    venue: "Montjuïc Park",
-    price: "$95",
-    date: "Sept 20, 2026",
-    time: "12:00 PM",
-    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80",
-    rating: 4.8,
-    attendees: 10000,
-    featured: true
-  },
-  {
-    id: 6,
-    title: "Jazz Night Live",
-    category: "Music",
-    location: "New Orleans, USA",
-    venue: "Preservation Hall",
-    price: "$55",
-    date: "Aug 22, 2026",
-    time: "8:00 PM",
-    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80",
-    rating: 4.9,
-    attendees: 3000
-  },
-  {
-    id: 7,
-    title: "Business Leadership Summit",
-    category: "Business",
-    location: "Dubai, UAE",
-    venue: "Dubai World Trade Centre",
-    price: "$250",
-    date: "Oct 18, 2026",
-    time: "9:00 AM",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80",
-    rating: 4.7,
-    attendees: 6000
-  },
-  {
-    id: 8,
-    title: "Comedy Night Special",
-    category: "Comedy",
-    location: "Los Angeles, USA",
-    venue: "The Comedy Store",
-    price: "$45",
-    date: "Sept 5, 2026",
-    time: "9:00 PM",
-    image: "https://images.unsplash.com/photo-1585699324551-f6c309eedeca?auto=format&fit=crop&w=800&q=80",
-    rating: 4.8,
-    attendees: 2500
-  },
-  {
-    id: 9,
-    title: "Sports Championship Finals",
-    category: "Sports",
-    location: "Tokyo, Japan",
-    venue: "Olympic Stadium",
-    price: "$150",
-    date: "Nov 30, 2026",
-    time: "3:00 PM",
-    image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80",
-    rating: 4.9,
-    attendees: 20000,
-    trending: true
-  }
-];
-
-const categories = [
-  { name: 'All Events', count: 245, color: 'from-slate-500 to-gray-700' },
-  { name: 'Music', count: 89, color: 'from-purple-500 to-pink-600' },
-  { name: 'Technology', count: 56, color: 'from-blue-500 to-cyan-600' },
-  { name: 'Food & Wine', count: 34, color: 'from-orange-500 to-red-600' },
-  { name: 'Art & Culture', count: 42, color: 'from-indigo-500 to-purple-600' },
-  { name: 'Sports', count: 24, color: 'from-green-500 to-emerald-600' }
-];
+import React, { useState, useEffect } from 'react';
+import { Search, Calendar, MapPin, Star, Ticket, ChevronRight, Sparkles, Filter, Clock, Music, Users, Zap, ChevronDown, ChevronUp, Loader2, X } from 'lucide-react';
+import { useGetEventCategoriesQuery } from '../store/services/miscApi';
+import { useGetEventsQuery } from '../store/services/eventApi';
+import EventFilters from '../components/EventFilters';
+import {type FilterState } from '../components/EventFilters';
 
 const EventsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Events');
   const [showFilters, setShowFilters] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
+  const [appliedLocation, setAppliedLocation] = useState('');
+  const [filters, setFilters] = useState<FilterState>({
+    minPrice: 0,
+    maxPrice: 1000,
+    dateFilter: 'all',
+    featured: false,
+    trending: false,
+    sortBy: 'upcoming',
+  });
+  const [page, setPage] = useState(1);
 
-  const filteredEvents = selectedCategory === 'All Events' 
-    ? events 
-    : events.filter(event => event.category === selectedCategory || selectedCategory.includes(event.category));
+  const { data: categoriesData, isLoading: isCategoriesLoading } = useGetEventCategoriesQuery();
+  
+  const apiCategories = categoriesData?.data || [];
+  
+  // Sort categories by event count descending
+  const sortedCategories = [...apiCategories].sort((a, b) => b.events_count - a.events_count);
+
+  const allEventsCategory = {
+    id: 0,
+    name: 'All Events',
+    slug: 'all',
+    events_count: sortedCategories.reduce((acc, cat) => acc + cat.events_count, 0),
+    color_gradient: 'from-slate-500 to-gray-700'
+  };
+
+  const displayCategories = showAllCategories 
+    ? [allEventsCategory, ...sortedCategories]
+    : [allEventsCategory, ...sortedCategories.slice(0, 5)];
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [appliedSearch, appliedLocation, selectedCategory, filters]);
+
+  const handleSearch = () => {
+    setAppliedSearch(searchQuery);
+    setAppliedLocation(locationQuery);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setLocationQuery('');
+    setAppliedSearch('');
+    setAppliedLocation('');
+  };
+
+  // API Call
+  const { data: eventsData, isLoading: isEventsLoading, isFetching } = useGetEventsQuery({
+    search: appliedSearch || appliedLocation || undefined,
+    category: selectedCategory !== 'All Events' ? selectedCategory : undefined,
+    min_price: filters.minPrice > 0 ? filters.minPrice : undefined,
+    max_price: filters.maxPrice < 1000 ? filters.maxPrice : undefined,
+    featured: filters.featured || undefined,
+    trending: filters.trending || undefined,
+    date_filter: filters.dateFilter !== 'all' ? filters.dateFilter : undefined,
+    sort_by: filters.sortBy,
+    page,
+    limit: 9,
+  });
+
+  const events = eventsData?.data || [];
+  const pagination = eventsData?.pagination;
+
+  const EventImage = ({ src, alt }: { src: string; alt: string }) => {
+    const [imgSrc, setImgSrc] = useState(src);
+    useEffect(() => setImgSrc(src), [src]);
+    return (
+      <img
+        src={imgSrc}
+        alt={alt}
+        onError={() => setImgSrc('https://placehold.co/800x600?text=No+Image')}
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+      />
+    );
+  };
+
+  const handleApplyFilters = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -203,20 +136,7 @@ const EventsPage = () => {
           animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        .glass {
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .card-hover {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        }
+       
 
         .gradient-text {
           background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f97316 100%);
@@ -227,7 +147,7 @@ const EventsPage = () => {
       `}</style>
 
       {/* Hero Section */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 py-20">
+      <header className="relative overflow-hidden bg-linear-to-br from-purple-600 via-pink-600 to-orange-500 py-20">
         <div className="absolute inset-0 bg-black/20"></div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-6">
@@ -253,24 +173,41 @@ const EventsPage = () => {
                 <div className="flex items-center bg-white/90 backdrop-blur-sm p-4 rounded-xl flex-1">
                   <Search className="text-purple-600 mr-3" size={22} />
                   <input 
-                    type="text" 
-                    placeholder="Search events..." 
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search events..."
                     className="bg-transparent outline-none text-slate-800 placeholder:text-slate-400 w-full font-medium"
                   />
                 </div>
                 
                 <div className="flex items-center bg-white/90 backdrop-blur-sm p-4 rounded-xl flex-1">
                   <MapPin className="text-purple-600 mr-3" size={22} />
-                  <input 
-                    type="text" 
-                    placeholder="City or venue" 
+                  <input
+                    type="text"
+                    value={locationQuery}
+                    onChange={(e) => setLocationQuery(e.target.value)}
+                    placeholder="City or venue"
                     className="bg-transparent outline-none text-slate-800 placeholder:text-slate-400 w-full font-medium"
                   />
                 </div>
                 
-                <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl transition-all">
+                <button 
+                  onClick={handleSearch}
+                  className="bg-linear-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl transition-all"
+                >
                   Search
                 </button>
+
+                {(searchQuery || locationQuery || appliedSearch || appliedLocation) && (
+                  <button 
+                    onClick={handleClearSearch}
+                    className="bg-white/90 backdrop-blur-sm text-slate-600 px-6 py-4 rounded-xl font-bold hover:bg-white hover:text-red-600 transition-all flex items-center justify-center"
+                  >
+                    <X size={20} className="mr-2" />
+                    Clear
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -279,27 +216,47 @@ const EventsPage = () => {
 
       {/* Categories */}
       <section className="max-w-7xl mx-auto px-6 -mt-8 relative z-20">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {categories.map((cat, idx) => (
-            <button
-              key={cat.name}
-              onClick={() => setSelectedCategory(cat.name)}
-              className={`glass p-4 rounded-xl text-center cursor-pointer card-hover animate-fadeInUp border transition-all ${
-                selectedCategory === cat.name 
-                  ? 'border-purple-400 bg-gradient-to-br ' + cat.color + ' text-white' 
-                  : 'border-white/40 hover:border-purple-300'
-              }`}
-              style={{animationDelay: `${idx * 0.05}s`}}
-            >
-              <h3 className={`font-bold text-sm mb-1 ${selectedCategory === cat.name ? 'text-white' : 'text-slate-800'}`}>
-                {cat.name}
-              </h3>
-              <p className={`text-xs ${selectedCategory === cat.name ? 'text-white/90' : 'text-slate-500'}`}>
-                {cat.count} events
-              </p>
-            </button>
-          ))}
-        </div>
+        {isCategoriesLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="animate-spin text-white" size={32} />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {displayCategories.map((cat, idx) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.name)}
+                  className={`bg-white ring-purple-100 p-4 rounded-xl text-center cursor-pointer animate-fadeInUp  transition-all duration-300 ${
+                    selectedCategory === cat.name 
+                      ? 'border-transparent bg-linear-to-br from-orange-500 to-red-600 shadow-lg scale-105 ring-1 ring-offset-1' 
+                      : 'border-white/40 hover:border-purple-300 hover:shadow-md hover:-translate-y-1'
+                  }`}
+                  style={{animationDelay: `${idx * 0.05}s`}}
+                >
+                  <h3 className={`font-bold text-sm mb-1 ${selectedCategory === cat.name ? 'text-white' : 'text-slate-800'}`}>
+                    {cat.name}
+                  </h3>
+                  <p className={`text-xs ${selectedCategory === cat.name ? 'text-white/90' : 'text-slate-500'}`}>
+                    {cat.events_count} events
+                  </p>
+                </button>
+              ))}
+            </div>
+
+            {sortedCategories.length > 5 && (
+              <div className="flex justify-center mt-6">
+                <button 
+                  onClick={() => setShowAllCategories(!showAllCategories)}
+                  className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-lg border border-white/50 text-sm font-bold text-slate-700 hover:text-purple-600 hover:bg-white transition-all"
+                >
+                  <span>{showAllCategories ? 'Show Less Categories' : 'Show All Categories'}</span>
+                  {showAllCategories ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </section>
 
       {/* Main Content */}
@@ -311,7 +268,7 @@ const EventsPage = () => {
               {selectedCategory}
             </h2>
             <p className="text-slate-600">
-              {filteredEvents.length} events available
+              {events.length} events available
             </p>
           </div>
           
@@ -325,104 +282,140 @@ const EventsPage = () => {
         </div>
 
         {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((event, idx) => (
-            <div 
-              key={event.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-md card-hover cursor-pointer border border-slate-100 animate-fadeInUp"
-              style={{animationDelay: `${idx * 0.05}s`}}
-            >
-              <div className="relative h-56 overflow-hidden group">
-                <img 
-                  src={event.image} 
-                  alt={event.title} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <div className="bg-purple-600/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                    <span className="text-white text-xs font-bold uppercase tracking-wider">
-                      {event.category}
-                    </span>
+        {isEventsLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="animate-spin text-purple-600" size={48} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.map((event, idx) => (
+              <div 
+                key={event.id}
+                className="bg-white rounded-3xl overflow-hidden shadow-md card-hover cursor-pointer border border-slate-100 animate-fadeInUp"
+                style={{animationDelay: `${idx * 0.05}s`}}
+              >
+                <div className="relative h-56 overflow-hidden group">
+                  <EventImage src={event.image} alt={event.title} />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+                  
+                  {/* Badges */}
+                  <div className="absolute top-4 left-4 flex gap-2">
+                    <div className="bg-purple-600/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                      <span className="text-white text-xs font-bold uppercase tracking-wider">
+                        {event.category}
+                      </span>
+                    </div>
+                    {event.featured && (
+                      <div className="bg-linear-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center">
+                        <Sparkles size={12} className="text-white mr-1" />
+                        <span className="text-white text-xs font-bold">Featured</span>
+                      </div>
+                    )}
                   </div>
-                  {event.featured && (
-                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center">
-                      <Sparkles size={12} className="text-white mr-1" />
-                      <span className="text-white text-xs font-bold">Featured</span>
+
+                  {event.trending && (
+                    <div className="absolute top-4 right-4 bg-red-500/95 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center animate-pulse">
+                      <Zap size={12} className="text-white mr-1" />
+                      <span className="text-white text-xs font-bold">Trending</span>
                     </div>
                   )}
-                </div>
 
-                {event.trending && (
-                  <div className="absolute top-4 right-4 bg-red-500/95 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center animate-pulse">
-                    <Zap size={12} className="text-white mr-1" />
-                    <span className="text-white text-xs font-bold">Trending</span>
-                  </div>
-                )}
+                  {event.is_sold_out && (
+                    <div className="absolute top-4 right-4 bg-slate-900/95 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center">
+                      <span className="text-white text-xs font-bold">Sold Out</span>
+                    </div>
+                  )}
 
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="flex items-center text-white text-sm mb-2">
-                    <Calendar size={14} className="mr-1.5" />
-                    <span className="font-semibold">{event.date}</span>
-                    <span className="mx-2">•</span>
-                    <Clock size={14} className="mr-1.5" />
-                    <span>{event.time}</span>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex items-center text-white text-sm mb-2">
+                      <Calendar size={14} className="mr-1.5" />
+                      <span className="font-semibold">{event.start_date}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="p-6">
-                <h3 className="font-bold text-xl text-slate-900 mb-3 leading-tight">
-                  {event.title}
-                </h3>
                 
-                <div className="flex items-center text-slate-600 text-sm mb-2">
-                  <MapPin size={16} className="mr-1.5 text-slate-400" />
-                  <span>{event.venue}, {event.location}</span>
-                </div>
-                
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-lg">
-                    <Star size={14} fill="#f59e0b" className="text-amber-500 mr-1" />
-                    <span className="text-sm font-bold text-amber-700">{event.rating}</span>
+                <div className="p-6">
+                  <h3 className="font-bold text-xl text-slate-900 mb-3 leading-tight">
+                    {event.title}
+                  </h3>
+                  
+                  <div className="flex items-center text-slate-600 text-sm mb-2">
+                    <MapPin size={16} className="mr-1.5 text-slate-400" />
+                    <span>{event.venue}, {event.location}</span>
                   </div>
                   
-                  <div className="flex items-center text-slate-500 text-sm">
-                    <Users size={14} className="mr-1.5" />
-                    <span>{event.attendees.toLocaleString()} going</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between pt-5 border-t border-slate-100">
-                  <div>
-                    <div className="text-sm text-slate-500 mb-0.5">From</div>
-                    <div className="text-2xl font-display text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-                      {event.price}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-lg">
+                      <Star size={14} fill="#f59e0b" className="text-amber-500 mr-1" />
+                      <span className="text-sm font-bold text-amber-700">{event.rating}</span>
+                    </div>
+                    
+                    <div className="flex items-center text-slate-500 text-sm">
+                      <Users size={14} className="mr-1.5" />
+                      <span>{event.attendees.toLocaleString()} going</span>
                     </div>
                   </div>
                   
-                  <button className="flex items-center font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
-                    <Ticket size={18} className="mr-2 group-hover:rotate-12 transition-transform" />
-                    Get Tickets
-                  </button>
+                  <div className="flex items-center justify-between pt-5 border-t border-slate-100">
+                    <div>
+                      <div className="text-sm text-slate-500 mb-0.5">From</div>
+                      <div className="text-2xl font-display text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600">
+                        {event.price}
+                      </div>
+                    </div>
+                    
+                    <button 
+                      disabled={event.is_sold_out}
+                      className={`flex items-center font-bold px-5 py-3 rounded-xl transition-all group ${
+                        event.is_sold_out 
+                          ? 'bg-slate-200 text-slate-500 cursor-not-allowed' 
+                          : 'bg-linear-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
+                      }`}
+                    >
+                      <Ticket size={18} className={`mr-2 ${!event.is_sold_out && 'group-hover:rotate-12 transition-transform'}`} />
+                      {event.is_sold_out ? 'Sold Out' : 'Get Tickets'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
-        {/* Load More */}
-        <div className="text-center mt-12">
-          <button className="bg-slate-900 text-white px-10 py-4 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl">
-            Load More Events
-          </button>
-        </div>
+        {/* Pagination */}
+        {pagination && pagination.lastPage > 1 && (
+          <div className="flex justify-center items-center mt-12 gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1 || isFetching}
+              className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-purple-400 font-semibold transition-all disabled:opacity-50"
+            >
+              Previous
+            </button>
+            
+            <span className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl font-semibold">
+              Page {pagination.currentPage} of {pagination.lastPage}
+            </span>
+
+            <button
+              onClick={() => setPage(p => Math.min(pagination.lastPage, p + 1))}
+              disabled={page === pagination.lastPage || isFetching}
+              className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-purple-400 font-semibold transition-all disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </main>
 
+      <EventFilters 
+        isOpen={showFilters} 
+        onClose={() => setShowFilters(false)} 
+        onApplyFilters={handleApplyFilters} 
+      />
+
       {/* CTA Section */}
-      <section className="py-20 px-6 relative overflow-hidden bg-gradient-to-br from-purple-900 via-pink-900 to-orange-900">
+      <section className="py-20 px-6 relative overflow-hidden bg-linear-to-br from-purple-900 via-pink-900 to-orange-900">
         <div className="absolute inset-0 bg-black/20"></div>
         
         <div className="max-w-4xl mx-auto relative z-10 text-center">
@@ -445,58 +438,6 @@ const EventsPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="text-3xl font-display mb-4 gradient-text">BookNStay</div>
-              <p className="text-slate-400 leading-relaxed font-serif">
-                Your gateway to extraordinary stays and unforgettable experiences.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4 text-lg">Explore</h4>
-              <ul className="space-y-3 text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">Hotels</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Events</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Experiences</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Gift Cards</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4 text-lg">Company</h4>
-              <ul className="space-y-3 text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Press</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4 text-lg">Support</h4>
-              <ul className="space-y-3 text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Safety</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Cancellation</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-slate-400 text-sm">
-            <p>© 2026 BookNStay. Crafted with care.</p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms</a>
-              <a href="#" className="hover:text-white transition-colors">Cookies</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

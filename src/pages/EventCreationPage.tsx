@@ -50,7 +50,7 @@ const EventCreationPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -104,7 +104,7 @@ const EventCreationPage = () => {
             Back to Events
           </button>
           
-          <div className="text-2xl font-display bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <div className="text-2xl font-display bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             BookNStay
           </div>
           
@@ -132,7 +132,7 @@ const EventCreationPage = () => {
               <Save size={18} className="mr-2" />
               Save Draft
             </button>
-            <button className="flex items-center px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all">
+            <button className="flex items-center px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all">
               <Globe size={18} className="mr-2" />
               Publish Event
             </button>
@@ -144,7 +144,7 @@ const EventCreationPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Info */}
             <div className="glass rounded-3xl overflow-hidden shadow-lg animate-slideUp" style={{animationDelay: '0.1s'}}>
-              <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+              <div className="bg-linear-to-r from-purple-600 to-pink-600 p-6">
                 <h2 className="text-2xl font-display text-white flex items-center">
                   <Ticket size={24} className="mr-3" />
                   Event Basics
@@ -192,7 +192,7 @@ const EventCreationPage = () => {
 
             {/* Date & Location */}
             <div className="glass rounded-3xl overflow-hidden shadow-lg animate-slideUp" style={{animationDelay: '0.2s'}}>
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+              <div className="bg-linear-to-r from-indigo-600 to-purple-600 p-6">
                 <h2 className="text-2xl font-display text-white flex items-center">
                   <Calendar size={24} className="mr-3" />
                   When & Where
@@ -253,7 +253,7 @@ const EventCreationPage = () => {
 
             {/* Tickets */}
             <div className="glass rounded-3xl overflow-hidden shadow-lg animate-slideUp" style={{animationDelay: '0.3s'}}>
-              <div className="bg-gradient-to-r from-pink-600 to-orange-600 p-6 flex justify-between items-center">
+              <div className="bg-linear-to-r from-pink-600 to-orange-600 p-6 flex justify-between items-center">
                 <h2 className="text-2xl font-display text-white flex items-center">
                   <Ticket size={24} className="mr-3" />
                   Ticket Types
@@ -269,7 +269,7 @@ const EventCreationPage = () => {
 
               <div className="p-8 space-y-4">
                 {tickets.map((ticket, index) => (
-                  <div key={ticket.id} className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200 relative">
+                  <div key={ticket.id} className="p-6 bg-linear-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200 relative">
                     {tickets.length > 1 && (
                       <button
                         onClick={() => removeTicket(ticket.id)}
@@ -329,14 +329,14 @@ const EventCreationPage = () => {
 
             {/* Image Upload */}
             <div className="glass rounded-3xl overflow-hidden shadow-lg animate-slideUp" style={{animationDelay: '0.4s'}}>
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-6">
+              <div className="bg-linear-to-r from-emerald-600 to-teal-600 p-6">
                 <h2 className="text-2xl font-display text-white flex items-center">
                   <ImagePlus size={24} className="mr-3" />
                   Event Banner
                 </h2>
               </div>
               <div className="p-8">
-                <div className="border-2 border-dashed border-purple-300 rounded-2xl p-8 text-center hover:border-purple-500 transition-all bg-gradient-to-br from-purple-50/50 to-pink-50/50">
+                <div className="border-2 border-dashed border-purple-300 rounded-2xl p-8 text-center hover:border-purple-500 transition-all bg-linear-to-br from-purple-50/50 to-pink-50/50">
                   {imagePreview ? (
                     <div className="relative">
                       <img src={imagePreview} alt="Preview" className="max-h-80 w-full mx-auto rounded-xl object-cover shadow-lg" />
@@ -370,7 +370,7 @@ const EventCreationPage = () => {
                   />
                   <label
                     htmlFor="event-image"
-                    className="mt-6 inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl cursor-pointer hover:shadow-lg hover:shadow-purple-500/30 transition-all font-bold"
+                    className="mt-6 inline-block px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl cursor-pointer hover:shadow-lg hover:shadow-purple-500/30 transition-all font-bold"
                   >
                     {imagePreview ? 'Change Image' : 'Choose Image'}
                   </label>
@@ -389,7 +389,7 @@ const EventCreationPage = () => {
                   onClick={() => setVisibility('public')}
                   className={`py-3 px-4 rounded-xl flex items-center gap-3 transition-all font-semibold ${
                     visibility === 'public' 
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md' 
+                      ? 'bg-linear-to-r from-purple-600 to-pink-600 text-white shadow-md' 
                       : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-purple-300'
                   }`}
                 >
@@ -405,7 +405,7 @@ const EventCreationPage = () => {
                   onClick={() => setVisibility('private')}
                   className={`py-3 px-4 rounded-xl flex items-center gap-3 transition-all font-semibold ${
                     visibility === 'private' 
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md' 
+                      ? 'bg-linear-to-r from-purple-600 to-pink-600 text-white shadow-md' 
                       : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-purple-300'
                   }`}
                 >
@@ -422,7 +422,7 @@ const EventCreationPage = () => {
 
             {/* Preview */}
             <div className="glass rounded-2xl overflow-hidden shadow-lg animate-slideUp" style={{animationDelay: '0.6s'}}>
-              <div className="bg-gradient-to-r from-slate-700 to-slate-900 p-6">
+              <div className="bg-linear-to-r from-slate-700 to-slate-900 p-6">
                 <h3 className="text-lg font-display text-white flex items-center">
                   <Eye size={20} className="mr-2" />
                   Quick Preview
@@ -463,7 +463,7 @@ const EventCreationPage = () => {
             </div>
 
             {/* Tips */}
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200 animate-slideUp" style={{animationDelay: '0.7s'}}>
+            <div className="bg-linear-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200 animate-slideUp" style={{animationDelay: '0.7s'}}>
               <div className="flex items-start space-x-3">
                 <Sparkles size={20} className="text-amber-600 flex-shrink-0 mt-1" />
                 <div>

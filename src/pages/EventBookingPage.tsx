@@ -58,7 +58,7 @@ const mockEvent = {
   ],
 };
 
-const EventRegistrationPage: React.FC = () => {
+const EventBookingPage: React.FC = () => {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
@@ -85,7 +85,7 @@ const EventRegistrationPage: React.FC = () => {
   const totalTickets = Object.values(quantities).reduce((sum, q) => sum + q, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -162,7 +162,7 @@ const EventRegistrationPage: React.FC = () => {
           alt={mockEvent.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/50 to-transparent" />
         
         {/* Decorative Elements */}
         <div className="absolute top-10 left-10 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl"></div>
@@ -171,7 +171,7 @@ const EventRegistrationPage: React.FC = () => {
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8 md:pb-12 w-full">
             <div className="flex flex-wrap items-center gap-3 mb-4">
-              <div className="inline-flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-2 rounded-full shadow-lg">
+              <div className="inline-flex items-center bg-linear-to-r from-yellow-400 to-orange-500 px-4 py-2 rounded-full shadow-lg">
                 <Sparkles size={16} className="text-white mr-2" />
                 <span className="text-white font-bold text-sm">Limited Tickets Available</span>
               </div>
@@ -280,7 +280,7 @@ const EventRegistrationPage: React.FC = () => {
                           <div className="flex items-center gap-2 mb-2">
                             <h3 className="font-bold text-xl text-slate-900">{ticket.name}</h3>
                             {ticket.popular && (
-                              <span className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                              <span className="bg-linear-to-r from-amber-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                                 POPULAR
                               </span>
                             )}
@@ -378,7 +378,7 @@ const EventRegistrationPage: React.FC = () => {
                 />
                 <button
                   onClick={() => setPromoApplied(!!promoCode.trim())}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!promoCode.trim()}
                 >
                   Apply Code
@@ -467,7 +467,7 @@ const EventRegistrationPage: React.FC = () => {
 
                   {/* Checkout Button */}
                   <button 
-                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all flex items-center justify-center group mb-4"
+                    className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all flex items-center justify-center group mb-4"
                     disabled={!hasSelection}
                   >
                     <span>Proceed to Checkout</span>
@@ -480,7 +480,7 @@ const EventRegistrationPage: React.FC = () => {
                 </>
               ) : (
                 <div className="text-center py-12">
-                  <div className="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-20 h-20 bg-linear-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Ticket size={36} className="text-indigo-600" />
                   </div>
                   <p className="text-lg font-semibold text-slate-700 mb-2">No tickets selected</p>
@@ -507,4 +507,4 @@ const EventRegistrationPage: React.FC = () => {
   );
 };
 
-export default EventRegistrationPage;
+export default EventBookingPage;

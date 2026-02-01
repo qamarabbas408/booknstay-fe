@@ -88,12 +88,12 @@ const Homepage: React.FC = () => {
     : featuredItems.filter(item => activeTab === 'hotels' ? item.type === 'hotel' : item.type === 'event');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
   
 
       {/* Hero Section */}
       <header className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 noise"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 noise"></div>
         <div className="absolute inset-0 bg-black/20"></div>
         
         {/* Animated background elements */}
@@ -110,7 +110,7 @@ const Homepage: React.FC = () => {
             <h1 className="text-5xl md:text-7xl font-display text-white mb-6 leading-tight">
               Your Next Adventure
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-pink-200 to-purple-200">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-yellow-200 via-pink-200 to-purple-200">
                 Starts Here
               </span>
             </h1>
@@ -149,7 +149,7 @@ const Homepage: React.FC = () => {
                   />
                 </div>
                 
-                <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 group">
+                <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 group">
                   <Search className="mr-2 group-hover:scale-110 transition-transform" size={22} />
                   <span>Explore</span>
                 </button>
@@ -168,7 +168,7 @@ const Homepage: React.FC = () => {
               className="glass p-6 rounded-2xl text-center cursor-pointer card-hover animate-slideInRight border border-white/40"
               style={{animationDelay: `${idx * 0.1}s`}}
             >
-              <div className={`text-4xl mb-3 inline-block bg-gradient-to-br ${cat.color} p-3 rounded-xl`}>
+              <div className={`text-4xl mb-3 inline-block bg-linear-to-br ${cat.color} p-3 rounded-xl`}>
                 {cat.icon}
               </div>
               <h3 className="font-bold text-slate-800">{cat.name}</h3>
@@ -193,7 +193,7 @@ const Homepage: React.FC = () => {
                 onClick={() => setActiveTab(tab)}
                 className={`px-6 py-2.5 rounded-lg font-semibold capitalize transition-all ${
                   activeTab === tab
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                    ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
@@ -217,7 +217,7 @@ const Homepage: React.FC = () => {
                   alt={item.title} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
                 {/* Type Badge */}
                 <div className="absolute top-4 left-4">
@@ -234,7 +234,7 @@ const Homepage: React.FC = () => {
                 
                 {/* Featured Badge */}
                 {item.featured && (
-                  <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full">
+                  <div className="absolute top-4 right-4 bg-linear-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full">
                     <span className="text-white text-xs font-bold flex items-center">
                       <Sparkles size={12} className="mr-1" />
                       Featured
@@ -269,13 +269,13 @@ const Homepage: React.FC = () => {
                 <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-4">
                   <div>
                     <div className="text-sm text-slate-500 mb-0.5">From</div>
-                    <div className="text-2xl font-display text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                    <div className="text-2xl font-display text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-purple-600">
                       {item.price}
                     </div>
                   </div>
                   
                   {item.type === 'event' ? (
-                    <button className="flex items-center font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
+                    <button className="flex items-center font-bold bg-linear-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
                       <Ticket size={18} className="mr-2 group-hover:rotate-12 transition-transform" />
                       Get Tickets
                     </button>
@@ -301,7 +301,7 @@ const Homepage: React.FC = () => {
 
       {/* Vendor CTA Section */}
       <section className="py-24 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-indigo-900 to-purple-900"></div>
         <div className="absolute inset-0 noise opacity-50"></div>
         
         {/* Decorative elements */}
@@ -309,7 +309,7 @@ const Homepage: React.FC = () => {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
         
         <div className="max-w-6xl mx-auto relative z-10">
-          <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 backdrop-blur-xl rounded-3xl p-12 md:p-16 border border-white/10 shadow-2xl">
+          <div className="bg-linear-to-r from-indigo-600/20 to-purple-600/20 backdrop-blur-xl rounded-3xl p-12 md:p-16 border border-white/10 shadow-2xl">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
               <div className="text-white text-center lg:text-left lg:mr-8">
                 <div className="inline-flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full mb-6">

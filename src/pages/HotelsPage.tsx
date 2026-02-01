@@ -11,7 +11,7 @@ const HotelsPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('recommended');
   const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
   const [favorites, setFavorites] = useState<number[]>([]);
   
   const { data: amenitiesData } = useGetAmenitiesQuery();
@@ -31,19 +31,22 @@ const HotelsPage: React.FC = () => {
     );
   };
 
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  const handleSearch = () => {
+    setAppliedSearch(searchQuery);
+    setPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setAppliedSearch('');
+    setPage(1);
+  };
 
   // API Query
   const { data: hotelsData, isLoading, isFetching } = useGetHotelsQuery({
     page,
     limit: 12,
-    search: debouncedSearchQuery || undefined,
+    search: appliedSearch || undefined,
     min_price: priceRange[0],
     max_price: priceRange[1],
     sort_by: sortBy === 'price-low' ? 'price_low' : sortBy === 'price-high' ? 'price_high' : undefined,
@@ -59,12 +62,13 @@ const HotelsPage: React.FC = () => {
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearchQuery, priceRange, sortBy, selectedStars, selectedAmenities]);
+  }, [appliedSearch, priceRange, sortBy, selectedStars, selectedAmenities]);
 
   const clearFilters = () => {
     setPriceRange([50, 500]);
     setSelectedStars([]);
     setSelectedAmenities([]);
+    handleClearSearch(); // Also clear the search query
   };
 
   const activeFiltersCount = selectedStars.length + selectedAmenities.length + 
@@ -88,7 +92,7 @@ const HotelsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -172,7 +176,7 @@ const HotelsPage: React.FC = () => {
       `}</style>
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white py-20 overflow-hidden">
+      <div className="relative bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 text-white py-20 overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         
         {/* Decorative elements */}
@@ -209,10 +213,23 @@ const HotelsPage: React.FC = () => {
                   />
                 </div>
                 
-                <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-indigo-500/40 transition-all flex items-center justify-center">
+                <button 
+                  onClick={handleSearch}
+                  className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-indigo-500/40 transition-all flex items-center justify-center"
+                >
                   <Search className="mr-2" size={20} />
                   Search Hotels
                 </button>
+
+                {(searchQuery || appliedSearch) && (
+                  <button 
+                    onClick={handleClearSearch}
+                    className="bg-white/90 backdrop-blur-sm text-slate-600 px-6 py-4 rounded-xl font-bold hover:bg-white hover:text-red-600 transition-all flex items-center justify-center"
+                  >
+                    <X size={20} className="mr-2" />
+                    Clear
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -409,7 +426,7 @@ const HotelsPage: React.FC = () => {
 
                         {/* Featured Badge */}
                         {hotel.featured && (
-                          <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center shadow-lg">
+                          <div className="absolute top-3 left-3 bg-linear-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center shadow-lg">
                             <Sparkles size={14} className="text-white mr-1" />
                             <span className="text-white text-xs font-bold">Featured</span>
                           </div>
@@ -472,7 +489,7 @@ const HotelsPage: React.FC = () => {
                             </div>
                           </div>
 
-                          <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group-hover:scale-105">
+                          <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group-hover:scale-105">
                             View Deal
                           </button>
                         </div>
@@ -612,7 +629,7 @@ const HotelsPage: React.FC = () => {
               <div className="sticky bottom-0  bg-transparent  pt-6 mt-8 border-t border-slate-200 space-y-3">
                 <button
                   onClick={() => setShowFilters(false)}
-                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
+                  className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
                 >
                   Show {filteredHotels.length} Results
                 </button>

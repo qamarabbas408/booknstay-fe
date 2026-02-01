@@ -63,7 +63,7 @@ const HelpCenter = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -129,7 +129,7 @@ const HelpCenter = () => {
 
 
       {/* Hero Section */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 py-20">
+      <header className="relative overflow-hidden bg-linear-to-br from-indigo-600 via-blue-600 to-cyan-500 py-20">
         <div className="absolute inset-0 bg-black/10"></div>
         
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
@@ -158,7 +158,7 @@ const HelpCenter = () => {
                   placeholder="Search for answers..."
                   className="flex-1 bg-transparent outline-none text-slate-800 placeholder:text-slate-400 text-lg font-medium"
                 />
-                <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+                <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
                   Search
                 </button>
               </div>
@@ -184,7 +184,7 @@ const HelpCenter = () => {
                 className="bg-white rounded-2xl p-6 border-2 border-slate-200 cursor-pointer card-hover animate-fadeInUp"
                 style={{animationDelay: `${idx * 0.1}s`}}
               >
-                <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${category.color} mb-4`}>
+                <div className={`inline-flex p-4 rounded-xl bg-linear-to-br ${category.color} mb-4`}>
                   <category.icon size={28} className="text-white" />
                 </div>
                 <h3 className="font-bold text-xl text-slate-900 mb-2">{category.title}</h3>
@@ -268,7 +268,7 @@ const HelpCenter = () => {
         </section>
 
         {/* Contact Support */}
-        <section className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-12 border-2 border-indigo-200">
+        <section className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-3xl p-12 border-2 border-indigo-200">
           <div className="text-center mb-10">
             <h2 className="text-4xl font-display text-slate-900 mb-3">Still need help?</h2>
             <p className="text-slate-600 text-lg font-serif">Our support team is here for you 24/7</p>
@@ -276,7 +276,7 @@ const HelpCenter = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             <div className="bg-white rounded-2xl p-6 text-center border-2 border-indigo-200 card-hover">
-              <div className="bg-gradient-to-br from-blue-500 to-cyan-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-linear-to-br from-blue-500 to-cyan-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Phone size={28} className="text-white" />
               </div>
               <h3 className="font-bold text-xl text-slate-900 mb-2">Phone Support</h3>
@@ -287,7 +287,7 @@ const HelpCenter = () => {
             </div>
 
             <div className="bg-white rounded-2xl p-6 text-center border-2 border-indigo-200 card-hover">
-              <div className="bg-gradient-to-br from-purple-500 to-pink-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-linear-to-br from-purple-500 to-pink-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mail size={28} className="text-white" />
               </div>
               <h3 className="font-bold text-xl text-slate-900 mb-2">Email Support</h3>
@@ -298,7 +298,7 @@ const HelpCenter = () => {
             </div>
 
             <div className="bg-white rounded-2xl p-6 text-center border-2 border-indigo-200 card-hover">
-              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-linear-to-br from-emerald-500 to-teal-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageSquare size={28} className="text-white" />
               </div>
               <h3 className="font-bold text-xl text-slate-900 mb-2">Live Chat</h3>
@@ -316,7 +316,7 @@ const HelpCenter = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div>
-              <div className="text-3xl font-display mb-4 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              <div className="text-3xl font-display mb-4 bg-linear-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                 BookNStay
               </div>
               <p className="text-slate-400 leading-relaxed font-serif">
