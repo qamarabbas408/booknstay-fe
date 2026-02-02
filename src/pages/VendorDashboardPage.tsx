@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
-import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut } from 'lucide-react';
+import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut, Ticket } from 'lucide-react';
 
 // Mock data for hotel vendor dashboard
 interface Stat {
@@ -218,6 +218,37 @@ const mockNotifications: Notification[] = [
   },
 ];
 
+interface VendorEvent {
+  id: number;
+  title: string;
+  date: string;
+  location: string;
+  status: 'active' | 'draft' | 'past';
+  ticketsSold: number;
+  revenue: string;
+}
+
+const mockVendorEvents: VendorEvent[] = [
+  {
+    id: 1,
+    title: 'Summer Music Festival',
+    date: 'Aug 15, 2026',
+    location: 'Wembley Arena',
+    status: 'active',
+    ticketsSold: 450,
+    revenue: '$38,250'
+  },
+  {
+    id: 2,
+    title: 'Tech Innovation Summit',
+    date: 'Sep 10, 2026',
+    location: 'Convention Center',
+    status: 'draft',
+    ticketsSold: 0,
+    revenue: '$0'
+  },
+];
+
 const VendorDashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -342,6 +373,7 @@ const VendorDashboardPage: React.FC = () => {
             {[
               { id: 'overview', label: 'Overview', icon: <BarChart2 size={20} /> },
               { id: 'bookings', label: 'Bookings', icon: <Calendar size={20} /> },
+              { id: 'events', label: 'Event Management', icon: <Ticket size={20} /> },
               { id: 'rooms', label: 'Room Management', icon: <Hotel size={20} /> },
               { id: 'reviews', label: 'Reviews & Ratings', icon: <Star size={20} /> },
               { id: 'analytics', label: 'Analytics', icon: <TrendingUp size={20} /> },
@@ -388,6 +420,75 @@ const VendorDashboardPage: React.FC = () => {
       {/* Main Content */}
       <main className="lg:ml-64 pt-24 pb-20 px-4 lg:px-6">
         <div className="max-w-7xl mx-auto">
+          {activeSection === 'events' ? (
+            <div className="animate-fadeIn">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Event Management</h1>
+                  <p className="text-slate-600">Manage your events, tickets, and listings</p>
+                </div>
+                <button 
+                  onClick={() => navigate('/vendor/events/create')}
+                  className="px-5 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all flex items-center gap-2"
+                >
+                  <Plus size={18} />
+                  Create Event
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {mockVendorEvents.map(event => (
+                  <div key={event.id} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 hover:shadow-xl transition-all">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-bold text-xl text-slate-900 mb-1">{event.title}</h3>
+                        <div className="flex items-center text-slate-500 text-sm">
+                          <Calendar size={14} className="mr-1" />
+                          {event.date}
+                        </div>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        event.status === 'active' ? 'bg-green-100 text-green-700' :
+                        event.status === 'draft' ? 'bg-amber-100 text-amber-700' :
+                        'bg-slate-100 text-slate-700'
+                      }`}>
+                        {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center text-slate-600 text-sm">
+                        <MapPin size={16} className="mr-2 text-indigo-600" />
+                        {event.location}
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                        <div>
+                          <p className="text-xs text-slate-500">Tickets Sold</p>
+                          <p className="font-bold text-slate-900">{event.ticketsSold}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-slate-500">Revenue</p>
+                          <p className="font-bold text-indigo-600">{event.revenue}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-4 border-t border-slate-200">
+                      <button className="flex-1 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
+                        <Edit size={16} />
+                        Edit
+                      </button>
+                      <button className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
+                        <Trash2 size={16} />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
           {/* Welcome Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
@@ -719,6 +820,8 @@ const VendorDashboardPage: React.FC = () => {
               ))}
             </div>
           </section>
+            </>
+          )}
         </div>
       </main>
 
