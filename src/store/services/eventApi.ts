@@ -19,6 +19,29 @@ export interface Event {
   tickets_left: number | null;
 }
 
+export interface VendorEvent {
+  id: number;
+  title: string;
+  status: string;
+  visibility: string;
+  start_date: string;
+  end_date: string;
+  total_capacity: number;
+  tickets_sold: number;
+  revenue: number;
+  category: string;
+  tickets: {
+    id: number;
+    name: string;
+    price: string;
+    quantity: number;
+    sold: number;
+    created_at: string;
+    updated_at: string;
+  }[];
+  images: { id: number; url: string; is_primary: number }[];
+}
+
 export interface EventsResponse {
   status: string;
   data: Event[];
@@ -62,7 +85,13 @@ export const eventApi = api.injectEndpoints({
         },
       }),
     }),
+    getVendorEvents: builder.query<{ data: VendorEvent[] }, void>({
+      query: () => ({
+        url: '/vendor/events',
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
-export const { useGetEventsQuery, useCreateEventMutation } = eventApi;
+export const { useGetEventsQuery, useCreateEventMutation, useGetVendorEventsQuery } = eventApi;

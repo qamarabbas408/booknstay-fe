@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
 import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut, Ticket } from 'lucide-react';
+import { useGetVendorEventsQuery } from '../store/services/eventApi';
+import PulseLoader from '../components/PulseLoader';
 
 // Mock data for hotel vendor dashboard
 interface Stat {
@@ -218,37 +220,6 @@ const mockNotifications: Notification[] = [
   },
 ];
 
-interface VendorEvent {
-  id: number;
-  title: string;
-  date: string;
-  location: string;
-  status: 'active' | 'draft' | 'past';
-  ticketsSold: number;
-  revenue: string;
-}
-
-const mockVendorEvents: VendorEvent[] = [
-  {
-    id: 1,
-    title: 'Summer Music Festival',
-    date: 'Aug 15, 2026',
-    location: 'Wembley Arena',
-    status: 'active',
-    ticketsSold: 450,
-    revenue: '$38,250'
-  },
-  {
-    id: 2,
-    title: 'Tech Innovation Summit',
-    date: 'Sep 10, 2026',
-    location: 'Convention Center',
-    status: 'draft',
-    ticketsSold: 0,
-    revenue: '$0'
-  },
-];
-
 const VendorDashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -257,6 +228,9 @@ const VendorDashboardPage: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+
+  const { data: vendorEventsData, isLoading: isLoadingEvents } = useGetVendorEventsQuery();
+  const vendorEvents = vendorEventsData?.data || [];
 
   const handleLogout = () => {
     dispatch(logout());
@@ -436,56 +410,66 @@ const VendorDashboardPage: React.FC = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockVendorEvents.map(event => (
-                  <div key={event.id} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 hover:shadow-xl transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="font-bold text-xl text-slate-900 mb-1">{event.title}</h3>
-                        <div className="flex items-center text-slate-500 text-sm">
-                          <Calendar size={14} className="mr-1" />
-                          {event.date}
-                        </div>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        event.status === 'active' ? 'bg-green-100 text-green-700' :
-                        event.status === 'draft' ? 'bg-amber-100 text-amber-700' :
-                        'bg-slate-100 text-slate-700'
-                      }`}>
-                        {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                      </span>
-                    </div>
-
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center text-slate-600 text-sm">
-                        <MapPin size={16} className="mr-2 text-indigo-600" />
-                        {event.location}
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+              {isLoadingEvents ? (
+                <div className="flex justify-center py-12">
+                  <PulseLoader />
+                </div>
+              ) : vendorEvents.length === 0 ? (
+                <div className="text-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-200">
+                  <p>No events found. Create your first event to get started!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {vendorEvents.map(event => (
+                    <div key={event.id} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 hover:shadow-xl transition-all">
+                      <div className="flex justify-between items-start mb-4">
                         <div>
-                          <p className="text-xs text-slate-500">Tickets Sold</p>
-                          <p className="font-bold text-slate-900">{event.ticketsSold}</p>
+                          <h3 className="font-bold text-xl text-slate-900 mb-1 line-clamp-1" title={event.title}>{event.title}</h3>
+                          <div className="flex items-center text-slate-500 text-sm">
+                            <Calendar size={14} className="mr-1" />
+                            {new Date(event.start_date).toLocaleDateString()}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xs text-slate-500">Revenue</p>
-                          <p className="font-bold text-indigo-600">{event.revenue}</p>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                          event.status === 'active' ? 'bg-green-100 text-green-700' :
+                          event.status === 'draft' ? 'bg-amber-100 text-amber-700' :
+                          'bg-slate-100 text-slate-700'
+                        }`}>
+                          {event.status}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center text-slate-600 text-sm">
+                          <Ticket size={16} className="mr-2 text-indigo-600" />
+                          {event.category}
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                          <div>
+                            <p className="text-xs text-slate-500">Tickets Sold</p>
+                            <p className="font-bold text-slate-900">{event.tickets_sold}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-slate-500">Revenue</p>
+                            <p className="font-bold text-indigo-600">${event.revenue.toLocaleString()}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex gap-3 pt-4 border-t border-slate-200">
-                      <button className="flex-1 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
-                        <Edit size={16} />
-                        Edit
-                      </button>
-                      <button className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
-                        <Trash2 size={16} />
-                        Delete
-                      </button>
+                      <div className="flex gap-3 pt-4 border-t border-slate-200">
+                        <button className="flex-1 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
+                          <Edit size={16} />
+                          Edit
+                        </button>
+                        <button className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
+                          <Trash2 size={16} />
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <>
