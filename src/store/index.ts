@@ -1,5 +1,5 @@
 import { configureStore,combineReducers } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
+// import { setupListeners } from '@reduxjs/toolkit/query';
 import { api } from './services/api';
 import authReducer from './slices/authSlice';
 import logger from 'redux-logger';

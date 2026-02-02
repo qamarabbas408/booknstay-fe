@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag, Loader2 } from 'lucide-react';
 import { useGetEventCategoriesQuery } from '../store/services/miscApi';
+import { useCreateEventMutation } from '../store/services/eventApi';
+import { CustomToaster, showToast } from '../components/CustomToaster';
 
 interface TicketType {
   id: number;
@@ -10,11 +13,16 @@ interface TicketType {
 }
 
 const EventCreationPage = () => {
+  const navigate = useNavigate();
+  const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [location, setLocation] = useState('');
   const [venue, setVenue] = useState('');
   const [tickets, setTickets] = useState<TicketType[]>([
@@ -22,6 +30,7 @@ const EventCreationPage = () => {
   ]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { data: categoriesData, isLoading: isLoadingCategories } = useGetEventCategoriesQuery();
   const categories = categoriesData?.data || [];
@@ -45,14 +54,56 @@ const EventCreationPage = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
+  const handlePublish = async () => {
+    if (!title || !category || !date || !venue) {
+      showToast.error("Please fill in all required fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('category_id', category);
+    formData.append('description', description);
+    formData.append('startDate', date);
+    formData.append('startTime', time);
+    formData.append('endDate', endDate);
+    formData.append('endTime', endTime);
+    formData.append('venue', venue);
+    formData.append('location', location);
+    formData.append('visibility', visibility);
+    formData.append('status', 'active');
+
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    tickets.forEach((ticket, index) => {
+      formData.append(`tickets[${index}][name]`, ticket.name);
+      formData.append(`tickets[${index}][price]`, ticket.price.toString());
+      formData.append(`tickets[${index}][quantity]`, ticket.quantity.toString());
+    });
+
+    try {
+      await createEvent(formData).unwrap();
+      showToast.success("Event published successfully!");
+      navigate('/vendor/dashboard');
+    } catch (error: any) {
+      console.error(error);
+      const msg = error?.data?.message || "Failed to create event";
+      showToast.error(msg);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -117,8 +168,14 @@ const EventCreationPage = () => {
               Save Draft
             </button>
             <button className="flex items-center px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all">
-              <Globe size={18} className="mr-2" />
-              Publish Event
+              <button 
+                onClick={handlePublish}
+                disabled={isCreating}
+                className="flex items-center px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50"
+              >
+                {isCreating ? <Loader2 className="animate-spin mr-2" size={18} /> : <Globe size={18} className="mr-2" />}
+                {isCreating ? 'Publishing...' : 'Publish Event'}
+              </button>
             </button>
           </div>
         </div>
@@ -218,8 +275,8 @@ const EventCreationPage = () => {
                     </label>
                     <input
                       type="date"
-                      value={date}
-                      onChange={e => setDate(e.target.value)}
+                      value={endDate}
+                      onChange={e => setEndDate(e.target.value)}
                       className="w-full p-4 rounded-xl border-2 border-slate-200 transition-all bg-white"
                     />
                   </div>
@@ -230,8 +287,8 @@ const EventCreationPage = () => {
                     </label>
                     <input
                       type="time"
-                      value={time}
-                      onChange={e => setTime(e.target.value)}
+                      value={endTime}
+                      onChange={e => setEndTime(e.target.value)}
                       className="w-full p-4 rounded-xl border-2 border-slate-200 transition-all bg-white"
                     />
                   </div>

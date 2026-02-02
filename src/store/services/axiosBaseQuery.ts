@@ -1,7 +1,8 @@
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
 import axios, { type AxiosRequestConfig, AxiosError } from 'axios';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
-const axiosInstance = axios.create({
+import {type RootState } from '../index';
+ const axiosInstance = axios.create({
   baseURL: APIENDPOINTS.base_url, // Your future backend URL
 });
 
@@ -26,7 +27,8 @@ export const axiosBaseQuery =
     unknown,
     unknown
   > =>
-  async ({ url, method, data, params, headers }) => { // Add headers here
+  async ({ url, method, data, params, headers }, { getState }) => {
+    const token = (getState() as RootState).auth.token;
     try {
       // Axios will now automatically detect FormData in 'data' 
       // and set the correct Content-Type if we don't force it to JSON
@@ -35,7 +37,11 @@ export const axiosBaseQuery =
         method, 
         data, 
         params, 
-        headers 
+        headers: {
+          ...headers,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+
       });
       return { data: result.data };
     } catch (axiosError) {

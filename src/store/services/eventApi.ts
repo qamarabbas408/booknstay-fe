@@ -52,7 +52,17 @@ export const eventApi = api.injectEndpoints({
         params,
       }),
     }),
+    createEvent: builder.mutation<any, FormData>({
+      query: (body) => ({
+        url: '/events',
+        method: 'POST',
+        data: body,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }),
+    }),
   }),
 });
 
-export const { useGetEventsQuery } = eventApi;
+export const { useGetEventsQuery, useCreateEventMutation } = eventApi;
