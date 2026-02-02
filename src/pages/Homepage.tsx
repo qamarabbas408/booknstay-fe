@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Calendar, MapPin, Star, Ticket, ChevronRight, Sparkles, TrendingUp } from 'lucide-react';
+import { APIENDPOINTS } from '../utils/ApiConstants';
+import { AppImages } from '../utils/AppImages';
 import { useGetHotelsQuery } from '../store/services/hotelApi';
 import { useGetEventsQuery } from '../store/services/eventApi';
 import PulseLoader from '../components/PulseLoader';
@@ -40,7 +42,7 @@ const Homepage: React.FC = () => {
     location: hotel.location,
     price: `$${hotel.pricePerNight}/night`,
     rating: hotel.rating,
-    image: hotel.image,
+    image: hotel.image ? (hotel.image.startsWith('http') ? hotel.image : `${APIENDPOINTS.content_url}${hotel.image}`) : AppImages.placeholders.hotels_placeholder,
     featured: hotel.featured,
   })) || [];
 
@@ -51,7 +53,7 @@ const Homepage: React.FC = () => {
     location: event.location,
     price: event.price,
     rating: event.rating,
-    image: event.image,
+    image: event.image ? (event.image.startsWith('http') ? event.image : `${APIENDPOINTS.content_url}${event.image}`) : AppImages.placeholders.event_placeholder,
     date: event.start_date,
     featured: event.featured,
   })) || [];
@@ -196,7 +198,7 @@ const Homepage: React.FC = () => {
                     src={item.image} 
                     alt={item.title} 
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://placehold.co/800x600?text=No+Image';
+                      (e.target as HTMLImageElement).src = item.type === 'hotel' ? AppImages.placeholders.hotels_placeholder : AppImages.placeholders.event_placeholder;
                     }}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />

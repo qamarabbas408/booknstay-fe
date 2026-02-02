@@ -28,9 +28,9 @@ const EventCreationPage = () => {
   const [tickets, setTickets] = useState<TicketType[]>([
     { id: 1, name: 'General Admission', price: 0, quantity: 100 },
   ]);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   const { data: categoriesData, isLoading: isLoadingCategories } = useGetEventCategoriesQuery();
   const categories = categoriesData?.data || [];
@@ -52,18 +52,41 @@ const EventCreationPage = () => {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      const remainingSlots = 5 - imageFiles.length;
+
+      if (filesArray.length > remainingSlots) {
+        showToast.error(`You can only upload a maximum of 5 images. (${remainingSlots} remaining)`);
+        return;
+      }
+
+      const newFiles = filesArray.slice(0, remainingSlots);
+      setImageFiles(prev => [...prev, ...newFiles]);
+
+      Promise.all(newFiles.map(file => new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      }))).then(results => {
+        setImagePreviews(prev => [...prev, ...results]);
+      });
     }
+  };
+
+  const removeImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handlePublish = async () => {
     if (!title || !category || !date || !venue) {
       showToast.error("Please fill in all required fields.");
+      return;
+    }
+    
+    if (imageFiles.length === 0) {
+      showToast.error("Please upload at least one image.");
       return;
     }
 
@@ -80,9 +103,9 @@ const EventCreationPage = () => {
     formData.append('visibility', visibility);
     formData.append('status', 'active');
 
-    if (imageFile) {
-      formData.append('image', imageFile);
-    }
+    imageFiles.forEach((file) => {
+      formData.append('images[]', file);
+    });
 
     tickets.forEach((ticket, index) => {
       formData.append(`tickets[${index}][name]`, ticket.name);
@@ -405,15 +428,37 @@ const EventCreationPage = () => {
               </div>
               <div className="p-8">
                 <div className="border-2 border-dashed border-purple-300 rounded-2xl p-8 text-center hover:border-purple-500 transition-all bg-linear-to-br from-purple-50/50 to-pink-50/50">
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img src={imagePreview} alt="Preview" className="max-h-80 w-full mx-auto rounded-xl object-cover shadow-lg" />
-                      <button
-                        onClick={() => setImagePreview(null)}
-                        className="absolute top-4 right-4 bg-red-500 text-white p-3 rounded-full hover:bg-red-600 transition-colors shadow-lg"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                  {imagePreviews.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative group">
+                          <img src={preview} alt={`Preview ${index + 1}`} className="h-32 w-full rounded-xl object-cover shadow-md" />
+                          <button
+                            onClick={() => removeImage(index)}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors shadow-lg opacity-0 group-hover:opacity-100"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                          {index === 0 && (
+                            <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md backdrop-blur-sm">
+                              Cover
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {imagePreviews.length < 5 && (
+                        <label className="h-32 border-2 border-dashed border-purple-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors bg-white/50">
+                          <Plus size={24} className="text-purple-400 mb-1" />
+                          <span className="text-xs text-purple-600 font-semibold">Add Image</span>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
                     </div>
                   ) : (
                     <>
@@ -421,27 +466,29 @@ const EventCreationPage = () => {
                         <ImagePlus size={36} className="text-purple-600" />
                       </div>
                       <p className="text-slate-700 font-semibold mb-2">Drag & drop your image here</p>
-                      <p className="text-sm text-slate-500 mb-4">or click the button below to browse</p>
+                      <p className="text-sm text-slate-500 mb-4">Upload up to 5 images (min 1 required)</p>
                       <div className="bg-white rounded-lg p-4 inline-block">
                         <p className="text-xs text-slate-600">
                           <span className="font-semibold">Recommended:</span> 1920×1080 px • Max 5MB
                         </p>
                       </div>
+                      <br />
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                        id="event-image"
+                      />
+                      <label
+                        htmlFor="event-image"
+                        className="mt-6 inline-block px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl cursor-pointer hover:shadow-lg hover:shadow-purple-500/30 transition-all font-bold"
+                      >
+                        Choose Images
+                      </label>
                     </>
                   )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="event-image"
-                  />
-                  <label
-                    htmlFor="event-image"
-                    className="mt-6 inline-block px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl cursor-pointer hover:shadow-lg hover:shadow-purple-500/30 transition-all font-bold"
-                  >
-                    {imagePreview ? 'Change Image' : 'Choose Image'}
-                  </label>
                 </div>
               </div>
             </div>
@@ -497,8 +544,8 @@ const EventCreationPage = () => {
                 </h3>
               </div>
               <div className="p-6">
-                {imagePreview && (
-                  <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl mb-4 shadow-md" />
+                {imagePreviews.length > 0 && (
+                  <img src={imagePreviews[0]} alt="Preview" className="w-full h-40 object-cover rounded-xl mb-4 shadow-md" />
                 )}
                 <div className="space-y-3 text-sm">
                   <div className="bg-purple-50 p-3 rounded-lg">

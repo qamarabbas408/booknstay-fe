@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Star, Filter, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car } from 'lucide-react';
+import { APIENDPOINTS } from '../utils/ApiConstants';
+import { AppImages } from '../utils/AppImages';
 import { useGetHotelsQuery } from '../store/services/hotelApi';
 import { useGetAmenitiesQuery } from '../store/services/miscApi';
 import SkeletonLoader from '../components/SkeletonLoader';
@@ -75,18 +77,21 @@ const HotelsPage: React.FC = () => {
   const activeFiltersCount = selectedStars.length + selectedAmenities.length + 
     (priceRange[0] !== 50 || priceRange[1] !== 500 ? 1 : 0);
 
-  const HotelImage = ({ src, alt }: { src: string; alt: string }) => {
-    const [imgSrc, setImgSrc] = useState(src);
+  const HotelImage = ({ src, alt }: { src: string | null | undefined; alt: string }) => {
+    const getImageUrl = (path: string | null | undefined) => {
+      if (!path) return AppImages.placeholders.hotels_placeholder;
+      if (path.startsWith('http')) return path;
+      return `${APIENDPOINTS.content_url}${path}`;
+    };
 
-    useEffect(() => {
-      setImgSrc(src);
-    }, [src]);
+    const [imgSrc, setImgSrc] = useState(getImageUrl(src));
+    useEffect(() => setImgSrc(getImageUrl(src)), [src]);
 
     return (
       <img
         src={imgSrc}
         alt={alt}
-        onError={() => setImgSrc('https://placehold.co/800x600?text=No+Image')}
+        onError={() => setImgSrc(AppImages.placeholders.hotels_placeholder)}
         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
       />
     );
