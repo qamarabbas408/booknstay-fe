@@ -41,6 +41,7 @@ export interface VendorEvent {
     sold: number;
     created_at: string;
     updated_at: string;
+    is_locked?: boolean;
   }[];
   images: { id: number; url: string; is_primary: number }[];
 }

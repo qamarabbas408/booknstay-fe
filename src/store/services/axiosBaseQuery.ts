@@ -6,15 +6,6 @@ import {type RootState } from '../index';
   baseURL: APIENDPOINTS.base_url, // Your future backend URL
 });
 
-// Axios Interceptor for Auth (Optional but recommended)
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
 export const axiosBaseQuery =
   (): BaseQueryFn<
     {
@@ -45,14 +36,15 @@ export const axiosBaseQuery =
       });
       return { data: result.data };
     } catch (axiosError) {
-      let err = axiosError as AxiosError;
+      const err = axiosError as AxiosError;
+
+       if (err.response?.status === 401) {
+        window.location.href = '/login';
+      }
       return {
         error: {
           status: err.response?.status,
-          data: err.response?.data || err.message,
-        },
-      };
+          data: err.response?.data || err.message,        },      };
     }
   };
-
 export default axiosInstance;

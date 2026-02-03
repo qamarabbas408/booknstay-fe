@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag, Loader2 } from 'lucide-react';
+import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag, Loader2, AlertCircle } from 'lucide-react';
 import { useGetEventCategoriesQuery } from '../store/services/miscApi';
 import { useCreateEventMutation, useGetVendorEventQuery, useUpdateVendorEventMutation, type VendorEvent } from '../store/services/eventApi';
 import { CustomToaster, showToast } from '../components/CustomToaster';
@@ -10,6 +10,7 @@ interface TicketType {
   name: string;
   price: number;
   quantity: number;
+  is_locked?: boolean;
 }
 
 const EventCreationPage = () => {
@@ -66,7 +67,7 @@ const EventCreationPage = () => {
       setVisibility(event.visibility as 'public' | 'private');
 
       if (event.tickets?.length > 0) {
-        setTickets(event.tickets.map(t => ({ id: t.id, name: t.name, price: parseFloat(t.price), quantity: t.quantity })));
+        setTickets(event.tickets.map(t => ({ id: t.id, name: t.name, price: parseFloat(t.price), quantity: t.quantity, is_locked: t.is_locked })));
       }
       if (event.images?.length > 0) {
         setImagePreviews(event.images.map(img => img.url));
@@ -413,7 +414,7 @@ const EventCreationPage = () => {
               <div className="p-8 space-y-4">
                 {tickets.map((ticket, index) => (
                   <div key={ticket.id} className="p-6 bg-linear-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200 relative">
-                    {tickets.length > 1 && (
+                    {tickets.length > 1 && !ticket.is_locked && (
                       <button
                         onClick={() => removeTicket(ticket.id)}
                         className="absolute top-4 right-4 p-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors"
@@ -422,11 +423,26 @@ const EventCreationPage = () => {
                       </button>
                     )}
 
-                    <div className="mb-4">
+                    <div className="mb-4 flex items-center">
                       <span className="inline-block bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold">
                         Ticket #{index + 1}
                       </span>
+                      {ticket.is_locked && (
+                        <span className="ml-2 inline-flex items-center bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold">
+                          <Lock size={12} className="mr-1" />
+                          Locked
+                        </span>
+                      )}
                     </div>
+
+                    {ticket.is_locked && (
+                      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start">
+                        <AlertCircle size={16} className="text-amber-600 mr-2 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-amber-800">
+                          This ticket tier cannot be edited because tickets have already been sold.
+                        </p>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
@@ -438,7 +454,8 @@ const EventCreationPage = () => {
                           type="text"
                           value={ticket.name}
                           onChange={e => updateTicket(ticket.id, 'name', e.target.value)}
-                          className="w-full p-3 rounded-lg border-2 border-purple-200 bg-white transition-all"
+                          className="w-full p-3 rounded-lg border-2 border-purple-200 bg-white transition-all disabled:opacity-60 disabled:bg-slate-100"
+                          disabled={ticket.is_locked}
                         />
                       </div>
                       <div>
@@ -448,7 +465,8 @@ const EventCreationPage = () => {
                           value={ticket.price}
                           onChange={e => updateTicket(ticket.id, 'price', Number(e.target.value))}
                           min="0"
-                          className="w-full p-3 rounded-lg border-2 border-purple-200 bg-white transition-all"
+                          className="w-full p-3 rounded-lg border-2 border-purple-200 bg-white transition-all disabled:opacity-60 disabled:bg-slate-100"
+                          disabled={ticket.is_locked}
                         />
                       </div>
                       <div>
@@ -461,7 +479,8 @@ const EventCreationPage = () => {
                           value={ticket.quantity}
                           onChange={e => updateTicket(ticket.id, 'quantity', Number(e.target.value))}
                           min="1"
-                          className="w-full p-3 rounded-lg border-2 border-purple-200 bg-white transition-all"
+                          className="w-full p-3 rounded-lg border-2 border-purple-200 bg-white transition-all disabled:opacity-60 disabled:bg-slate-100"
+                          disabled={ticket.is_locked}
                         />
                       </div>
                     </div>
