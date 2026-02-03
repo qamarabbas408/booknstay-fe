@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
 import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut, Ticket } from 'lucide-react';
-import { useGetVendorEventsQuery } from '../store/services/eventApi';
+import { useGetVendorEventsQuery, useDeleteEventMutation } from '../store/services/eventApi';
 import PulseLoader from '../components/PulseLoader';
+import { CustomToaster, showToast } from '../components/CustomToaster';
 
 // Mock data for hotel vendor dashboard
 interface Stat {
@@ -228,8 +229,10 @@ const VendorDashboardPage: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<number | null>(null);
 
   const { data: vendorEventsData, isLoading: isLoadingEvents } = useGetVendorEventsQuery();
+  const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
   const vendorEvents = vendorEventsData?.data || [];
 
   const handleLogout = () => {
@@ -244,8 +247,26 @@ const VendorDashboardPage: React.FC = () => {
     booking.roomType.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDeleteClick = (id: number) => {
+    setEventToDelete(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (eventToDelete) {
+      try {
+        await deleteEvent(eventToDelete).unwrap();
+        showToast.success('Event deleted successfully');
+        setEventToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete event:', error);
+        showToast.error('Failed to delete event');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      <CustomToaster />
       {/* Top Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm z-40">
         <div className="h-full px-4 lg:px-6 flex items-center justify-between">
@@ -457,11 +478,17 @@ const VendorDashboardPage: React.FC = () => {
                       </div>
 
                       <div className="flex gap-3 pt-4 border-t border-slate-200">
-                        <button className="flex-1 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => navigate(`/vendor/event/edit/${event.id}`)}
+                          className="flex-1 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
+                        >
                           <Edit size={16} />
                           Edit
                         </button>
-                        <button className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
+                        <button 
+                          onClick={() => handleDeleteClick(event.id)}
+                          className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
+                        >
                           <Trash2 size={16} />
                           Delete
                         </button>
@@ -881,6 +908,38 @@ const VendorDashboardPage: React.FC = () => {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {eventToDelete && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setEventToDelete(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle size={32} className="text-red-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Delete Event?</h3>
+              <p className="text-slate-600">
+                Are you sure you want to delete this event? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setEventToDelete(null)}
+                className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Event'}
+              </button>
             </div>
           </div>
         </div>

@@ -24,6 +24,9 @@ export interface VendorEvent {
   title: string;
   status: string;
   visibility: string;
+  description?: string;
+  venue?: string;
+  location?: string;
   start_date: string;
   end_date: string;
   total_capacity: number;
@@ -77,21 +80,49 @@ export const eventApi = api.injectEndpoints({
     }),
     createEvent: builder.mutation<any, FormData>({
       query: (body) => ({
-        url: '/events',
+        url: '/vendor/event', //create event
         method: 'POST',
         data: body,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
       }),
+      invalidatesTags: ['VendorEvents'],
     }),
     getVendorEvents: builder.query<{ data: VendorEvent[] }, void>({
       query: () => ({
-        url: '/vendor/events',
+        url: '/vendor/events', //fetch vendor events 
         method: 'GET',
       }),
+      providesTags: ['VendorEvents'],
+    }),
+    getVendorEvent : builder.query<{ data: VendorEvent }, number>({
+      query: (id) => ({
+        url: `/vendor/event/${id}`, //fetch vendor event by id
+        method: 'GET',
+      }),
+      providesTags: (_result, _error, id) => [{ type: 'VendorEvent', id }],
+    }),
+    updateVendorEvent : builder.mutation<any, { id: number; body: FormData }>({
+      query: ({ id, body }) => ({
+        url: `/vendor/event/${id}`, //update vendor event
+        method: 'PUT',
+        data: body,
+      }),
+      invalidatesTags: (_result, _error, { id }) => ['VendorEvents', { type: 'VendorEvent', id }],
+    }),
+    deleteEvent: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/vendor/event/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['VendorEvents'],
     }),
   }),
 });
 
-export const { useGetEventsQuery, useCreateEventMutation, useGetVendorEventsQuery } = eventApi;
+export const {
+  useGetEventsQuery,
+  useCreateEventMutation,
+  useGetVendorEventsQuery,
+  useGetVendorEventQuery,
+  useUpdateVendorEventMutation,
+  useDeleteEventMutation,
+} = eventApi;

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag, Loader2 } from 'lucide-react';
 import { useGetEventCategoriesQuery } from '../store/services/miscApi';
-import { useCreateEventMutation } from '../store/services/eventApi';
+import { useCreateEventMutation, useGetVendorEventQuery, useUpdateVendorEventMutation, type VendorEvent } from '../store/services/eventApi';
 import { CustomToaster, showToast } from '../components/CustomToaster';
 
 interface TicketType {
@@ -14,8 +14,15 @@ interface TicketType {
 
 const EventCreationPage = () => {
   const navigate = useNavigate();
-  const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
+  const { id: eventId } = useParams<{ id: string }>();
+  const isEditMode = Boolean(eventId);
 
+  // API Hooks
+  const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
+  const [updateVendorEvent, { isLoading: isUpdating }] = useUpdateVendorEventMutation();
+  const { data: eventData, isLoading: isLoadingEvent } = useGetVendorEventQuery(Number(eventId), {
+    skip: !isEditMode,
+  });
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -34,6 +41,38 @@ const EventCreationPage = () => {
 
   const { data: categoriesData, isLoading: isLoadingCategories } = useGetEventCategoriesQuery();
   const categories = categoriesData?.data || [];
+
+  useEffect(() => {
+    if (isEditMode && eventData?.data && categories.length > 0) {
+      const event = eventData.data;
+      setTitle(event.title);
+      setDescription(event.description || '');
+
+      const foundCategory = categories.find(c => c.name === event.category);
+      if (foundCategory) {
+        setCategory(foundCategory.id.toString());
+      }
+
+      const [startDate, startTime] = event.start_date.split(' ');
+      setDate(startDate);
+      setTime(startTime?.substring(0, 5) || '');
+      
+      const [endDateStr, endTimeStr] = event.end_date.split(' ');
+      setEndDate(endDateStr || '');
+      setEndTime(endTimeStr?.substring(0, 5) || '');
+
+      setVenue(event.venue || '');
+      setLocation(event.location || '');
+      setVisibility(event.visibility as 'public' | 'private');
+
+      if (event.tickets?.length > 0) {
+        setTickets(event.tickets.map(t => ({ id: t.id, name: t.name, price: parseFloat(t.price), quantity: t.quantity })));
+      }
+      if (event.images?.length > 0) {
+        setImagePreviews(event.images.map(img => img.url));
+      }
+    }
+  }, [isEditMode, eventData, categories]);
 
   const addTicketType = () => {
     const newId = tickets.length ? Math.max(...tickets.map(t => t.id)) + 1 : 1;
@@ -79,14 +118,14 @@ const EventCreationPage = () => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handlePublish = async () => {
+  const handleSubmit = async () => {
     if (!title || !category || !date || !venue) {
       showToast.error("Please fill in all required fields.");
       return;
     }
     
-    if (imageFiles.length === 0) {
-      showToast.error("Please upload at least one image.");
+    if (imageFiles.length === 0 && !isEditMode) {
+      showToast.error("Please upload at least one image for a new event.");
       return;
     }
 
@@ -103,6 +142,10 @@ const EventCreationPage = () => {
     formData.append('visibility', visibility);
     formData.append('status', 'active');
 
+    if (isEditMode) {
+      formData.append('_method', 'PUT');
+    }
+
     imageFiles.forEach((file) => {
       formData.append('images[]', file);
     });
@@ -114,16 +157,23 @@ const EventCreationPage = () => {
     });
 
     try {
-      await createEvent(formData).unwrap();
-      showToast.success("Event published successfully!");
+      if (isEditMode) {
+        await updateVendorEvent({ id: Number(eventId), body: formData }).unwrap();
+        showToast.success("Event updated successfully!");
+      } else {
+        await createEvent(formData).unwrap();
+        showToast.success("Event published successfully!");
+      }
       navigate('/vendor/dashboard');
     } catch (error: any) {
       console.error(error);
-      const msg = error?.data?.message || "Failed to create event";
+      const action = isEditMode ? 'update' : 'create';
+      const msg = error?.data?.message || `Failed to ${action} event`;
       showToast.error(msg);
     }
   };
 
+  const isLoading = isCreating || isUpdating || (isEditMode && isLoadingEvent);
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
       <CustomToaster />
@@ -180,24 +230,26 @@ const EventCreationPage = () => {
           <div>
             <div className="inline-flex items-center space-x-2 bg-purple-100 px-4 py-2 rounded-full mb-4">
               <Sparkles size={16} className="text-purple-600" />
-              <span className="text-purple-700 text-sm font-semibold">Event Creation</span>
+              <span className="text-purple-700 text-sm font-semibold">{isEditMode ? 'Event Editor' : 'Event Creation'}</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-display text-slate-900 mb-2">Create Your Event</h1>
-            <p className="text-slate-600 text-lg font-serif">Fill in the details to list your event and start selling tickets</p>
+            <h1 className="text-4xl md:text-5xl font-display text-slate-900 mb-2">{isEditMode ? 'Edit Your Event' : 'Create Your Event'}</h1>
+            <p className="text-slate-600 text-lg font-serif">{isEditMode ? 'Update the details for your event.' : 'Fill in the details to list your event and start selling tickets'}</p>
           </div>
           <div className="flex gap-3">
-            <button className="flex items-center px-6 py-3 bg-white border-2 border-slate-300 rounded-xl hover:bg-slate-50 transition-all font-semibold text-slate-700">
-              <Save size={18} className="mr-2" />
-              Save Draft
-            </button>
+            {!isEditMode && (
+              <button className="flex items-center px-6 py-3 bg-white border-2 border-slate-300 rounded-xl hover:bg-slate-50 transition-all font-semibold text-slate-700">
+                <Save size={18} className="mr-2" />
+                Save Draft
+              </button>
+            )}
             <button className="flex items-center px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all">
               <button 
-                onClick={handlePublish}
-                disabled={isCreating}
+                onClick={handleSubmit}
+                disabled={isLoading}
                 className="flex items-center px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50"
               >
-                {isCreating ? <Loader2 className="animate-spin mr-2" size={18} /> : <Globe size={18} className="mr-2" />}
-                {isCreating ? 'Publishing...' : 'Publish Event'}
+                {isLoading && !isUpdating && !isCreating ? 'Loading...' : (isCreating || isUpdating) ? <Loader2 className="animate-spin mr-2" size={18} /> : <Globe size={18} className="mr-2" />}
+                {isCreating ? 'Publishing...' : isUpdating ? 'Updating...' : isEditMode ? 'Update Event' : 'Publish Event'}
               </button>
             </button>
           </div>

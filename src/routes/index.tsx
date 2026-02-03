@@ -66,6 +66,9 @@ export const router = createBrowserRouter([
           { path: 'dashboard', element: <VendorDashboardPage /> },
           { path: 'hotels', element: <div className="p-20">Manage My Hotels</div> },
           { path: 'event/', element: <EventCreationPage /> },
+          {
+            path : 'event/edit/:id',element: <EventCreationPage />
+          },
           { path: 'event/booking/:id', element: <EventBookingPage /> },
         ],
       },
