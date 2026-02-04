@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Ticket, Download, ChevronRight, Clock, CheckCircle, XCircle, AlertCircle, Users, Filter, Search, Sparkles, CreditCard, Mail, Phone } from 'lucide-react';
+import { APIENDPOINTS } from '../utils/ApiConstants';
+import { AppImages } from '../utils/AppImages';
+import { useGetGuestBookingsQuery } from '../store/services/bookingApi';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 // Mock booking data
-interface Booking {
+export interface Booking {
   id: number;
   type: 'hotel' | 'event';
   title: string;
@@ -10,101 +14,41 @@ interface Booking {
   dates: string;
   status: 'confirmed' | 'pending' | 'cancelled' | 'completed';
   price: number;
-  image: string;
+  image: string | null;
   guestsOrTickets?: string;
   bookingCode?: string;
   checkIn?: string;
   checkOut?: string;
 }
 
-const mockBookings: Booking[] = [
-  {
-    id: 1,
-    type: 'hotel',
-    title: "Grand Azure Resort",
-    location: "Maldives",
-    dates: "Jul 10 – Jul 17, 2026",
-    checkIn: "Jul 10, 2026 • 3:00 PM",
-    checkOut: "Jul 17, 2026 • 11:00 AM",
-    status: 'confirmed',
-    price: 1750,
-    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
-    guestsOrTickets: "2 adults, 1 room",
-    bookingCode: "BNS-H-001248"
-  },
-  {
-    id: 2,
-    type: 'event',
-    title: "Summer Music Festival",
-    location: "Wembley Arena, London",
-    dates: "Aug 15, 2026 • 6:00 PM",
-    status: 'confirmed',
-    price: 170,
-    image: "https://images.unsplash.com/photo-1459749411177-042180ce673c?auto=format&fit=crop&w=800&q=80",
-    guestsOrTickets: "2 tickets • VIP Section",
-    bookingCode: "BNS-E-002891"
-  },
-  {
-    id: 3,
-    type: 'hotel',
-    title: "Coastal Haven Villa",
-    location: "Santorini, Greece",
-    dates: "Sep 5 – Sep 12, 2026",
-    checkIn: "Sep 5, 2026 • 2:00 PM",
-    checkOut: "Sep 12, 2026 • 12:00 PM",
-    status: 'pending',
-    price: 2240,
-    image: "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?auto=format&fit=crop&w=800&q=80",
-    guestsOrTickets: "4 guests, 2 rooms",
-    bookingCode: "BNS-H-003456"
-  },
-  {
-    id: 4,
-    type: 'event',
-    title: "Tech Innovation Expo",
-    location: "Silicon Valley Convention Center",
-    dates: "Apr 20, 2025 • 9:00 AM",
-    status: 'completed',
-    price: 120,
-    image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80",
-    guestsOrTickets: "1 ticket • General Admission",
-    bookingCode: "BNS-E-001234"
-  },
-  {
-    id: 5,
-    type: 'hotel',
-    title: "The Urban Boutique",
-    location: "New York, USA",
-    dates: "Mar 15 – Mar 18, 2025",
-    status: 'cancelled',
-    price: 540,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
-    guestsOrTickets: "2 guests, 1 room",
-    bookingCode: "BNS-H-002789"
-  }
-];
-
 const MyBookingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'hotel' | 'event'>('all');
+  const [page, setPage] = useState(1);
 
-  const filteredBookings = mockBookings
-    .filter(b => {
-      const matchesTab = activeTab === 'upcoming' 
-        ? ['confirmed', 'pending'].includes(b.status)
-        : ['completed', 'cancelled'].includes(b.status);
-      
-      const matchesSearch = searchQuery === '' ||
-        b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.location.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesType = filterType === 'all' || b.type === filterType;
-      
-      return matchesTab && matchesSearch && matchesType;
-    });
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-  const hasBookings = filteredBookings.length > 0;
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, filterType, debouncedSearch]);
+
+  const { data, isLoading, isFetching } = useGetGuestBookingsQuery({
+    tab: activeTab,
+    type: filterType,
+    search: debouncedSearch,
+    page: page
+  });
+
+  const bookings = data?.data || [];
+  const pagination = data?.pagination;
+  const hasBookings = bookings.length > 0;
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -149,6 +93,12 @@ const MyBookingsPage: React.FC = () => {
           label: status
         };
     }
+  };
+
+  const getImageUrl = (path: string | null, type: 'hotel' | 'event') => {
+    if (!path) return type === 'hotel' ? AppImages.placeholders.hotels_placeholder : AppImages.placeholders.event_placeholder;
+    if (path.startsWith('http')) return path;
+    return `${APIENDPOINTS.content_url}${path}`;
   };
 
   return (
@@ -266,7 +216,7 @@ const MyBookingsPage: React.FC = () => {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              Upcoming ({mockBookings.filter(b => ['confirmed', 'pending'].includes(b.status)).length})
+              Upcoming
             </button>
             <button
               onClick={() => setActiveTab('past')}
@@ -276,7 +226,7 @@ const MyBookingsPage: React.FC = () => {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              Past ({mockBookings.filter(b => ['completed', 'cancelled'].includes(b.status)).length})
+              Past
             </button>
           </div>
 
@@ -307,7 +257,13 @@ const MyBookingsPage: React.FC = () => {
         </div>
 
         {/* Empty State */}
-        {!hasBookings ? (
+        {isLoading ? (
+          <div className="space-y-6">
+            {[...Array(3)].map((_, i) => (
+              <SkeletonLoader key={i} type="hotel" />
+            ))}
+          </div>
+        ) : !hasBookings ? (
           <div className="glass p-12 md:p-16 rounded-3xl text-center border border-white/40 animate-fadeInUp">
             <div className="w-24 h-24 bg-linear-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Calendar size={48} className="text-indigo-600" />
@@ -329,7 +285,7 @@ const MyBookingsPage: React.FC = () => {
         ) : (
           /* Bookings List */
           <div className="space-y-6">
-            {filteredBookings.map((booking, index) => {
+            {bookings.map((booking, index) => {
               const statusConfig = getStatusConfig(booking.status);
               const StatusIcon = statusConfig.icon;
 
@@ -343,7 +299,7 @@ const MyBookingsPage: React.FC = () => {
                     {/* Image Section */}
                     <div className="relative w-full lg:w-80 h-56 lg:h-auto overflow-hidden flex-shrink-0 group">
                       <img
-                        src={booking.image}
+                        src={getImageUrl(booking.image, booking.type)}
                         alt={booking.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
@@ -377,7 +333,7 @@ const MyBookingsPage: React.FC = () => {
                           </h3>
                           <div className="flex items-center text-slate-600 mb-3">
                             <MapPin size={18} className="mr-2 flex-shrink-0 text-slate-400" />
-                            <span className="font-medium">{booking.location}</span>
+                            <span className="font-medium">{booking.location || 'Location TBD'}</span>
                           </div>
                         </div>
 
@@ -456,6 +412,31 @@ const MyBookingsPage: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.lastPage > 1 && (
+          <div className="flex justify-center items-center mt-12 gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1 || isFetching}
+              className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-indigo-400 font-semibold transition-all disabled:opacity-50"
+            >
+              Previous
+            </button>
+            
+            <span className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl font-semibold">
+              Page {pagination.currentPage} of {pagination.lastPage}
+            </span>
+
+            <button
+              onClick={() => setPage(p => Math.min(pagination.lastPage, p + 1))}
+              disabled={page === pagination.lastPage || isFetching}
+              className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl hover:border-indigo-400 font-semibold transition-all disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
         )}
 

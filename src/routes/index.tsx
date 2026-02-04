@@ -55,6 +55,8 @@ export const router = createBrowserRouter([
         children: [
           { path: 'dashboard', element: <MyBookingsPage /> },
           { path: 'booking', element: <AddBooking /> },
+          { path: 'event/booking/:id', element: <EventBookingPage /> },
+          
         ],
       },
 
@@ -69,7 +71,6 @@ export const router = createBrowserRouter([
           {
             path : 'event/edit/:id',element: <EventCreationPage />
           },
-          { path: 'event/booking/:id', element: <EventBookingPage /> },
         ],
       },
 
