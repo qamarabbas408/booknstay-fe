@@ -32,7 +32,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     // 2. Logic for Guests
     if (user.role === 'guest') {
-      navigate('/bookings', { replace: true });
+      navigate('/dashboard', { replace: true });
       return;
     }
 

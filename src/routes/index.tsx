@@ -51,10 +51,10 @@ export const router = createBrowserRouter([
 
       // 2. GUEST PROTECTED ROUTES (Need to be logged in as 'guest' or 'vendor')
       {
-        element: <ProtectedRoute allowedRoles={['guest', 'vendor']} />,
+        element: <ProtectedRoute allowedRoles={['guest']} />,
         children: [
-          { path: 'bookings', element: <MyBookingsPage /> },
-          { path: 'booking/add', element: <AddBooking /> },
+          { path: 'dashboard', element: <MyBookingsPage /> },
+          { path: 'booking', element: <AddBooking /> },
         ],
       },
 
