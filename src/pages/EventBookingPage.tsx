@@ -1,78 +1,81 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Ticket, Users, AlertCircle, ChevronRight, Sparkles, Clock, Star, Heart, Share2, Plus, Minus, Tag, Shield, CreditCard, Info, TrendingUp } from 'lucide-react';
-
-// Mock event data
-const mockEvent = {
-  id: 2,
-  title: "Summer Music Festival 2026",
-  location: "Wembley Arena, London",
-  date: "August 15, 2026",
-  time: "6:00 PM – 11:00 PM",
-  image: "https://images.unsplash.com/photo-1459749411177-042180ce673c?auto=format&fit=crop&w=1200&q=80",
-  description: "Experience the biggest summer music festival with international headliners, multiple stages, and unforgettable performances. Join thousands of music lovers for a night to remember!",
-  rating: 4.8,
-  attendees: "5,234 going",
-  highlights: [
-    "3 Main stages with 20+ artists",
-    "Food & beverage vendors",
-    "VIP lounges & chill zones",
-    "Professional sound & lighting"
-  ],
-  ticketTypes: [
-    { 
-      id: 1, 
-      name: "General Admission", 
-      price: 85, 
-      available: 1200, 
-      soldOut: false,
-      description: "Access to all general areas and stages",
-      features: ["General entry", "Standing area", "Access to all stages"]
-    },
-    { 
-      id: 2, 
-      name: "VIP Experience", 
-      price: 180, 
-      available: 180, 
-      soldOut: false, 
-      description: "Premium access with exclusive perks",
-      features: ["Fast track entry", "VIP lounge access", "Complimentary drinks", "Premium viewing area", "Meet & greet opportunity"]
-    },
-    { 
-      id: 3, 
-      name: "Platinum Package", 
-      price: 350, 
-      available: 45, 
-      soldOut: false,
-      description: "Ultimate festival experience",
-      features: ["All VIP benefits", "Backstage access", "Reserved seating", "Exclusive merchandise", "Private bar", "Dedicated parking"],
-      popular: true
-    },
-    { 
-      id: 4, 
-      name: "Early Bird (Sold Out)", 
-      price: 65, 
-      available: 0, 
-      soldOut: true,
-      description: "Limited early booking discount"
-    },
-  ],
-};
+import { useParams } from 'react-router-dom';
+import { Calendar, MapPin, Ticket, Users, AlertCircle, ChevronRight, Sparkles, Clock, Star, Heart, Share2, Plus, Minus, Tag, Shield, CreditCard, Info, TrendingUp, CheckCircle } from 'lucide-react';
+import { useGetEventByIdQuery } from '../store/services/eventApi';
+import { APIENDPOINTS } from '../utils/ApiConstants';
+import { AppImages } from '../utils/AppImages';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const EventBookingPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const { data: eventResponse, isLoading, isError } = useGetEventByIdQuery(Number(id), {
+    skip: !id,
+  });
+  const event = eventResponse?.data;
+
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   const updateQuantity = (ticketId: number, delta: number) => {
     setQuantities(prev => {
       const current = prev[ticketId] || 0;
-      const newQty = Math.max(0, Math.min(10, current + delta));
+      const ticket = event?.ticketTypes.find(t => t.id === ticketId);
+      const maxLimit = ticket ? Math.min(10, ticket.available) : 10;
+      const newQty = Math.max(0, Math.min(maxLimit, current + delta));
       return { ...prev, [ticketId]: newQty };
     });
   };
 
-  const subtotal = mockEvent.ticketTypes.reduce((sum, t) => {
+  const toggleSection = (section: string) => {
+    setCollapsedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const getImageUrl = (path: string | null) => {
+    if (!path) return AppImages.placeholders.event_placeholder;
+    if (path.startsWith('http')) return path;
+    return `${APIENDPOINTS.content_url}${path}`;
+  };
+
+  const schedule = [
+    { time: '7:00 PM', title: 'Gates Open', description: 'Venue opens for entry' },
+    { time: '7:30 PM', title: 'Opening Act', description: 'The Midnight Echoes' },
+    { time: '8:30 PM', title: 'Main Performance', description: 'Electric Dreams Orchestra' },
+    { time: '10:00 PM', title: 'Special Guest', description: 'Surprise headliner' },
+    { time: '11:30 PM', title: 'Event Ends', description: 'Last call and venue closing' }
+  ];
+
+  const reviews = [
+    { name: 'Alex Johnson', rating: 5, date: 'Previous Event', text: 'Best concert experience ever! The venue was amazing and the sound quality was incredible. Can\'t wait for the next one!', avatar: 'https://i.pravatar.cc/150?img=11' },
+    { name: 'Maria Garcia', rating: 5, date: 'Previous Event', text: 'Absolutely worth it! VIP package was excellent. Great organization and fantastic atmosphere.', avatar: 'https://i.pravatar.cc/150?img=5' },
+    { name: 'David Lee', rating: 4, date: 'Previous Event', text: 'Amazing performances and good crowd. Only downside was long lines for drinks, but overall great!', avatar: 'https://i.pravatar.cc/150?img=12' }
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 pt-8 px-6">
+        <div className="max-w-7xl mx-auto">
+          <SkeletonLoader type="event-details" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">Event Not Found</h2>
+          <p className="text-slate-600">We couldn't load the details for this event.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const subtotal = event.ticketTypes.reduce((sum, t) => {
     const qty = quantities[t.id] || 0;
     return sum + qty * t.price;
   }, 0);
@@ -158,16 +161,16 @@ const EventBookingPage: React.FC = () => {
       {/* Hero Banner */}
       <div className="relative h-72 md:h-96 lg:h-[32rem] overflow-hidden">
         <img
-          src={mockEvent.image}
-          alt={mockEvent.title}
+          src={getImageUrl(event.image)}
+          alt={event.title}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/50 to-transparent" />
-        
+
         {/* Decorative Elements */}
         <div className="absolute top-10 left-10 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl"></div>
-        
+
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8 md:pb-12 w-full">
             <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -175,37 +178,37 @@ const EventBookingPage: React.FC = () => {
                 <Sparkles size={16} className="text-white mr-2" />
                 <span className="text-white font-bold text-sm">Limited Tickets Available</span>
               </div>
-              
+
               <div className="flex items-center bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">
                 <TrendingUp size={16} className="text-white mr-2" />
-                <span className="text-white font-semibold text-sm">{mockEvent.attendees}</span>
+                <span className="text-white font-semibold text-sm">{event.attendees}</span>
               </div>
-              
+
               <div className="flex items-center bg-amber-500/90 backdrop-blur-sm px-4 py-2 rounded-full">
                 <Star size={16} fill="#fff" className="text-white mr-2" />
-                <span className="text-white font-bold text-sm">{mockEvent.rating} Rating</span>
+                <span className="text-white font-bold text-sm">{event.rating} Rating</span>
               </div>
             </div>
-            
+
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-display text-white mb-4 leading-tight max-w-4xl">
-              {mockEvent.title}
+              {event.title}
             </h1>
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-white/95 text-base md:text-lg">
               <div className="flex items-center">
                 <Calendar size={20} className="mr-2 flex-shrink-0" />
-                <span className="font-medium">{mockEvent.date}</span>
+                <span className="font-medium">{event.date}</span>
               </div>
               <div className="flex items-center">
                 <Clock size={20} className="mr-2 flex-shrink-0" />
-                <span className="font-medium">{mockEvent.time}</span>
+                <span className="font-medium">{event.time}</span>
               </div>
               <div className="flex items-center">
                 <MapPin size={20} className="mr-2 flex-shrink-0" />
-                <span className="font-medium">{mockEvent.location}</span>
+                <span className="font-medium">{event.venue}, {event.location}</span>
               </div>
             </div>
-            
+
             {/* Action Buttons */}
             <div className="flex gap-3 mt-6">
               <button
@@ -226,27 +229,129 @@ const EventBookingPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Event Description */}
-            <div className="glass p-6 md:p-8 rounded-3xl border border-white/40 shadow-lg animate-fadeInUp">
-              <h2 className="text-2xl font-display text-slate-900 mb-4">About This Event</h2>
-              <p className="text-slate-600 font-serif text-lg leading-relaxed mb-6">
-                {mockEvent.description}
-              </p>
-              
-              <h3 className="font-bold text-slate-900 mb-3">Event Highlights</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {mockEvent.highlights.map((highlight, idx) => (
-                  <div key={idx} className="flex items-start">
-                    <Sparkles size={18} className="text-indigo-600 mr-2 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">{highlight}</span>
+            <div className="glass rounded-3xl border border-white/40 shadow-lg animate-fadeInUp overflow-hidden">
+              <button onClick={() => toggleSection('about')} className="w-full flex items-center justify-between p-6 md:p-8 text-left">
+                <h2 className="text-2xl font-display text-slate-900">About This Event</h2>
+                <ChevronRight size={24} className={`text-slate-500 transition-transform duration-300 ${!collapsedSections.about ? 'rotate-90' : ''}`} />
+              </button>
+              <div className={`transition-all duration-500 ease-in-out ${collapsedSections.about ? 'max-h-0' : 'max-h-[1000px]'}`}>
+                <div className="px-6 md:px-8 pb-8">
+                  <p className="text-slate-600 font-serif text-lg leading-relaxed mb-6">
+                    {event.description}
+                  </p>
+
+                  <h3 className="font-bold text-slate-900 mb-3">Event Highlights</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {event.highlights.map((highlight, idx) => (
+                      <div key={idx} className="flex items-start">
+                        <Sparkles size={18} className="text-indigo-600 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-slate-700">{highlight}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Event Schedule */}
+            <div className="glass rounded-3xl border border-white/40 shadow-lg animate-fadeInUp overflow-hidden">
+              <button onClick={() => toggleSection('schedule')} className="w-full flex items-center justify-between p-6 md:p-8 text-left">
+                <h2 className="text-2xl font-display text-slate-900">Event Schedule</h2>
+                <ChevronRight size={24} className={`text-slate-500 transition-transform duration-300 ${!collapsedSections.schedule ? 'rotate-90' : ''}`} />
+              </button>
+              <div className={`transition-all duration-500 ease-in-out ${collapsedSections.schedule ? 'max-h-0' : 'max-h-[1000px]'}`}>
+                <div className="px-6 md:px-8 pb-8 space-y-3">
+                  {schedule.map((item, idx) => (
+                    <div key={idx} className="bg-white/50 rounded-xl p-5 border border-white/50 flex items-start space-x-4">
+                      <div className="bg-linear-to-br from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg font-bold text-sm flex-shrink-0">
+                        {item.time}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 mb-1">{item.title}</h4>
+                        <p className="text-slate-600">{item.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Venue Information */}
+            <div className="glass rounded-3xl border border-white/40 shadow-lg animate-fadeInUp overflow-hidden">
+              <button onClick={() => toggleSection('venue')} className="w-full flex items-center justify-between p-6 md:p-8 text-left">
+                <h2 className="text-2xl font-display text-slate-900">Venue Information</h2>
+                <ChevronRight size={24} className={`text-slate-500 transition-transform duration-300 ${!collapsedSections.venue ? 'rotate-90' : ''}`} />
+              </button>
+              <div className={`transition-all duration-500 ease-in-out ${collapsedSections.venue ? 'max-h-0' : 'max-h-[1000px]'}`}>
+                <div className="px-6 md:px-8 pb-8">
+                  <div className="bg-white/50 rounded-2xl overflow-hidden border border-white/50">
+                    <div className="h-64 bg-slate-200 flex items-center justify-center">
+                      <div className="text-center">
+                        <MapPin size={48} className="text-slate-400 mx-auto mb-3" />
+                        <p className="text-slate-600 font-semibold">{event.venue}</p>
+                        <p className="text-slate-500 text-sm">{event.location}</p>
+                        <button
+                          onClick={() => setShowMap(true)}
+                          className="mt-4 text-indigo-600 font-semibold hover:text-indigo-700"
+                        >
+                          View on Map
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <h4 className="font-bold text-slate-900 mb-3">Getting There</h4>
+                      <div className="space-y-2 text-slate-600">
+                        <p className="flex items-start">
+                          <CheckCircle size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Wembley Park Station - 5 min walk</span>
+                        </p>
+                        <p className="flex items-start">
+                          <CheckCircle size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Parking available - £20 per vehicle</span>
+                        </p>
+                        <p className="flex items-start">
+                          <CheckCircle size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Accessible facilities available</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Important Information */}
+            <div className="glass rounded-3xl border border-white/40 shadow-lg animate-fadeInUp overflow-hidden">
+              <button onClick={() => toggleSection('info')} className="w-full flex items-center justify-between p-6 md:p-8 text-left">
+                <h2 className="text-2xl font-display text-slate-900">Important Information</h2>
+                <ChevronRight size={24} className={`text-slate-500 transition-transform duration-300 ${!collapsedSections.info ? 'rotate-90' : ''}`} />
+              </button>
+              <div className={`transition-all duration-500 ease-in-out ${collapsedSections.info ? 'max-h-0' : 'max-h-[1000px]'}`}>
+                <div className="px-6 md:px-8 pb-8">
+                  <div className="bg-blue-50/80 backdrop-blur-sm rounded-2xl p-6 border border-blue-200">
+                    <div className="flex items-start space-x-3">
+                      <Info size={24} className="text-blue-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <h3 className="font-bold text-blue-900 mb-2">Key Policies & Rules</h3>
+                        <ul className="space-y-2 text-blue-800">
+                          <li>• Age restriction: 16+ (ID required)</li>
+                          <li>• No refunds after purchase</li>
+                          <li>• Bag checks at entrance</li>
+                          <li>• Digital tickets only - no printing required</li>
+                          <li>• Please arrive 30 minutes early</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Ticket Selection */}
-            <div className="glass p-6 md:p-8 rounded-3xl border border-white/40 shadow-lg animate-fadeInUp" style={{animationDelay: '0.1s'}}>
+            <div className="glass p-6 md:p-8 rounded-3xl border border-white/40 shadow-lg animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-display text-slate-900 flex items-center">
                   <Ticket size={26} className="text-indigo-600 mr-3" />
@@ -260,20 +365,19 @@ const EventBookingPage: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                {mockEvent.ticketTypes.map((ticket, index) => {
+                {event.ticketTypes.map((ticket, index) => {
                   const isSelected = (quantities[ticket.id] || 0) > 0;
-                  
+
                   return (
                     <div
                       key={ticket.id}
-                      className={`ticket-card p-5 md:p-6 rounded-2xl border-2 bg-white ${
-                        ticket.soldOut 
-                          ? 'opacity-60 border-slate-200' 
-                          : isSelected 
-                            ? 'selected border-indigo-500' 
+                      className={`ticket-card p-5 md:p-6 rounded-2xl border-2 bg-white ${ticket.soldOut
+                          ? 'opacity-60 border-slate-200'
+                          : isSelected
+                            ? 'selected border-indigo-500'
                             : 'border-slate-200 hover:border-slate-300'
-                      } transition-all animate-fadeInUp`}
-                      style={{animationDelay: `${0.2 + index * 0.1}s`}}
+                        } transition-all animate-fadeInUp`}
+                      style={{ animationDelay: `${0.2 + index * 0.1}s` }}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                         <div className="flex-1">
@@ -285,9 +389,9 @@ const EventBookingPage: React.FC = () => {
                               </span>
                             )}
                           </div>
-                          
+
                           <p className="text-slate-600 text-sm mb-3">{ticket.description}</p>
-                          
+
                           {ticket.features && (
                             <div className="space-y-1.5">
                               {ticket.features.slice(0, 3).map((feature, idx) => (
@@ -339,13 +443,13 @@ const EventBookingPage: React.FC = () => {
                             </span>
                             <button
                               onClick={() => updateQuantity(ticket.id, 1)}
-                              disabled={quantities[ticket.id] >= 10}
+                              disabled={(quantities[ticket.id] || 0) >= Math.min(10, ticket.available)}
                               className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-700 hover:bg-indigo-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-bold"
                             >
                               <Plus size={18} />
                             </button>
                           </div>
-                          
+
                           {isSelected && (
                             <div className="text-right">
                               <div className="text-sm text-slate-500">Subtotal</div>
@@ -363,7 +467,7 @@ const EventBookingPage: React.FC = () => {
             </div>
 
             {/* Promo Code */}
-            <div className="glass p-6 rounded-3xl border border-white/40 shadow-lg animate-fadeInUp" style={{animationDelay: '0.4s'}}>
+            <div className="glass p-6 rounded-3xl border border-white/40 shadow-lg animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
               <div className="flex items-center mb-4">
                 <Tag size={20} className="text-indigo-600 mr-2" />
                 <h3 className="font-bold text-lg text-slate-900">Promo Code</h3>
@@ -393,7 +497,7 @@ const EventBookingPage: React.FC = () => {
             </div>
 
             {/* Trust Indicators */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fadeInUp" style={{animationDelay: '0.5s'}}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fadeInUp" style={{ animationDelay: '0.5s' }}>
               {[
                 { icon: Shield, text: 'Secure Payment', color: 'text-green-600' },
                 { icon: CreditCard, text: 'Instant Confirmation', color: 'text-blue-600' },
@@ -412,14 +516,14 @@ const EventBookingPage: React.FC = () => {
 
           {/* Sticky Summary */}
           <aside className="lg:sticky lg:top-24 h-fit">
-            <div className="glass p-6 md:p-8 rounded-3xl border border-white/40 shadow-2xl animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+            <div className="glass p-6 md:p-8 rounded-3xl border border-white/40 shadow-2xl animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-2xl font-display text-slate-900 mb-6">Order Summary</h2>
 
               {hasSelection ? (
                 <>
                   {/* Selected Tickets */}
                   <div className="space-y-3 mb-6 pb-6 border-b border-slate-200">
-                    {mockEvent.ticketTypes.map(t => {
+                    {event.ticketTypes.map(t => {
                       const qty = quantities[t.id] || 0;
                       if (qty === 0) return null;
                       return (
@@ -465,8 +569,23 @@ const EventBookingPage: React.FC = () => {
                     </span>
                   </div>
 
+                  {/* Guarantee Badge */}
+                  <div className="bg-linear-to-br mb-4 mt-4 from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-green-500 rounded-full p-2 flex-shrink-0">
+                        <CheckCircle size={20} className="text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-green-900 mb-1">Buyer Protection</h4>
+                        <p className="text-sm text-green-700">
+                          Your tickets are guaranteed authentic and will be delivered on time
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Checkout Button */}
-                  <button 
+                  <button
                     className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all flex items-center justify-center group mb-4"
                     disabled={!hasSelection}
                   >
