@@ -175,7 +175,7 @@ const EventDetails = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid  gap-8">
           {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-8 animate-slideUp">
             {/* Quick Info */}
@@ -326,116 +326,7 @@ const EventDetails = () => {
             </div>
           </div>
 
-          {/* Right Column - Ticket Selection */}
-          <div className="lg:col-span-1 animate-slideUp" style={{animationDelay: '0.1s'}}>
-            <div className="sticky top-24 space-y-6">
-              {/* Ticket Types */}
-              <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-200">
-                <h3 className="text-2xl font-display text-slate-900 mb-6">Select Tickets</h3>
-                
-                <div className="space-y-4 mb-6">
-                  {ticketTypes.map((ticket) => (
-                    <div
-                      key={ticket.id}
-                      onClick={() => setSelectedTicket(ticket.id)}
-                      className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
-                        selectedTicket === ticket.id
-                          ? 'border-purple-500 bg-purple-50'
-                          : 'border-slate-200 hover:border-purple-300 bg-white'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-bold text-slate-900 mb-1">{ticket.name}</h4>
-                          <p className="text-sm text-slate-500">{ticket.soldOut ? 'Sold Out' : `${ticket.available} tickets left`}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-display text-purple-600">${ticket.price}</div>
-                          <div className="text-xs text-slate-500">per person</div>
-                        </div>
-                      </div>
-                      
-                      {ticket.features && ticket.features.length > 0 && <div className="space-y-1">
-                        {ticket.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-center text-sm text-slate-600">
-                            <CheckCircle size={14} className="text-green-500 mr-2 flex-shrink-0" />
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>}
-                    </div>
-                  ))}
-                </div>
-
-                {selectedTicket && (
-                  <div className="mb-6 animate-slideUp">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Quantity</label>
-                    <div className="flex items-center justify-between bg-slate-100 rounded-xl p-2">
-                      <button
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-10 h-10 bg-white rounded-lg font-bold text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        -
-                      </button>
-                      <span className="font-bold text-xl text-slate-900">{quantity}</span>
-                      <button
-                        onClick={() => setQuantity(Math.min(10, quantity + 1))}
-                        className="w-10 h-10 bg-white rounded-lg font-bold text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  disabled={!selectedTicket}
-                  className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center ${
-                    selectedTicket
-                      ? 'bg-linear-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
-                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  }`}
-                >
-                  <Ticket size={20} className="mr-2" />
-                  Get Tickets
-                </button>
-
-                {selectedTicket && (
-                  <div className="mt-6 pt-6 border-t border-slate-200 space-y-3 animate-slideUp">
-                    <div className="flex justify-between text-slate-600">
-                      <span>
-                        ${ticketTypes.find(t => t.id === selectedTicket)?.price || 0} × {quantity}
-                      </span>
-                      <span>${((ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>Service fee</span>
-                      <span>${(((ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity) * 0.1).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between font-bold text-lg text-slate-900 pt-3 border-t border-slate-200">
-                      <span>Total</span>
-                      <span>${(((ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity) * 1.1).toFixed(2)}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Guarantee Badge */}
-              <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                <div className="flex items-start space-x-3">
-                  <div className="bg-green-500 rounded-full p-2 flex-shrink-0">
-                    <CheckCircle size={20} className="text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-green-900 mb-1">Buyer Protection</h4>
-                    <p className="text-sm text-green-700">
-                      Your tickets are guaranteed authentic and will be delivered on time
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>

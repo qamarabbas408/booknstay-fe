@@ -157,6 +157,14 @@ export const eventApi = api.injectEndpoints({
       }),
       providesTags: (_result, _error, id) => [{ type: 'Event', id }],
     }),
+    createEventBooking: builder.mutation<any, { event_id: number; selections: { ticket_id: number; quantity: number }[] }>({
+      query: (data) => ({
+        url: '/guest/event/booking',
+        method: 'POST',
+        data,
+      }),
+      invalidatesTags: ['Booking'],
+    }),
   }),
 });
 
@@ -168,4 +176,5 @@ export const {
   useUpdateVendorEventMutation,
   useDeleteEventMutation,
   useGetEventByIdQuery,
+  useCreateEventBookingMutation,
 } = eventApi;

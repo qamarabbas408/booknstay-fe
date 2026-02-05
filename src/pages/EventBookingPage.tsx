@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Calendar, MapPin, Ticket, Users, AlertCircle, ChevronRight, Sparkles, Clock, Star, Heart, Share2, Plus, Minus, Tag, Shield, CreditCard, Info, TrendingUp, CheckCircle } from 'lucide-react';
-import { useGetEventByIdQuery } from '../store/services/eventApi';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Calendar, MapPin, Ticket, Users, AlertCircle, ChevronRight, Sparkles, Clock, Star, Heart, Share2, Plus, Minus, Tag, Shield, CreditCard, Info, TrendingUp, CheckCircle, Loader2 } from 'lucide-react';
+import { useGetEventByIdQuery, useCreateEventBookingMutation } from '../store/services/eventApi';
 import { APIENDPOINTS } from '../utils/ApiConstants';
 import { AppImages } from '../utils/AppImages';
 import SkeletonLoader from '../components/SkeletonLoader';
+import { CustomToaster, showToast } from '../components/CustomToaster';
 
 const EventBookingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: eventResponse, isLoading, isError } = useGetEventByIdQuery(Number(id), {
     skip: !id,
   });
+  const [createEventBooking, { isLoading: isBooking }] = useCreateEventBookingMutation();
   const event = eventResponse?.data;
 
   const [quantities, setQuantities] = useState<Record<number, number>>({});
@@ -38,6 +41,34 @@ const EventBookingPage: React.FC = () => {
     if (!path) return AppImages.placeholders.event_placeholder;
     if (path.startsWith('http')) return path;
     return `${APIENDPOINTS.content_url}${path}`;
+  };
+
+  const handleCheckout = async () => {
+    if (!id) return;
+
+    const selections = Object.entries(quantities)
+      .filter(([_, qty]) => qty > 0)
+      .map(([ticketId, qty]) => ({
+        ticket_id: Number(ticketId),
+        quantity: qty,
+      }));
+
+    if (selections.length === 0) {
+      showToast.error("Please select at least one ticket.");
+      return;
+    }
+
+    try {
+      const response = await createEventBooking({
+        event_id: Number(id),
+        selections,
+      }).unwrap();
+
+      showToast.success(response.message || 'Tickets booked successfully!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      showToast.error(error?.data?.message || 'Failed to book tickets. Please try again.');
+    }
   };
 
   const schedule = [
@@ -89,6 +120,7 @@ const EventBookingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -587,10 +619,17 @@ const EventBookingPage: React.FC = () => {
                   {/* Checkout Button */}
                   <button
                     className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all flex items-center justify-center group mb-4"
-                    disabled={!hasSelection}
+                    disabled={!hasSelection || isBooking}
+                    onClick={handleCheckout}
                   >
-                    <span>Proceed to Checkout</span>
-                    <ChevronRight size={22} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                    {isBooking ? (
+                      <Loader2 className="animate-spin" size={24} />
+                    ) : (
+                      <>
+                        <span>Proceed to Checkout</span>
+                        <ChevronRight size={22} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
                   </button>
 
                   <p className="text-xs text-center text-slate-500">

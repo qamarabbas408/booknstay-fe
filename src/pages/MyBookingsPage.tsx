@@ -4,6 +4,7 @@ import { APIENDPOINTS } from '../utils/ApiConstants';
 import { AppImages } from '../utils/AppImages';
 import { useGetGuestBookingsQuery } from '../store/services/bookingApi';
 import SkeletonLoader from '../components/SkeletonLoader';
+import { useNavigate } from 'react-router-dom';
 
 // Mock booking data
 export interface Booking {
@@ -27,7 +28,7 @@ const MyBookingsPage: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'hotel' | 'event'>('all');
   const [page, setPage] = useState(1);
-
+  const navigate = useNavigate(); 
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 500);
@@ -401,7 +402,9 @@ const MyBookingsPage: React.FC = () => {
                             </>
                           )}
                           
-                          <button className="flex-1 sm:flex-none flex items-center justify-center bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
+                          <button
+                          onClick={()=>navigate(`/event/${booking.id}`)}
+                          className="flex-1 sm:flex-none flex items-center justify-center bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
                             <span>View Details</span>
                             <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                           </button>
