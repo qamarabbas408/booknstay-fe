@@ -423,7 +423,7 @@ const VendorDashboardPage: React.FC = () => {
                   <p className="text-slate-600">Manage your events, tickets, and listings</p>
                 </div>
                 <button 
-                  onClick={() => navigate('/vendor/events/create')}
+                  onClick={() => navigate('/vendor/event')}
                   className="px-5 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all flex items-center gap-2"
                 >
                   <Plus size={18} />

@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
-import { ChevronLeft, MapPin, Star, Calendar, Clock, Users, Heart, Share2, Ticket, Music, Wifi, Coffee, PartyPopper, Camera, CheckCircle, Info, ChevronRight, X } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { ChevronLeft, MapPin, Star, Calendar, Clock, Users, Heart, Share2, Ticket, Music, Wifi, Coffee, PartyPopper, Camera, CheckCircle, Info, ChevronRight, X, Zap } from 'lucide-react';
+import { useGetEventByIdQuery } from '../store/services/eventApi';
+import { APIENDPOINTS } from '../utils/ApiConstants';
+import { AppImages } from '../utils/AppImages';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const EventDetails = () => {
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  const { id } = useParams<{ id: string }>();
+  const [selectedTicket, setSelectedTicket] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showMap, setShowMap] = useState(false);
 
-  const ticketTypes = [
-    { id: 1, name: 'General Admission', price: 85, available: 234, benefits: ['Entry to all stages', 'Standing area access'] },
-    { id: 2, name: 'VIP Pass', price: 150, available: 45, benefits: ['All General benefits', 'VIP lounge access', 'Fast track entry', 'Free drinks'] },
-    { id: 3, name: 'Platinum Package', price: 250, available: 12, benefits: ['All VIP benefits', 'Meet & greet', 'Backstage tour', 'Exclusive merchandise'] }
-  ];
+  const { data: eventResponse, isLoading, isError } = useGetEventByIdQuery(Number(id), {
+    skip: !id,
+  });
+
+  const event = eventResponse?.data;
+  const ticketTypes = event?.ticketTypes || [];
 
   const schedule = [
     { time: '7:00 PM', title: 'Gates Open', description: 'Venue opens for entry' },
@@ -20,18 +27,38 @@ const EventDetails = () => {
     { time: '11:30 PM', title: 'Event Ends', description: 'Last call and venue closing' }
   ];
 
-  const highlights = [
-    { icon: Music, text: 'Live performances from 4 artists' },
-    { icon: Camera, text: 'Professional photography allowed' },
-    { icon: Coffee, text: 'Food & beverage available' },
-    { icon: Wifi, text: 'Free WiFi throughout venue' }
-  ];
-
   const reviews = [
     { name: 'Alex Johnson', rating: 5, date: 'Previous Event', text: 'Best concert experience ever! The venue was amazing and the sound quality was incredible. Can\'t wait for the next one!', avatar: 'https://i.pravatar.cc/150?img=11' },
     { name: 'Maria Garcia', rating: 5, date: 'Previous Event', text: 'Absolutely worth it! VIP package was excellent. Great organization and fantastic atmosphere.', avatar: 'https://i.pravatar.cc/150?img=5' },
     { name: 'David Lee', rating: 4, date: 'Previous Event', text: 'Amazing performances and good crowd. Only downside was long lines for drinks, but overall great!', avatar: 'https://i.pravatar.cc/150?img=12' }
   ];
+
+  const getImageUrl = (path: string | null) => {
+    if (!path) return AppImages.placeholders.event_placeholder;
+    if (path.startsWith('http')) return path;
+    return `${APIENDPOINTS.content_url}${path}`;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 pt-8 px-6">
+        <div className="max-w-7xl mx-auto">
+          <SkeletonLoader />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">Event Not Found</h2>
+          <p className="text-slate-600">We couldn't load the details for this event.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
@@ -112,8 +139,8 @@ const EventDetails = () => {
       {/* Hero Banner */}
       <div className="relative h-[400px] overflow-hidden">
         <img 
-          src="https://images.unsplash.com/photo-1459749411177-042180ce673c?auto=format&fit=crop&w=1600&q=80" 
-          alt="Event" 
+          src={getImageUrl(event.image)}
+          alt={event.title}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent"></div>
@@ -128,20 +155,20 @@ const EventDetails = () => {
             <span className="bg-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-bold">Featured</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-display text-white mb-3">Summer Music Festival 2026</h1>
+          <h1 className="text-4xl md:text-5xl font-display text-white mb-3">{event.title}</h1>
           
           <div className="flex flex-wrap items-center gap-4 text-white/90">
             <div className="flex items-center">
               <Calendar size={18} className="mr-2" />
-              <span className="font-semibold">August 15, 2026</span>
+              <span className="font-semibold">{event.date}</span>
             </div>
             <div className="flex items-center">
               <Clock size={18} className="mr-2" />
-              <span className="font-semibold">7:00 PM - 11:30 PM</span>
+              <span className="font-semibold">{event.time}</span>
             </div>
             <div className="flex items-center">
               <MapPin size={18} className="mr-2" />
-              <span className="font-semibold">Wembley Arena, London</span>
+              <span className="font-semibold">{event.venue}, {event.location}</span>
             </div>
           </div>
         </div>
@@ -157,21 +184,19 @@ const EventDetails = () => {
                 <div className="flex items-center space-x-2">
                   <div className="bg-amber-50 px-3 py-1.5 rounded-lg flex items-center">
                     <Star size={16} fill="#f59e0b" className="text-amber-500 mr-1" />
-                    <span className="font-bold text-amber-700">4.9</span>
+                    <span className="font-bold text-amber-700">{event.rating}</span>
                   </div>
                   <span className="text-slate-600">(847 reviews)</span>
                 </div>
                 
                 <div className="flex items-center text-purple-600 font-semibold">
                   <Users size={18} className="mr-2" />
-                  <span>12,500+ attending</span>
+                  <span>{event.attendees}</span>
                 </div>
               </div>
               
               <p className="text-slate-700 font-serif text-lg leading-relaxed">
-                Join us for an unforgettable night of live music featuring some of the biggest names in the industry. 
-                Experience world-class performances, stunning visuals, and an electric atmosphere that will leave you 
-                wanting more. This summer's biggest music event returns to Wembley Arena!
+                {event.description}
               </p>
             </div>
 
@@ -179,14 +204,18 @@ const EventDetails = () => {
             <div>
               <h2 className="text-2xl font-display text-slate-900 mb-6">Event Highlights</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {highlights.map((highlight, idx) => (
+                {event.highlights.length > 0 ? event.highlights.map((highlight, idx) => (
                   <div key={idx} className="flex items-center space-x-3 bg-white p-5 rounded-xl border border-slate-200">
                     <div className="bg-purple-100 p-3 rounded-lg">
-                      <highlight.icon size={24} className="text-purple-600" />
+                      <Zap size={24} className="text-purple-600" />
                     </div>
-                    <span className="font-semibold text-slate-700">{highlight.text}</span>
+                    <span className="font-semibold text-slate-700">{highlight}</span>
                   </div>
-                ))}
+                )) : (
+                  <div className="col-span-2 text-slate-500 italic">
+                    No specific highlights listed for this event.
+                  </div>
+                )}
               </div>
             </div>
 
@@ -308,7 +337,7 @@ const EventDetails = () => {
                   {ticketTypes.map((ticket) => (
                     <div
                       key={ticket.id}
-                      // onClick={() => setSelectedTicket(ticket.id)}s
+                      onClick={() => setSelectedTicket(ticket.id)}
                       className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
                         selectedTicket === ticket.id
                           ? 'border-purple-500 bg-purple-50'
@@ -318,7 +347,7 @@ const EventDetails = () => {
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h4 className="font-bold text-slate-900 mb-1">{ticket.name}</h4>
-                          <p className="text-sm text-slate-500">{ticket.available} tickets left</p>
+                          <p className="text-sm text-slate-500">{ticket.soldOut ? 'Sold Out' : `${ticket.available} tickets left`}</p>
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-display text-purple-600">${ticket.price}</div>
@@ -326,14 +355,14 @@ const EventDetails = () => {
                         </div>
                       </div>
                       
-                      <div className="space-y-1">
-                        {ticket.benefits.map((benefit, idx) => (
+                      {ticket.features && ticket.features.length > 0 && <div className="space-y-1">
+                        {ticket.features.map((feature, idx) => (
                           <div key={idx} className="flex items-center text-sm text-slate-600">
                             <CheckCircle size={14} className="text-green-500 mr-2 flex-shrink-0" />
-                            <span>{benefit}</span>
+                            <span>{feature}</span>
                           </div>
                         ))}
-                      </div>
+                      </div>}
                     </div>
                   ))}
                 </div>
@@ -375,17 +404,17 @@ const EventDetails = () => {
                   <div className="mt-6 pt-6 border-t border-slate-200 space-y-3 animate-slideUp">
                     <div className="flex justify-between text-slate-600">
                       <span>
-                        ${ticketTypes.find(t => t.id === selectedTicket)?.price} × {quantity}
+                        ${ticketTypes.find(t => t.id === selectedTicket)?.price || 0} × {quantity}
                       </span>
-                      <span>${(ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity}</span>
+                      <span>${((ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-slate-600">
                       <span>Service fee</span>
-                      <span>${((ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity * 0.1).toFixed(0)}</span>
+                      <span>${(((ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity) * 0.1).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-lg text-slate-900 pt-3 border-t border-slate-200">
                       <span>Total</span>
-                      <span>${((ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity * 1.1).toFixed(0)}</span>
+                      <span>${(((ticketTypes.find(t => t.id === selectedTicket)?.price || 0) * quantity) * 1.1).toFixed(2)}</span>
                     </div>
                   </div>
                 )}

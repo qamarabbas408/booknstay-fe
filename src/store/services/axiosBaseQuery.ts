@@ -18,7 +18,7 @@ export const axiosBaseQuery =
     unknown,
     unknown
   > =>
-  async ({ url, method, data, params, headers }, { getState }) => {
+  async ({ url, method, data, params, headers }, { getState, dispatch }) => {
     const token = (getState() as RootState).auth.token;
     try {
       // Axios will now automatically detect FormData in 'data' 
@@ -39,6 +39,9 @@ export const axiosBaseQuery =
       const err = axiosError as AxiosError;
 
        if (err.response?.status === 401) {
+        // Dispatch the logout action by its type string to avoid circular dependencies.
+        // The authSlice.name is 'auth' and the reducer name is 'logout', so the type is 'auth/logout'.
+        dispatch({ type: 'auth/logout' });
         window.location.href = '/login';
       }
       return {

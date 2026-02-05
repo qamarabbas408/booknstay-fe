@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag, Loader2, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag, Loader2, AlertCircle, Zap, CheckCircle, X } from 'lucide-react';
 import { useGetEventCategoriesQuery } from '../store/services/miscApi';
 import { useCreateEventMutation, useGetVendorEventQuery, useUpdateVendorEventMutation, type VendorEvent } from '../store/services/eventApi';
 import { CustomToaster, showToast } from '../components/CustomToaster';
@@ -11,6 +11,7 @@ interface TicketType {
   price: number;
   quantity: number;
   is_locked?: boolean;
+  features: string[];
 }
 
 const EventCreationPage = () => {
@@ -34,11 +35,12 @@ const EventCreationPage = () => {
   const [location, setLocation] = useState('');
   const [venue, setVenue] = useState('');
   const [tickets, setTickets] = useState<TicketType[]>([
-    { id: 1, name: 'General Admission', price: 0, quantity: 100 },
+    { id: 1, name: 'General Admission', price: 0, quantity: 100, features: [] },
   ]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [highlights, setHighlights] = useState<string[]>([]);
 
   const { data: categoriesData, isLoading: isLoadingCategories } = useGetEventCategoriesQuery();
   const categories = categoriesData?.data || [];
@@ -48,6 +50,7 @@ const EventCreationPage = () => {
       const event = eventData.data;
       setTitle(event.title);
       setDescription(event.description || '');
+      setHighlights(event.highlights || []);
 
       const foundCategory = categories.find(c => c.name === event.category);
       if (foundCategory) {
@@ -67,7 +70,14 @@ const EventCreationPage = () => {
       setVisibility(event.visibility as 'public' | 'private');
 
       if (event.tickets?.length > 0) {
-        setTickets(event.tickets.map(t => ({ id: t.id, name: t.name, price: parseFloat(t.price), quantity: t.quantity, is_locked: t.is_locked })));
+        setTickets(event.tickets.map(t => ({ 
+          id: t.id, 
+          name: t.name, 
+          price: t.price, 
+          quantity: t.quantity, 
+          is_locked: t.is_locked,
+          features: t.features || []
+        })));
       }
       if (event.images?.length > 0) {
         setImagePreviews(event.images.map(img => img.url));
@@ -77,7 +87,7 @@ const EventCreationPage = () => {
 
   const addTicketType = () => {
     const newId = tickets.length ? Math.max(...tickets.map(t => t.id)) + 1 : 1;
-    setTickets([...tickets, { id: newId, name: 'New Ticket', price: 0, quantity: 50 }]);
+    setTickets([...tickets, { id: newId, name: 'New Ticket', price: 0, quantity: 50, features: [] }]);
   };
 
   const updateTicket = (id: number, field: keyof TicketType, value: any) => {
@@ -143,6 +153,10 @@ const EventCreationPage = () => {
     formData.append('visibility', visibility);
     formData.append('status', 'active');
 
+    highlights.forEach((highlight) => {
+      formData.append('highlights[]', highlight);
+    });
+
     if (isEditMode) {
       formData.append('_method', 'PUT');
     }
@@ -155,6 +169,9 @@ const EventCreationPage = () => {
       formData.append(`tickets[${index}][name]`, ticket.name);
       formData.append(`tickets[${index}][price]`, ticket.price.toString());
       formData.append(`tickets[${index}][quantity]`, ticket.quantity.toString());
+      ticket.features.forEach((feature) => {
+        formData.append(`tickets[${index}][features][]`, feature);
+      });
     });
 
     try {
@@ -304,6 +321,46 @@ const EventCreationPage = () => {
                     className="w-full p-4 rounded-xl border-2 border-slate-200 transition-all bg-white resize-none"
                   />
                   <p className="text-sm text-slate-500 mt-2">{description.length} characters</p>
+                </div>
+              </div>
+
+              <div className="px-8 pb-8 pt-0">
+                <label className="block text-slate-700 font-semibold mb-3">
+                  Event Highlights
+                  <span className="text-sm font-normal text-slate-500 ml-2">(What makes this event special?)</span>
+                </label>
+                <div className="space-y-3">
+                  {highlights.map((highlight, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div className="bg-purple-100 p-2 rounded-lg flex-shrink-0">
+                        <Zap size={18} className="text-purple-600" />
+                      </div>
+                      <input
+                        type="text"
+                        value={highlight}
+                        onChange={(e) => {
+                          const newHighlights = [...highlights];
+                          newHighlights[index] = e.target.value;
+                          setHighlights(newHighlights);
+                        }}
+                        placeholder="e.g. Live performances from top artists"
+                        className="flex-1 p-3 rounded-xl border-2 border-slate-200 transition-all bg-white focus:border-purple-500"
+                      />
+                      <button
+                        onClick={() => setHighlights(highlights.filter((_, i) => i !== index))}
+                        className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => setHighlights([...highlights, ''])}
+                    className="flex items-center text-purple-600 font-semibold hover:text-purple-700 px-2 py-1 mt-2"
+                  >
+                    <Plus size={18} className="mr-1" />
+                    Add Highlight
+                  </button>
                 </div>
               </div>
             </div>
@@ -482,6 +539,55 @@ const EventCreationPage = () => {
                           className="w-full p-3 rounded-lg border-2 border-purple-200 bg-white transition-all disabled:opacity-60 disabled:bg-slate-100"
                           disabled={ticket.is_locked}
                         />
+                      </div>
+                    </div>
+
+                    {/* Ticket Features */}
+                    <div className="mt-6 pt-5 border-t border-purple-200/60">
+                      <label className="block text-sm font-semibold text-slate-700 mb-3">
+                        Ticket Features & Benefits
+                      </label>
+                      <div className="space-y-2.5">
+                        {ticket.features.map((feature, fIndex) => (
+                          <div key={fIndex} className="flex items-center gap-2">
+                            <CheckCircle size={16} className="text-green-500 flex-shrink-0" />
+                            <input
+                              type="text"
+                              value={feature}
+                              onChange={(e) => {
+                                const newFeatures = [...ticket.features];
+                                newFeatures[fIndex] = e.target.value;
+                                updateTicket(ticket.id, 'features', newFeatures);
+                              }}
+                              placeholder="e.g. VIP Lounge Access"
+                              className="flex-1 p-2 text-sm rounded-lg border border-slate-200 focus:border-purple-400 outline-none bg-white/50 focus:bg-white transition-all"
+                              disabled={ticket.is_locked}
+                            />
+                            {!ticket.is_locked && (
+                              <button
+                                onClick={() => {
+                                  const newFeatures = ticket.features.filter((_, i) => i !== fIndex);
+                                  updateTicket(ticket.id, 'features', newFeatures);
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition-colors"
+                              >
+                                <X size={14} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        {!ticket.is_locked && (
+                          <button
+                            onClick={() => {
+                              const newFeatures = [...ticket.features, ''];
+                              updateTicket(ticket.id, 'features', newFeatures);
+                            }}
+                            className="text-sm text-purple-600 font-semibold hover:text-purple-700 flex items-center mt-2"
+                          >
+                            <Plus size={14} className="mr-1" />
+                            Add Feature
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

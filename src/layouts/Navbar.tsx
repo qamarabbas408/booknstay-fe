@@ -71,7 +71,7 @@ const Navbar: React.FC = () => {
     { to: '/', label: 'Home', icon: Home },
     { to: '/hotels', label: 'Hotels', icon: Building2 },
     { to: '/events', label: 'Events', icon: Calendar },
-    { to: '/bookings', label: 'My Bookings', icon: BookOpen },
+    { to: '/dashboard', label: 'My Bookings', icon: BookOpen },
   ];
 
   // Vendor navigation links
@@ -321,7 +321,7 @@ const Navbar: React.FC = () => {
                         ) : (
                           <>
                             <Link
-                              to="/bookings"
+                              to="/dashboard"
                               className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
                               onClick={() => setIsProfileOpen(false)}
                             >

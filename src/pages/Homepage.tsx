@@ -190,10 +190,12 @@ const Homepage: React.FC = () => {
             {filteredItems.map((item, idx) => (
               <div 
                 key={`${item.type}-${item.id}`} 
-                className="bg-white rounded-3xl overflow-hidden shadow-md card-hover cursor-pointer border border-slate-100 animate-fadeInUp"
+                className="bg-white rounded-3xl overflow-hidden shadow-md card-hover border border-slate-100 animate-fadeInUp"
                 style={{animationDelay: `${idx * 0.1}s`}}
               >
-                <div className="relative h-64 overflow-hidden group">
+                <button
+                onClick={()=>item.type === 'event' ? navigate(`/event/${item.id}`) : navigate(`/hotel/${item.id}`)}
+                 className="relative h-64 overflow-hidden group  cursor-pointer">
                   <img 
                     src={item.image} 
                     alt={item.title} 
@@ -226,7 +228,7 @@ const Homepage: React.FC = () => {
                       </span>
                     </div>
                   )}
-                </div>
+                </button>
                 
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-3">
@@ -260,7 +262,7 @@ const Homepage: React.FC = () => {
                     </div>
                     
                     {item.type === 'event' ? (
-                      <button className="flex items-center font-bold bg-linear-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
+                      <button onClick={()=>navigate(`/event/booking/${item.id}}`)} className="flex items-center font-bold bg-linear-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
                         <Ticket size={18} className="mr-2 group-hover:rotate-12 transition-transform" />
                         Get Tickets
                       </button>

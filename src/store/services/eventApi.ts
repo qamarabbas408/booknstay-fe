@@ -33,15 +33,17 @@ export interface VendorEvent {
   tickets_sold: number;
   revenue: number;
   category: string;
+  highlights?: string[];
   tickets: {
     id: number;
     name: string;
-    price: string;
+    price: number;
     quantity: number;
-    sold: number;
+    sold_count: number;
     created_at: string;
     updated_at: string;
     is_locked?: boolean;
+    features?: string[];
   }[];
   images: { id: number; url: string; is_primary: number }[];
 }
@@ -68,6 +70,38 @@ export interface EventQueryParams {
   sort_by?: string;
   page?: number;
   limit?: number;
+}
+
+export interface EventTicketType {
+  id: number;
+  name: string;
+  price: number;
+  available: number;
+  soldOut: boolean;
+  description: string | null;
+  features: string[];
+  popular: boolean;
+}
+
+export interface EventDetailsData {
+  id: number;
+  title: string;
+  location: string;
+  venue: string;
+  date: string;
+  time: string;
+  image: string | null;
+  description: string;
+  highlights: string[];
+  rating: number;
+  attendees: string;
+  ticketTypes: EventTicketType[];
+}
+
+export interface EventDetailsResponse {
+  status: string;
+  message: string | null;
+  data: EventDetailsData;
 }
 
 export const eventApi = api.injectEndpoints({
@@ -103,8 +137,8 @@ export const eventApi = api.injectEndpoints({
     }),
     updateVendorEvent : builder.mutation<any, { id: number; body: FormData }>({
       query: ({ id, body }) => ({
-        url: `/vendor/event/${id}`, //update vendor event
-        method: 'PUT',
+        url: `/vendor/event/edit/${id}`, //update vendor event
+        method: 'POST',
         data: body,
       }),
       invalidatesTags: (_result, _error, { id }) => ['VendorEvents', { type: 'VendorEvent', id }],
@@ -116,6 +150,13 @@ export const eventApi = api.injectEndpoints({
       }),
       invalidatesTags: ['VendorEvents'],
     }),
+    getEventById: builder.query<EventDetailsResponse, number>({
+      query: (id) => ({
+        url: `/event/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (_result, _error, id) => [{ type: 'Event', id }],
+    }),
   }),
 });
 
@@ -126,4 +167,5 @@ export const {
   useGetVendorEventQuery,
   useUpdateVendorEventMutation,
   useDeleteEventMutation,
+  useGetEventByIdQuery,
 } = eventApi;
