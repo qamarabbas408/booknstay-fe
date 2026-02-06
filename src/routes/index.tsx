@@ -26,7 +26,7 @@ import EventCreationPage from '../pages/event/EventCreationPage';
 import WaitingApprovalPage from '../pages/vendor/WaitingApprovalPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import EventBookingPage from '../pages/event/EventBookingPage';
-import HotelRegistrationPage from '../pages/v2/HotelRegistrationPage';
+import HotelRegistrationPage from '../pages/hotel/HotelRegistrationPage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -48,8 +48,7 @@ export const router = createBrowserRouter([
       { path: 'event/:id', element: <EventDetails /> },
 
       // Waiting 
-      { path: 'registration-pending', element: <WaitingApprovalPage/> },
-      { path: 'hotel/registration', element: <HotelRegistrationPage/> },
+      { path: 'registration-pending', element: <WaitingApprovalPage /> },
 
 
 
@@ -60,7 +59,7 @@ export const router = createBrowserRouter([
           { path: 'dashboard', element: <MyBookingsPage /> },
           { path: 'booking', element: <AddBooking /> },
           { path: 'event/booking/:id', element: <EventBookingPage /> },
-          
+
         ],
       },
 
@@ -70,11 +69,13 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={['vendor']} />,
         children: [
           { path: 'dashboard', element: <VendorDashboardPage /> },
-          { path: 'hotels', element: <div className="p-20">Manage My Hotels</div> },
+          // { path: 'hotels', element: <div className="p-20">Manage My Hotels</div> },
           { path: 'event/', element: <EventCreationPage /> },
           {
-            path : 'event/edit/:id',element: <EventCreationPage />
+            path: 'event/edit/:id', element: <EventCreationPage />
           },
+          { path: 'hotel/registration', element: <HotelRegistrationPage /> },
+
         ],
       },
 
