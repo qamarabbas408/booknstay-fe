@@ -12,6 +12,20 @@ export interface Hotel {
   featured: boolean;
   amenities: string[];
   badges?: string[];
+  description?: string;
+  descripton?: string; // Handling API typo
+}
+
+export interface HotelAvailabilityResponse {
+  status: string;
+  message: string;
+  data: {
+    hotel_id: number;
+    total_rooms: number;
+    occupied_rooms: number;
+    available_rooms: number;
+    is_available: boolean;
+  };
 }
 
 export interface HotelsResponse {
@@ -55,7 +69,28 @@ export const hotelApi = api.injectEndpoints({
         };
       },
     }),
+    getHotelById: builder.query<{ data: Hotel }, number>({
+      query: (id) => ({
+        url: `/hotel/${id}`,
+        method: 'GET',
+      }),
+    }),
+    getHotelAvailability: builder.query<HotelAvailabilityResponse, { hotelId: number; check_in: string; check_out: string }>({
+      query: ({ hotelId, check_in, check_out }) => ({
+        url: `/hotel/${hotelId}/availability`,
+        params: { check_in, check_out },
+        method: 'GET',
+      }),
+    }),
+    createHotelBooking: builder.mutation<any, { hotel_id: number; check_in: string; check_out: string; guests_count: number }>({
+      query: (data) => ({
+        url: '/guest/hotel/booking',
+        method: 'POST',
+        data,
+      }),
+      invalidatesTags: ['Booking'],
+    }),
   }),
 });
 
-export const { useGetHotelsQuery } = hotelApi;
+export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery } = hotelApi;

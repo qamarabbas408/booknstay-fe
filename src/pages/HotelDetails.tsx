@@ -1,27 +1,132 @@
-import React, { useState } from 'react';
-import { ChevronLeft, MapPin, Star, Wifi, Coffee, Car, Dumbbell, Heart, Share2, Check, Calendar, Users, X, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ChevronLeft, MapPin, Star, Wifi, Coffee, Car, Dumbbell, Heart, Share2, Check, Calendar, Users, X, ChevronRight, Waves, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery } from '../store/services/hotelApi';
+import { APIENDPOINTS } from '../utils/ApiConstants';
+import { AppImages } from '../utils/AppImages';
+import SkeletonLoader from '../components/SkeletonLoader';
+import { CustomToaster, showToast } from '../components/CustomToaster';
 
 const HotelDetails = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(2);
 
-  const images = [
-    "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80",
+  const [createHotelBooking, { isLoading: isBooking }] = useCreateHotelBookingMutation();
+  const { data: hotelResponse, isLoading, isError } = useGetHotelByIdQuery(Number(id), {
+    skip: !id,
+  });
+  const [triggerAvailabilityCheck, { data: availabilityData, isFetching: isCheckingAvailability }] = useLazyGetHotelAvailabilityQuery();
+
+  const hotel = hotelResponse?.data;
+
+  useEffect(() => {
+    if (checkIn && checkOut && hotel) {
+      triggerAvailabilityCheck({
+        hotelId: hotel.id,
+        check_in: checkIn,
+        check_out: checkOut,
+      });
+    }
+  }, [checkIn, checkOut, hotel, triggerAvailabilityCheck]);
+
+  const today = new Date().toISOString().split('T')[0];
+  const minCheckOut = checkIn 
+    ? new Date(new Date(checkIn).getTime() + 86400000).toISOString().split('T')[0] 
+    : today;
+
+  const getImageUrl = (path: string | null | undefined) => {
+    if (!path) return AppImages.placeholders.hotels_placeholder;
+    if (path.startsWith('http')) return path;
+    return `${APIENDPOINTS.content_url}${path}`;
+  };
+
+  const images = hotel ? [
+    getImageUrl(hotel.image),
+    // Add some static placeholders for gallery effect since API returns single image
     "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
     "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=80",
     "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=80",
     "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1600&q=80"
-  ];
+  ] : [];
 
-  const amenities = [
-    { icon: Wifi, name: 'Free Wi-Fi' },
-    { icon: Coffee, name: 'Breakfast Included' },
-    { icon: Car, name: 'Free Parking' },
-    { icon: Dumbbell, name: 'Fitness Center' }
-  ];
+  const getAmenityIcon = (name: string) => {
+    const lower = name.toLowerCase();
+    if (lower.includes('wifi')) return Wifi;
+    if (lower.includes('breakfast') || lower.includes('coffee')) return Coffee;
+    if (lower.includes('pool')) return Waves;
+    if (lower.includes('gym') || lower.includes('fitness')) return Dumbbell;
+    if (lower.includes('parking') || lower.includes('car')) return Car;
+    return Check;
+  };
+
+  const displayAmenities = hotel?.amenities.map(name => ({
+    icon: getAmenityIcon(name),
+    name: name.charAt(0).toUpperCase() + name.slice(1)
+  })) || [];
+
+  const handleReserve = async () => {
+    if (!hotel) return;
+    if (!checkIn || !checkOut) {
+      showToast.error("Please select check-in and check-out dates.");
+      return;
+    }
+
+    if (availabilityData && !availabilityData.data.is_available) {
+      showToast.error("Sorry, no rooms available for the selected dates. Please try other dates.");
+      return;
+    }
+    
+    try {
+      const response = await createHotelBooking({
+        hotel_id: hotel.id,
+        check_in: checkIn,
+        check_out: checkOut,
+        guests_count: guests
+      }).unwrap();
+      
+      showToast.success(response.message || "Hotel booked successfully!");
+      navigate('/dashboard');
+    } catch (error: any) {
+      showToast.error(error?.data?.message || "Failed to book hotel.");
+    }
+  };
+
+  const AvailabilityStatus = () => {
+    if (!checkIn || !checkOut) return null;
+
+    if (isCheckingAvailability) {
+      return (
+        <div className="mt-4 flex items-center text-sm text-slate-600 p-3 bg-slate-100 rounded-lg">
+          <Loader2 className="animate-spin mr-2" size={16} />
+          Checking availability...
+        </div>
+      );
+    }
+
+    if (availabilityData) {
+      if (availabilityData.data.is_available) {
+        return (
+          <div className="mt-4 flex items-center text-sm text-green-700 p-3 bg-green-50 rounded-lg border border-green-200">
+            <CheckCircle className="mr-2" size={16} />
+            {`Good news! ${availabilityData.data.available_rooms} rooms available for these dates.`}
+          </div>
+        );
+      } else {
+        return (
+          <div className="mt-4 flex items-center text-sm text-red-700 p-3 bg-red-50 rounded-lg border border-red-200">
+            <AlertCircle className="mr-2" size={16} />
+            Sorry, no rooms available. Please try other dates.
+          </div>
+        );
+      }
+    }
+    return null;
+  };
 
   const reviews = [
     { name: 'Sarah Mitchell', rating: 5, date: 'Dec 2025', text: 'Absolutely stunning property! The service was impeccable and the ocean views were breathtaking. Would definitely return.', avatar: 'https://i.pravatar.cc/150?img=1' },
@@ -29,8 +134,31 @@ const HotelDetails = () => {
     { name: 'Emma Thompson', rating: 4, date: 'Nov 2025', text: 'Beautiful hotel with excellent amenities. Only minor issue was the AC in our room. Otherwise, a fantastic experience!', avatar: 'https://i.pravatar.cc/150?img=3' }
   ];
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 pt-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <SkeletonLoader type="hotel" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !hotel) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">Hotel Not Found</h2>
+          <p className="text-slate-600">We couldn't load the details for this property.</p>
+          <button onClick={() => navigate('/hotels')} className="mt-4 text-indigo-600 font-semibold">Back to Hotels</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -82,7 +210,7 @@ const HotelDetails = () => {
       {/* Navigation */}
       <nav className="glass sticky top-0 z-50 border-b border-white/40 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button className="flex items-center text-slate-700 font-semibold hover:text-indigo-600 transition-colors">
+          <button onClick={() => navigate(-1)} className="flex items-center text-slate-700 font-semibold hover:text-indigo-600 transition-colors">
             <ChevronLeft size={20} className="mr-1" />
             Back to Results
           </button>
@@ -173,16 +301,16 @@ const HotelDetails = () => {
             <div>
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-4xl font-display text-slate-900 mb-2">Grand Azure Resort</h1>
+                  <h1 className="text-4xl font-display text-slate-900 mb-2">{hotel.name}</h1>
                   <div className="flex items-center text-slate-600 space-x-4">
                     <div className="flex items-center">
                       <MapPin size={18} className="mr-1.5 text-slate-400" />
-                      <span>Maldives, Indian Ocean</span>
+                      <span>{hotel.location}</span>
                     </div>
                     <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-lg">
                       <Star size={16} fill="#f59e0b" className="text-amber-500 mr-1" />
-                      <span className="font-bold text-amber-700">4.9</span>
-                      <span className="text-slate-600 ml-1">(284 reviews)</span>
+                      <span className="font-bold text-amber-700">{hotel.rating || hotel.stars}</span>
+                      <span className="text-slate-600 ml-1">({hotel.reviewCount} reviews)</span>
                     </div>
                   </div>
                 </div>
@@ -190,9 +318,7 @@ const HotelDetails = () => {
 
               <div className="bg-linear-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
                 <p className="text-lg text-slate-700 font-serif leading-relaxed">
-                  Experience paradise at our luxury beachfront resort. Immerse yourself in crystal-clear waters, 
-                  pristine white sand beaches, and world-class amenities. Each villa offers breathtaking ocean views 
-                  and private access to the beach, creating an unforgettable tropical escape.
+                  {hotel.description || hotel.descripton}
                 </p>
               </div>
             </div>
@@ -201,7 +327,7 @@ const HotelDetails = () => {
             <div>
               <h2 className="text-2xl font-display text-slate-900 mb-6">What This Place Offers</h2>
               <div className="grid grid-cols-2 gap-4">
-                {amenities.map((amenity, idx) => (
+                {displayAmenities.map((amenity, idx) => (
                   <div key={idx} className="flex items-center space-x-3 p-4 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 transition-colors">
                     <amenity.icon size={24} className="text-indigo-600" />
                     <span className="font-semibold text-slate-700">{amenity.name}</span>
@@ -267,7 +393,7 @@ const HotelDetails = () => {
                 <div className="mb-6">
                   <div className="text-sm text-slate-500 mb-1">Starting from</div>
                   <div className="text-4xl font-display bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    $250
+                    ${hotel.pricePerNight}
                     <span className="text-lg text-slate-600 font-normal ml-2">/night</span>
                   </div>
                 </div>
@@ -280,7 +406,13 @@ const HotelDetails = () => {
                       <input 
                         type="date"
                         value={checkIn}
-                        onChange={(e) => setCheckIn(e.target.value)}
+                        min={today}
+                        onChange={(e) => {
+                          setCheckIn(e.target.value);
+                          if (checkOut && e.target.value >= checkOut) {
+                            setCheckOut('');
+                          }
+                        }}
                         className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors"
                       />
                     </div>
@@ -293,6 +425,7 @@ const HotelDetails = () => {
                       <input 
                         type="date"
                         value={checkOut}
+                        min={minCheckOut}
                         onChange={(e) => setCheckOut(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors"
                       />
@@ -318,24 +451,42 @@ const HotelDetails = () => {
                   </div>
                 </div>
 
-                <button className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all mb-4">
-                  Reserve Now
+                <AvailabilityStatus />
+
+                <button 
+                  onClick={handleReserve}
+                  disabled={isBooking || !checkIn || !checkOut || isCheckingAvailability || (availabilityData && !availabilityData.data.is_available)}
+                  className="w-full mt-4 bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all mb-4 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isBooking ? (
+                    <>
+                      <Loader2 className="animate-spin mr-2" size={20} />
+                      Processing...
+                    </>
+                  ) : isCheckingAvailability ? (
+                    <>
+                      <Loader2 className="animate-spin mr-2" size={20} />
+                      Checking...
+                    </>
+                  ) : (
+                    'Reserve Now'
+                  )}
                 </button>
 
                 <p className="text-center text-sm text-slate-500">You won't be charged yet</p>
 
                 <div className="mt-6 pt-6 border-t border-slate-200 space-y-3">
                   <div className="flex justify-between text-slate-600">
-                    <span>$250 × 3 nights</span>
-                    <span>$750</span>
+                    <span>${hotel.pricePerNight} × 3 nights</span>
+                    <span>${hotel.pricePerNight * 3}</span>
                   </div>
                   <div className="flex justify-between text-slate-600">
                     <span>Service fee</span>
-                    <span>$75</span>
+                    <span>${(hotel.pricePerNight * 3 * 0.1).toFixed(0)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg text-slate-900 pt-3 border-t border-slate-200">
                     <span>Total</span>
-                    <span>$825</span>
+                    <span>${(hotel.pricePerNight * 3 * 1.1).toFixed(0)}</span>
                   </div>
                 </div>
               </div>

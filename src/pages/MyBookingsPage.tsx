@@ -80,7 +80,7 @@ const BookingDetailsModal = ({ bookingId, onClose }: { bookingId: number, onClos
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-scaleIn relative">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg animate-scaleIn relative flex flex-col max-h-[90vh]">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors z-10"
@@ -97,7 +97,7 @@ const BookingDetailsModal = ({ bookingId, onClose }: { bookingId: number, onClos
           </div>
         ) : booking && statusConfig && StatusIcon ? (
           <>
-            <div className="bg-slate-50 p-8 border-b border-slate-100">
+            <div className="bg-slate-50 p-8 border-b border-slate-100 flex-shrink-0">
               <div className="flex justify-between items-start mb-4">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                   booking.type === 'hotel' ? 'bg-emerald-100 text-emerald-700' : 'bg-purple-100 text-purple-700'
@@ -116,7 +116,7 @@ const BookingDetailsModal = ({ bookingId, onClose }: { bookingId: number, onClos
               </div>
             </div>
 
-            <div className="p-8 space-y-6">
+            <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
               <div className={`flex items-center p-4 rounded-xl border ${statusConfig.bg} ${statusConfig.border}`}>
                 <StatusIcon size={24} className={`${statusConfig.text} mr-3`} />
                 <div>
@@ -227,6 +227,25 @@ const MyBookingsPage: React.FC = () => {
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
 
         .animate-fadeIn {
           animation: fadeIn 0.2s ease-out forwards;
