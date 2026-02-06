@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Calendar, MapPin, Star, Ticket, ChevronRight, Sparkles, Filter, Clock, Music, Users, Zap, ChevronDown, ChevronUp, X } from 'lucide-react';
-import { APIENDPOINTS } from '../utils/ApiConstants';
-import { AppImages } from '../utils/AppImages';
-import { useGetEventCategoriesQuery } from '../store/services/miscApi';
-import { useGetEventsQuery } from '../store/services/eventApi';
-import EventFilters from '../components/EventFilters';
-import {type FilterState } from '../components/EventFilters';
-import PulseLoader from '../components/PulseLoader';
-import SkeletonLoader from '../components/SkeletonLoader';
+import { APIENDPOINTS } from '../../utils/ApiConstants';
+import { AppImages } from '../../utils/AppImages';
+import { useGetEventCategoriesQuery } from '../../store/services/miscApi';
+import { useGetEventsQuery } from '../../store/services/eventApi';
+import EventFilters from '../../components/EventFilters';
+import {type FilterState } from '../../components/EventFilters';
+import SkeletonLoader from '../../components/SkeletonLoader';
 
 const EventsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Events');

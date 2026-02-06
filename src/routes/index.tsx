@@ -4,27 +4,29 @@ import ProtectedRoute from './ProtectedRoute';
 
 // Public Pages
 import Homepage from '../pages/Homepage';
-import LoginPage from '../pages/LoginPage';
-import GuestRegistrationPage from '../pages/GuestRegistrationPage';
-import VendorRegistrationPage from '../pages/VendorRegistrationPage';
+import LoginPage from '../pages/auth/LoginPage';
+import GuestRegistrationPage from '../pages/auth/GuestRegistrationPage';
+// import VendorRegistrationPage from '../pages/VendorRegistrationPage';
+import VendorRegistrationPage from '../pages/v2/VendorRegistrationPage';
 import HelpCenter from '../pages/HelpCenter';
 
 // Listing Pages
-import HotelsPage from '../pages/HotelsPage';
-import HotelDetails from '../pages/HotelDetails';
-import EventsPage from '../pages/EventsPage';
-import EventDetails from '../pages/EventDetails';
+import HotelsPage from '../pages/hotel/HotelsPage';
+import HotelDetails from '../pages/hotel/HotelDetails';
+import EventsPage from '../pages/event/EventsPage';
+import EventDetails from '../pages/event/EventDetails';
 
 // Guest Pages
-import MyBookingsPage from '../pages/MyBookingsPage';
-import AddBooking from '../pages/AddBooking';
+import MyBookingsPage from '../pages/guest/MyBookingsPage';
+import AddBooking from '../pages/guest/AddBooking';
 
 // Vendor Pages
-import VendorDashboardPage from '../pages/VendorDashboardPage';
-import EventCreationPage from '../pages/EventCreationPage';
-import WaitingApprovalPage from '../pages/WaitingApprovalPage';
+import VendorDashboardPage from '../pages/vendor/VendorDashboardPage';
+import EventCreationPage from '../pages/event/EventCreationPage';
+import WaitingApprovalPage from '../pages/vendor/WaitingApprovalPage';
 import NotFoundPage from '../pages/NotFoundPage';
-import EventBookingPage from '../pages/EventBookingPage';
+import EventBookingPage from '../pages/event/EventBookingPage';
+import HotelRegistrationPage from '../pages/v2/HotelRegistrationPage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -47,6 +49,8 @@ export const router = createBrowserRouter([
 
       // Waiting 
       { path: 'registration-pending', element: <WaitingApprovalPage/> },
+      { path: 'hotel/registration', element: <HotelRegistrationPage/> },
+
 
 
       // 2. GUEST PROTECTED ROUTES (Need to be logged in as 'guest' or 'vendor')

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, MapPin, Star, Wifi, Coffee, Car, Dumbbell, Heart, Share2, Check, Calendar, Users, X, ChevronRight, Waves, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import { useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery } from '../store/services/hotelApi';
-import { APIENDPOINTS } from '../utils/ApiConstants';
-import { AppImages } from '../utils/AppImages';
-import SkeletonLoader from '../components/SkeletonLoader';
-import { CustomToaster, showToast } from '../components/CustomToaster';
+import { useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery } from '../../store/services/hotelApi';
+import { APIENDPOINTS } from '../../utils/ApiConstants';
+import { AppImages } from '../../utils/AppImages';
+import SkeletonLoader from '../../components/SkeletonLoader';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
 
 const HotelDetails = () => {
   const { id } = useParams<{ id: string }>();

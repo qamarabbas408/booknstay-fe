@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Star, Filter, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car } from 'lucide-react';
-import { APIENDPOINTS } from '../utils/ApiConstants';
-import { AppImages } from '../utils/AppImages';
-import { useGetHotelsQuery } from '../store/services/hotelApi';
-import { useGetAmenitiesQuery } from '../store/services/miscApi';
-import SkeletonLoader from '../components/SkeletonLoader';
+import { APIENDPOINTS } from '../../utils/ApiConstants';
+import { AppImages } from '../../utils/AppImages';
+import { useGetHotelsQuery } from '../../store/services/hotelApi';
+import { useGetAmenitiesQuery } from '../../store/services/miscApi';
+import SkeletonLoader from '../../components/SkeletonLoader';
 
 const HotelsPage: React.FC = () => {
   const navigate = useNavigate();

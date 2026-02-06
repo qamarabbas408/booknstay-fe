@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+  import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Sparkles, Menu, X, Home, Building2, Calendar, BookOpen, User, LogIn, LogOut, LayoutDashboard, ChevronDown, Hotel, Ticket, Settings, CreditCard, Users, PlusCircle, TrendingUp, ChevronRight } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
+import './Navbar.css';
 
 const Navbar: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -87,105 +88,6 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap');
-        
-        * {
-          font-family: 'Archivo', -apple-system, sans-serif;
-        }
-        
-        .font-display {
-          font-family: 'Archivo', sans-serif;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-        }
-        
-        @keyframes slideInRight {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideDown {
-          from {
-            transform: translateY(-10px);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes scaleIn {
-          from {
-            transform: scale(0.95);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-        
-        .mobile-menu-enter {
-          animation: slideInRight 0.3s ease-out forwards;
-        }
-        
-        .mobile-menu-item {
-          animation: slideDown 0.3s ease-out forwards;
-          opacity: 0;
-        }
-        
-        .backdrop-enter {
-          animation: fadeIn 0.3s ease-out forwards;
-        }
-        
-        .dropdown-enter {
-          animation: scaleIn 0.2s ease-out forwards;
-        }
-        
-        .hamburger-line {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .hamburger-open .line-1 {
-          transform: rotate(45deg) translateY(8px);
-        }
-        
-        .hamburger-open .line-2 {
-          opacity: 0;
-          transform: translateX(20px);
-        }
-        
-        .hamburger-open .line-3 {
-          transform: rotate(-45deg) translateY(-8px);
-        }
-        
-        .glass {
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .gradient-text {
-          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-      `}</style>
-
       <nav className={`glass sticky top-0 z-50 border-b border-white/40 shadow-sm transition-all duration-300 ${
         scrolled ? 'py-3' : 'py-4'
       }`}>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Calendar, MapPin, Ticket, ImagePlus, Plus, Trash2, Save, Eye, Globe, Lock, Sparkles, ChevronLeft, Users, Clock, Tag, Loader2, AlertCircle, Zap, CheckCircle, X } from 'lucide-react';
-import { useGetEventCategoriesQuery } from '../store/services/miscApi';
-import { useCreateEventMutation, useGetVendorEventQuery, useUpdateVendorEventMutation, type VendorEvent } from '../store/services/eventApi';
-import { CustomToaster, showToast } from '../components/CustomToaster';
+import { useGetEventCategoriesQuery } from '../../store/services/miscApi';
+import { useCreateEventMutation, useGetVendorEventQuery, useUpdateVendorEventMutation, type VendorEvent } from '../../store/services/eventApi';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
 
 interface TicketType {
   id: number;

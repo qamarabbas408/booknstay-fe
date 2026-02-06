@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CustomToaster, showToast } from '../components/CustomToaster';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
 import { 
   ArrowLeft, Mail, Phone, User, Lock, CheckCircle, 
   Sparkles, ChevronRight, Heart, Compass, Music, 
   Palmtree, Map, ShieldCheck, Wind, Briefcase
 } from 'lucide-react';
-import { useRegisterGuestMutation } from '../store/services/AuthApi';
-import { useGetInterestsQuery } from '../store/services/miscApi';
-import PulseLoader from '../components/PulseLoader';
+import { useRegisterGuestMutation } from '../../store/services/AuthApi';
+import { useGetInterestsQuery } from '../../store/services/miscApi';
+import PulseLoader from '../../components/PulseLoader';
 
 interface GuestFormData {
   // Step 1: Personal Info

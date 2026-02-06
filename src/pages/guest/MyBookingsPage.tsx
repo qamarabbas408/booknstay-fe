@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Ticket, Download, ChevronRight, Clock, CheckCircle, XCircle, AlertCircle, Users, Filter, Search, Sparkles, CreditCard, Mail, Phone, X } from 'lucide-react';
-import { APIENDPOINTS } from '../utils/ApiConstants';
-import { AppImages } from '../utils/AppImages';
-import { useGetGuestBookingsQuery, useGetBookingByIdQuery } from '../store/services/bookingApi';
-import SkeletonLoader from '../components/SkeletonLoader';
+import { APIENDPOINTS } from '../../utils/ApiConstants';
+import { AppImages } from '../../utils/AppImages';
+import { useGetGuestBookingsQuery, useGetBookingByIdQuery } from '../../store/services/bookingApi';
+import SkeletonLoader from '../../components/SkeletonLoader';
 import { useNavigate } from 'react-router-dom';
-import PulseLoader from '../components/PulseLoader';
+import PulseLoader from '../../components/PulseLoader';
 
 // Mock booking data
 export interface Booking {

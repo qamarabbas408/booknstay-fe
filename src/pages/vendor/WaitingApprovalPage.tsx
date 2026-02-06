@@ -1,24 +1,35 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Clock, Mail, CheckCircle, AlertCircle, RefreshCw, LogOut, ArrowLeft, Shield, Phone, MessageSquare, Sparkles } from 'lucide-react';
+import { useLazyGetApprovalStatusQuery } from '../../store/services/AuthApi';
+import { useAppSelector } from '../../store/hooks';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
 
 const WaitingApprovalPage: React.FC = () => {
-  const [isChecking, setIsChecking] = useState(false);
   const [emailResent, setEmailResent] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
+  const [checkStatus, { isLoading: isChecking }] = useLazyGetApprovalStatusQuery();
 
   // Mock user data for static UI
-  const mockUser = {
-    name: "John Doe",
-    email: "john.doe@example.com",
+  const currentUser = user || {
+    name: "Valued Partner",
+    email: "your-email@example.com",
     role: "vendor" // or "guest"
   };
 
-  const handleCheckStatus = () => {
-    setIsChecking(true);
-    // Simulate checking
-    setTimeout(() => {
-      setIsChecking(false);
-    }, 2000);
+  const handleCheckStatus = async () => {
+    try {
+      const { status, message } = await checkStatus(undefined).unwrap();
+      if (status === 'active') {
+        showToast.success(message);
+        navigate('/vendor/dashboard', { replace: true });
+      } else {
+        showToast.info(message);
+      }
+    } catch (error: any) {
+      showToast.error(error?.data?.message || "Failed to check status.");
+    }
   };
 
   const handleResendEmail = () => {
@@ -30,6 +41,7 @@ const WaitingApprovalPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -200,12 +212,12 @@ const WaitingApprovalPage: React.FC = () => {
                 <div className="flex-1">
                   <h3 className="font-bold text-slate-900 mb-1">Account Under Review</h3>
                   <p className="text-sm text-slate-600 leading-relaxed mb-3">
-                    Thank you for registering, <span className="font-semibold text-indigo-600">{mockUser.name}</span>! 
-                    Our team is currently reviewing your {mockUser.role === 'vendor' ? 'vendor' : 'account'} application.
+                    Thank you for registering, <span className="font-semibold text-indigo-600">{currentUser.name}</span>! 
+                    Our team is currently reviewing your {currentUser.role === 'vendor' ? 'vendor' : 'account'} application.
                   </p>
                   <div className="flex items-center text-sm text-slate-600">
                     <Mail size={16} className="mr-2 text-indigo-600" />
-                    <span>{mockUser.email}</span>
+                    <span>{currentUser.email}</span>
                   </div>
                 </div>
               </div>
@@ -327,7 +339,7 @@ const WaitingApprovalPage: React.FC = () => {
               {emailResent && (
                 <div className="flex items-center justify-center space-x-2 text-green-600 text-sm bg-green-50 py-3 rounded-xl border border-green-200">
                   <CheckCircle size={16} />
-                  <span>Confirmation email has been resent to {mockUser.email}</span>
+                  <span>Confirmation email has been resent to {currentUser.email}</span>
                 </div>
               )}
             </div>

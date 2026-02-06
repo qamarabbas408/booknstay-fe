@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Ticket, Users, AlertCircle, ChevronRight, Sparkles, Clock, Star, Heart, Share2, Plus, Minus, Tag, Shield, CreditCard, Info, TrendingUp, CheckCircle, Loader2 } from 'lucide-react';
-import { useGetEventByIdQuery, useCreateEventBookingMutation } from '../store/services/eventApi';
-import { APIENDPOINTS } from '../utils/ApiConstants';
-import { AppImages } from '../utils/AppImages';
-import SkeletonLoader from '../components/SkeletonLoader';
-import { CustomToaster, showToast } from '../components/CustomToaster';
+import { useGetEventByIdQuery, useCreateEventBookingMutation } from '../../store/services/eventApi';
+import { APIENDPOINTS } from '../../utils/ApiConstants';
+import { AppImages } from '../../utils/AppImages';
+import SkeletonLoader from '../../components/SkeletonLoader';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
 
 const EventBookingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

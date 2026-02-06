@@ -1,4 +1,3 @@
-import WaitingApprovalPage from "../pages/WaitingApprovalPage";
 
 export const AppRoutes = {
     login :"/login",

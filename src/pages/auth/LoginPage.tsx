@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CustomToaster, showToast } from '../components/CustomToaster';
-import { useLoginMutation } from '../store/services/AuthApi';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
+import { useLoginMutation } from '../../store/services/AuthApi';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Sparkles, Chrome, Apple, Loader2 } from 'lucide-react';
 
 const LoginPage: React.FC = () => {

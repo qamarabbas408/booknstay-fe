@@ -1,5 +1,6 @@
 import { api } from './api';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
+import { updateUser } from '../slices/authSlice';
 
 export interface User {
   id: number;
@@ -32,6 +33,23 @@ export interface RegisterRequest {
   interests?: number[];
 }
 
+export interface VendorRegisterRequest {
+  ownerName: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  companyName: string;
+  businessType: string;
+  phone: string;
+  website: string;
+  role?: string;
+}
+
+export interface ApprovalStatusResponse {
+  message: string;
+  status: 'active' | 'pending' | 'suspended' | 'unknown';
+}
+
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -41,9 +59,9 @@ export const authApi = api.injectEndpoints({
         data: credentials,
       }),
     }),
-    registerVendor: builder.mutation<AuthResponse, RegisterRequest | FormData>({
+    registerVendor: builder.mutation<AuthResponse, VendorRegisterRequest | FormData>({
       query: (credentials) => ({
-        url: APIENDPOINTS.ENDPOINTS.registerVendor,
+        url: APIENDPOINTS.base_url_v2 + APIENDPOINTS.ENDPOINTS.registerVendor,
         method: 'POST',
         data: credentials,
       }),
@@ -55,7 +73,24 @@ export const authApi = api.injectEndpoints({
         data: credentials,
       }),
     }),
+    getApprovalStatus: builder.query<ApprovalStatusResponse, void>({
+      query: () => ({
+        url: APIENDPOINTS.base_url_v2 + 'approval-status',
+        method: 'GET',
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          // On successful status check, update the user's status in the auth slice
+          if (data.status) {
+            dispatch(updateUser({ status: data.status }));
+          }
+        } catch (err) {
+          // The error is already handled by the component using the query hook
+        }
+      },
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterVendorMutation,useRegisterGuestMutation } = authApi;
+export const { useLoginMutation, useRegisterVendorMutation, useRegisterGuestMutation, useLazyGetApprovalStatusQuery } = authApi;

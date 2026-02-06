@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../store/hooks';
-import { logout } from '../store/slices/authSlice';
+import { useAppDispatch } from '../../store/hooks';
+import { logout } from '../../store/slices/authSlice';
 import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut, Ticket } from 'lucide-react';
-import { useGetVendorEventsQuery, useDeleteEventMutation } from '../store/services/eventApi';
-import PulseLoader from '../components/PulseLoader';
-import { CustomToaster, showToast } from '../components/CustomToaster';
+import { useGetVendorEventsQuery, useDeleteEventMutation } from '../../store/services/eventApi';
+import PulseLoader from '../../components/PulseLoader';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
 
 // Mock data for hotel vendor dashboard
 interface Stat {

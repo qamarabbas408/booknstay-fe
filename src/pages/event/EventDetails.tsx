@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ChevronLeft, MapPin, Star, Calendar, Clock, Users, Heart, Share2, Ticket, Music, Wifi, Coffee, PartyPopper, Camera, CheckCircle, Info, ChevronRight, X, Zap } from 'lucide-react';
-import { useGetEventByIdQuery } from '../store/services/eventApi';
-import { APIENDPOINTS } from '../utils/ApiConstants';
-import { AppImages } from '../utils/AppImages';
-import SkeletonLoader from '../components/SkeletonLoader';
+import { useGetEventByIdQuery } from '../../store/services/eventApi';
+import { APIENDPOINTS } from '../../utils/ApiConstants';
+import { AppImages } from '../../utils/AppImages';
+import SkeletonLoader from '../../components/SkeletonLoader';
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CustomToaster, showToast } from '../components/CustomToaster';
-import { useRegisterVendorMutation } from '../store/services/AuthApi';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
+import { useRegisterVendorMutation } from '../../store/services/AuthApi';
 
 import { ArrowLeft, Building2, Mail, Phone, MapPin, User, Lock, Upload, CheckCircle, AlertCircle, Globe, DollarSign, Image, FileText, Sparkles, ChevronRight, Loader2 } from 'lucide-react';
 
