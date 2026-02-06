@@ -5,7 +5,7 @@ import { APIENDPOINTS } from '../utils/ApiConstants';
 import { AppImages } from '../utils/AppImages';
 import { useGetHotelsQuery } from '../store/services/hotelApi';
 import { useGetEventsQuery } from '../store/services/eventApi';
-import PulseLoader from '../components/PulseLoader';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 // Mock data interfaces for type safety
 interface Item {
@@ -182,8 +182,10 @@ const Homepage: React.FC = () => {
 
         {/* Cards Grid */}
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <PulseLoader />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, i) => (
+              <SkeletonLoader key={i} type="hotel" />
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -262,12 +264,15 @@ const Homepage: React.FC = () => {
                     </div>
                     
                     {item.type === 'event' ? (
-                      <button onClick={()=>navigate(`/event/booking/${item.id}}`)} className="flex items-center font-bold bg-linear-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
+                      <button onClick={()=>navigate(`/event/booking/${item.id}`)} className="flex items-center font-bold bg-linear-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
                         <Ticket size={18} className="mr-2 group-hover:rotate-12 transition-transform" />
                         Get Tickets
                       </button>
                     ) : (
-                      <button className="flex items-center font-bold bg-linear-to-r from-indigo-600 to-blue-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
+                      <button 
+                        onClick={() => navigate(`/hotel/${item.id}`)}
+                        className="flex items-center font-bold bg-linear-to-r from-indigo-600 to-blue-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all group"
+                      >
                         <span>Book Now</span>
                         <ChevronRight size={20} className="ml-1 group-hover:translate-x-1 transition-transform" />
                       </button>

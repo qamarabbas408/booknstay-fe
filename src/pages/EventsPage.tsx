@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Calendar, MapPin, Star, Ticket, ChevronRight, Sparkles, Filter, Clock, Music, Users, Zap, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { APIENDPOINTS } from '../utils/ApiConstants';
 import { AppImages } from '../utils/AppImages';
@@ -26,6 +27,7 @@ const EventsPage = () => {
     sortBy: 'upcoming',
   });
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
 
   const { data: categoriesData, isLoading: isCategoriesLoading } = useGetEventCategoriesQuery();
   
@@ -227,8 +229,12 @@ const EventsPage = () => {
       {/* Categories */}
       <section className="max-w-7xl mx-auto px-6 -mt-8 relative z-20">
         {isCategoriesLoading ? (
-          <div className="flex justify-center py-8">
-            <PulseLoader />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 py-8">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="animate-fadeInUp">
+                <SkeletonLoader />
+              </div>
+            ))}
           </div>
         ) : (
           <>
@@ -306,7 +312,13 @@ const EventsPage = () => {
                 className="bg-white rounded-3xl overflow-hidden shadow-md card-hover cursor-pointer border border-slate-100 animate-fadeInUp"
                 style={{animationDelay: `${idx * 0.05}s`}}
               >
-                <div className="relative h-56 overflow-hidden group">
+                <div
+                  className="relative h-56 overflow-hidden group"
+                  onClick={() => navigate(`/event/booking/${event.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/event/booking/${event.id}`); }}
+                >
                   <EventImage src={event.image} alt={event.title} />
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
                   
@@ -376,11 +388,12 @@ const EventsPage = () => {
                       </div>
                     </div>
                     
-                    <button 
+                    <button
                       disabled={event.is_sold_out}
+                      onClick={() => !event.is_sold_out && navigate(`/event/booking/${event.id}`)}
                       className={`flex items-center font-bold px-5 py-3 rounded-xl transition-all group ${
-                        event.is_sold_out 
-                          ? 'bg-slate-200 text-slate-500 cursor-not-allowed' 
+                        event.is_sold_out
+                          ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
                           : 'bg-linear-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
                       }`}
                     >

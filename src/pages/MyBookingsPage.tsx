@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, MapPin, Ticket, Download, ChevronRight, Clock, CheckCircle, XCircle, AlertCircle, Users, Filter, Search, Sparkles, CreditCard, Mail, Phone } from 'lucide-react';
+import { Calendar, MapPin, Ticket, Download, ChevronRight, Clock, CheckCircle, XCircle, AlertCircle, Users, Filter, Search, Sparkles, CreditCard, Mail, Phone, X } from 'lucide-react';
 import { APIENDPOINTS } from '../utils/ApiConstants';
 import { AppImages } from '../utils/AppImages';
-import { useGetGuestBookingsQuery } from '../store/services/bookingApi';
+import { useGetGuestBookingsQuery, useGetBookingByIdQuery } from '../store/services/bookingApi';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useNavigate } from 'react-router-dom';
+import PulseLoader from '../components/PulseLoader';
 
 // Mock booking data
 export interface Booking {
@@ -20,7 +21,171 @@ export interface Booking {
   bookingCode?: string;
   checkIn?: string;
   checkOut?: string;
+  bookedAt?: string;
 }
+
+const getStatusConfig = (status: string) => {
+  switch (status) {
+    case 'confirmed':
+      return {
+        bg: 'bg-emerald-50',
+        text: 'text-emerald-700',
+        border: 'border-emerald-200',
+        icon: CheckCircle,
+        label: 'Confirmed'
+      };
+    case 'pending':
+      return {
+        bg: 'bg-amber-50',
+        text: 'text-amber-700',
+        border: 'border-amber-200',
+        icon: Clock,
+        label: 'Pending'
+      };
+    case 'cancelled':
+      return {
+        bg: 'bg-red-50',
+        text: 'text-red-700',
+        border: 'border-red-200',
+        icon: XCircle,
+        label: 'Cancelled'
+      };
+    case 'completed':
+      return {
+        bg: 'bg-slate-50',
+        text: 'text-slate-700',
+        border: 'border-slate-200',
+        icon: CheckCircle,
+        label: 'Completed'
+      };
+    default:
+      return {
+        bg: 'bg-slate-50',
+        text: 'text-slate-700',
+        border: 'border-slate-200',
+        icon: AlertCircle,
+        label: status
+      };
+  }
+};
+
+const BookingDetailsModal = ({ bookingId, onClose }: { bookingId: number, onClose: () => void }) => {
+  const { data: bookingResponse, isLoading } = useGetBookingByIdQuery(bookingId);
+  const booking = bookingResponse?.data;
+
+  if (!booking && !isLoading) return null;
+
+  const statusConfig = booking ? getStatusConfig(booking.status) : null;
+  const StatusIcon = statusConfig?.icon;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-scaleIn relative">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors z-10"
+        >
+          <X size={20} className="text-slate-600" />
+        </button>
+
+        {isLoading ? (
+          <div className="p-12 flex flex-col items-center justify-center text-slate-500">
+            <div className="mb-4">
+              <PulseLoader />
+            </div>
+            <p>Loading booking details...</p>
+          </div>
+        ) : booking && statusConfig && StatusIcon ? (
+          <>
+            <div className="bg-slate-50 p-8 border-b border-slate-100">
+              <div className="flex justify-between items-start mb-4">
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                  booking.type === 'hotel' ? 'bg-emerald-100 text-emerald-700' : 'bg-purple-100 text-purple-700'
+                }`}>
+                  {booking.type === 'hotel' ? 'Hotel Stay' : 'Event Ticket'}
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-slate-500 mb-1">Booking Reference</p>
+                  <p className="font-mono font-bold text-slate-900">{booking.bookingCode}</p>
+                </div>
+              </div>
+              <h2 className="text-2xl font-display text-slate-900 mb-2">{booking.title}</h2>
+              <div className="flex items-center text-slate-600">
+                <MapPin size={16} className="mr-1.5" />
+                {booking.location}
+              </div>
+            </div>
+
+            <div className="p-8 space-y-6">
+              <div className={`flex items-center p-4 rounded-xl border ${statusConfig.bg} ${statusConfig.border}`}>
+                <StatusIcon size={24} className={`${statusConfig.text} mr-3`} />
+                <div>
+                  <p className={`font-bold ${statusConfig.text}`}>{statusConfig.label}</p>
+                  <p className="text-xs text-slate-600">
+                    Booked on {booking.bookedAt}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Date & Time</p>
+                  <div className="flex items-start">
+                    <Calendar size={18} className="text-indigo-600 mr-2 mt-0.5" />
+                    <p className="font-semibold text-slate-900">{booking.dates}</p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Total Price</p>
+                  <div className="flex items-start">
+                    <CreditCard size={18} className="text-indigo-600 mr-2 mt-0.5" />
+                    <p className="font-semibold text-slate-900">${booking.price}</p>
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-xs text-slate-500 mb-1">{booking.type === 'hotel' ? 'Guests' : 'Tickets'}</p>
+                  <div className="flex items-start">
+                    <Users size={18} className="text-indigo-600 mr-2 mt-0.5" />
+                    <p className="font-semibold text-slate-900">{booking.guestsOrTickets}</p>
+                  </div>
+                </div>
+              </div>
+
+              {booking.checkIn && booking.checkOut && (
+                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div>
+                    <p className="text-xs text-slate-500 mb-1">Check-in</p>
+                    <p className="font-semibold text-slate-900">{booking.checkIn}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 mb-1">Check-out</p>
+                    <p className="font-semibold text-slate-900">{booking.checkOut}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 flex gap-3">
+                <button className="flex-1 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:border-indigo-600 hover:text-indigo-600 transition-all flex items-center justify-center">
+                  <Download size={18} className="mr-2" />
+                  Receipt
+                </button>
+                <button className="flex-1 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all">
+                  View Ticket
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="p-12 text-center">
+            <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
+            <p className="text-slate-900 font-bold">Failed to load details</p>
+            <button onClick={onClose} className="mt-4 text-indigo-600 font-semibold">Close</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const MyBookingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
@@ -28,6 +193,7 @@ const MyBookingsPage: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'hotel' | 'event'>('all');
   const [page, setPage] = useState(1);
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
   const navigate = useNavigate(); 
   // Debounce search query
   useEffect(() => {
@@ -51,51 +217,6 @@ const MyBookingsPage: React.FC = () => {
   const pagination = data?.pagination;
   const hasBookings = bookings.length > 0;
 
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return {
-          bg: 'bg-emerald-50',
-          text: 'text-emerald-700',
-          border: 'border-emerald-200',
-          icon: CheckCircle,
-          label: 'Confirmed'
-        };
-      case 'pending':
-        return {
-          bg: 'bg-amber-50',
-          text: 'text-amber-700',
-          border: 'border-amber-200',
-          icon: Clock,
-          label: 'Pending'
-        };
-      case 'cancelled':
-        return {
-          bg: 'bg-red-50',
-          text: 'text-red-700',
-          border: 'border-red-200',
-          icon: XCircle,
-          label: 'Cancelled'
-        };
-      case 'completed':
-        return {
-          bg: 'bg-slate-50',
-          text: 'text-slate-700',
-          border: 'border-slate-200',
-          icon: CheckCircle,
-          label: 'Completed'
-        };
-      default:
-        return {
-          bg: 'bg-slate-50',
-          text: 'text-slate-700',
-          border: 'border-slate-200',
-          icon: AlertCircle,
-          label: status
-        };
-    }
-  };
-
   const getImageUrl = (path: string | null, type: 'hotel' | 'event') => {
     if (!path) return type === 'hotel' ? AppImages.placeholders.hotels_placeholder : AppImages.placeholders.event_placeholder;
     if (path.startsWith('http')) return path;
@@ -106,6 +227,10 @@ const MyBookingsPage: React.FC = () => {
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
+
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out forwards;
+        }
         
         * {
           font-family: 'Archivo', -apple-system, sans-serif;
@@ -121,6 +246,15 @@ const MyBookingsPage: React.FC = () => {
           font-family: 'Crimson Pro', serif;
         }
         
+        @keyframes scaleIn {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-scaleIn {
+          animation: scaleIn 0.2s ease-out forwards;
+        }
+
         @keyframes fadeInUp {
           from {
             opacity: 0;
@@ -203,6 +337,10 @@ const MyBookingsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {selectedBookingId && (
+        <BookingDetailsModal bookingId={selectedBookingId} onClose={() => setSelectedBookingId(null)} />
+      )}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
         {/* Tabs & Filters */}
@@ -403,7 +541,7 @@ const MyBookingsPage: React.FC = () => {
                           )}
                           
                           <button
-                          onClick={()=>navigate(`/event/${booking.id}`)}
+                          onClick={()=> setSelectedBookingId(booking.id)}
                           className="flex-1 sm:flex-none flex items-center justify-center bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
                             <span>View Details</span>
                             <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />

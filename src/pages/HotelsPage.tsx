@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Star, Filter, SlidersHorizontal, X, Sparkles, Heart, TrendingUp, Users, Wifi, Coffee, Waves, Dumbbell, Car } from 'lucide-react';
 import { APIENDPOINTS } from '../utils/ApiConstants';
 import { AppImages } from '../utils/AppImages';
@@ -7,6 +8,7 @@ import { useGetAmenitiesQuery } from '../store/services/miscApi';
 import SkeletonLoader from '../components/SkeletonLoader';
 
 const HotelsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [priceRange, setPriceRange] = useState<[number, number]>([50, 500]);
   const [selectedStars, setSelectedStars] = useState<number[]>([]);
@@ -412,6 +414,7 @@ const HotelsPage: React.FC = () => {
                   {filteredHotels.map((hotel, index) => (
                     <div
                       key={hotel.id}
+                      onClick={() => navigate(`/hotel/${hotel.id}`)}
                       className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl card-hover border border-slate-100 cursor-pointer group animate-fadeInUp"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
@@ -497,7 +500,13 @@ const HotelsPage: React.FC = () => {
                             </div>
                           </div>
 
-                          <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group-hover:scale-105">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/hotel/${hotel.id}`);
+                            }}
+                            className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group-hover:scale-105"
+                          >
                             View Deal
                           </button>
                         </div>

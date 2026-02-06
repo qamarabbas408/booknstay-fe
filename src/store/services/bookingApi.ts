@@ -13,6 +13,7 @@ export interface Booking {
   dates: string;
   checkIn?: string;
   checkOut?: string;
+  bookedAt?: string;
 }
 
 export interface BookingsResponse {
@@ -46,7 +47,14 @@ export const bookingApi = api.injectEndpoints({
       }),
       providesTags: ['Booking'],
     }),
+    getBookingById: builder.query<{ data: Booking }, number>({
+      query: (id) => ({
+        url: `/guest/bookings/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (_result, _error, id) => [{ type: 'Booking', id }],
+    }),
   }),
 });
 
-export const { useGetGuestBookingsQuery } = bookingApi;
+export const { useGetGuestBookingsQuery, useGetBookingByIdQuery } = bookingApi;
