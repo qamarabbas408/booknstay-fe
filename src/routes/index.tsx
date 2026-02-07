@@ -27,6 +27,8 @@ import WaitingApprovalPage from '../pages/vendor/WaitingApprovalPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import EventBookingPage from '../pages/event/EventBookingPage';
 import HotelRegistrationPage from '../pages/hotel/HotelRegistrationPage';
+import ListPropertiesPage from '../pages/vendor/VendorPropertiesPage';
+import { AppRoutes } from '../utils/AppRoutes';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -51,7 +53,6 @@ export const router = createBrowserRouter([
       { path: 'registration-pending', element: <WaitingApprovalPage /> },
 
 
-
       // 2. GUEST PROTECTED ROUTES (Need to be logged in as 'guest' or 'vendor')
       {
         element: <ProtectedRoute allowedRoles={['guest']} />,
@@ -74,7 +75,9 @@ export const router = createBrowserRouter([
           {
             path: 'event/edit/:id', element: <EventCreationPage />
           },
-          { path: 'hotel/registration', element: <HotelRegistrationPage /> },
+          { path: AppRoutes.vendorAddHotel, element: <HotelRegistrationPage /> },
+          { path: AppRoutes.vendorPropertyList, element: <ListPropertiesPage /> },
+
 
         ],
       },

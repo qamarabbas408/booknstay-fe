@@ -16,6 +16,22 @@ export interface Hotel {
   descripton?: string; // Handling API typo
 }
 
+export interface VendorHotel {
+  id: number;
+  name: string;
+  city: string;
+  address: string;
+  description: string;
+  status: 'active' | 'pending' | 'inactive';
+  room_types_min_base_price: number;
+  bookings_count: number;
+  bookings_sum_total_price: number;
+  reviews_count: number;
+  reviews_avg_rating: number;
+  created_at: string;
+  images: { id: number; path: string }[];
+}
+
 export interface HotelAvailabilityResponse {
   status: string;
   message: string;
@@ -39,6 +55,17 @@ export interface HotelsResponse {
   };
 }
 
+export interface VendorHotelsResponse {
+  status: string;
+  data: VendorHotel[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
 export interface HotelQueryParams {
   search?: string;
   min_price?: number;
@@ -48,6 +75,14 @@ export interface HotelQueryParams {
   limit?: number;
   amenities?: string[];
   stars?: number[];
+}
+
+export interface VendorHotelQueryParams {
+  status?: 'active' | 'pending' | 'inactive' | 'all';
+  search?: string;
+  sort_by?: 'recent' | 'price_high' | 'price_low';
+  limit?: number;
+  page?: number;
 }
 
 export const hotelApi = api.injectEndpoints({
@@ -68,6 +103,13 @@ export const hotelApi = api.injectEndpoints({
           params: queryParams,
         };
       },
+    }),
+    getVendorHotels: builder.query<VendorHotelsResponse, VendorHotelQueryParams>({
+      query: (params) => ({
+        url: '/vendor/hotels',
+        method: 'GET',
+        params,
+      }),
     }),
     getHotelById: builder.query<{ data: Hotel }, number>({
       query: (id) => ({
@@ -93,4 +135,4 @@ export const hotelApi = api.injectEndpoints({
   }),
 });
 
-export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery } = hotelApi;
+export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery, useGetVendorHotelsQuery } = hotelApi;

@@ -11,7 +11,10 @@ export const AppRoutes = {
     vendorBookings : "vendor/bookings",
     vendorProfile : "vendor/profile",
     vendorSettings : "vendor/settings",
-    registrationPending: "/registration-pending"
+    registrationPending: "/registration-pending",
+    vendorPropertyList: "/vendor/properties",
+    vendorAddHotel: "/vendor/add/hotel",
+    vendorEditProperty: "/vendor/properties/edit/:id",
 
 
 }

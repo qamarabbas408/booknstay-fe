@@ -4,6 +4,7 @@ import { Sparkles, Menu, X, Home, Building2, Calendar, BookOpen, User, LogIn, Lo
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
 import './Navbar.css';
+import { AppRoutes } from '../utils/AppRoutes';
 
 const Navbar: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -123,7 +124,7 @@ const Navbar: React.FC = () => {
                 {/* Vendor Badge/Quick Action */}
                 {user.role === 'vendor' && (
                   <Link
-                    to="vendor/hotel/registration"
+                    to={AppRoutes.vendorPropertyList}
                     className="flex items-center space-x-2 text-slate-700 hover:text-indigo-600 font-semibold px-4 py-2 hover:bg-slate-100 rounded-xl transition-colors"
                   >
                     <PlusCircle size={18} />
@@ -479,7 +480,7 @@ const Navbar: React.FC = () => {
                       {user.role === 'vendor' ? (
                         <>
                           <Link
-                            to="vendor/hotel/registration"
+                              to={AppRoutes.vendorPropertyList}
                             className="mobile-menu-item flex items-center space-x-3 px-4 py-4 rounded-xl text-slate-700 hover:bg-slate-50 transition-all"
                           >
                             <PlusCircle size={22} className="text-slate-500" />
