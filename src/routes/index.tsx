@@ -29,6 +29,7 @@ import EventBookingPage from '../pages/event/EventBookingPage';
 import HotelRegistrationPage from '../pages/hotel/HotelRegistrationPage';
 import ListPropertiesPage from '../pages/vendor/VendorPropertiesPage';
 import { AppRoutes } from '../utils/AppRoutes';
+import CreateRoomTierPage from '../pages/vendor/CreateRoomTierPage';
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +76,8 @@ export const router = createBrowserRouter([
           { path: AppRoutes.vendorEventEdit, element: <EventCreationPage /> },
           { path: AppRoutes.vendorAddHotel, element: <HotelRegistrationPage /> },
           { path: AppRoutes.vendorPropertyList, element: <ListPropertiesPage /> },
+          { path: AppRoutes.vendorAddRoomtier, element: <CreateRoomTierPage /> },
+
 
 
         ],

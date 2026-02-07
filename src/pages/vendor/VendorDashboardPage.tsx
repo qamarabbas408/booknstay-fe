@@ -10,6 +10,7 @@ import PulseLoader from '../../components/PulseLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import VendorPropertiesPage from './VendorPropertiesPage';
 import PropertyCard from '../../components/PropertyCard';
+import EventCard from '../../components/vendor/EventCard';
 import { AppRoutes } from '../../utils/AppRoutes';
 
 // Mock data for hotel vendor dashboard
@@ -501,57 +502,18 @@ const VendorDashboardPage: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {vendorEvents.map(event => (
-                    <div key={event.id} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 hover:shadow-xl transition-all">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="font-bold text-xl text-slate-900 mb-1 line-clamp-1" title={event.title}>{event.title}</h3>
-                          <div className="flex items-center text-slate-500 text-sm">
-                            <Calendar size={14} className="mr-1" />
-                            {new Date(event.start_date).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${event.status === 'active' ? 'bg-green-100 text-green-700' :
-                            event.status === 'draft' ? 'bg-amber-100 text-amber-700' :
-                              'bg-slate-100 text-slate-700'
-                          }`}>
-                          {event.status}
-                        </span>
-                      </div>
-
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-center text-slate-600 text-sm">
-                          <Ticket size={16} className="mr-2 text-indigo-600" />
-                          {event.category}
-                        </div>
-                        <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
-                          <div>
-                            <p className="text-xs text-slate-500">Tickets Sold</p>
-                            <p className="font-bold text-slate-900">{event.tickets_sold}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xs text-slate-500">Revenue</p>
-                            <p className="font-bold text-indigo-600">${event.revenue.toLocaleString()}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3 pt-4 border-t border-slate-200">
-                        <button
-                          onClick={() => navigate(`/vendor/event/edit/${event.id}`)}
-                          className="flex-1 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
-                        >
-                          <Edit size={16} />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(event.id)}
-                          className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
-                        >
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
-                    </div>
+                    <EventCard
+                      key={event.id}
+                      id={event.id}
+                      title={event.title}
+                      startDate={event.start_date}
+                      status={event.status}
+                      category={event.category}
+                      ticketsSold={event.tickets_sold}
+                      revenue={event.revenue}
+                      onEdit={(id) => navigate(`/vendor/event/edit/${id}`)}
+                      onDelete={(id) => handleDeleteClick(id)}
+                    />
                   ))}
                 </div>
               )}
@@ -766,7 +728,9 @@ const VendorDashboardPage: React.FC = () => {
                     <Hotel className="text-indigo-600 mr-3" size={24} />
                     Room Inventory
                   </h2>
-                  <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2">
+                  <button
+                  onClick={()=>navigate(`${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}`)}
+                  className="bg-linear-tFo-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2">
                     <Plus size={18} />
                     Add Room Type
                   </button>
