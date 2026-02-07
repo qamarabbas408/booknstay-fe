@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useGetAmenitiesQuery } from '../../store/services/miscApi';
 import { useCreateHotelMutation } from '../../store/services/hotelApi';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
+import { FormInput } from '../../components/FormInput';
 
 const HotelRegistrationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -375,24 +376,16 @@ const HotelRegistrationPage: React.FC = () => {
               <h2 className="text-2xl font-display text-slate-900 mb-6">Basic Information</h2>
               
               {/* Property Name */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Property Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="propertyName"
-                  value={formData.propertyName}
-                  onChange={handleChange}
-                  placeholder="e.g., Grand Azure Resort & Spa"
-                  className={`w-full px-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                    errors.propertyName ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                  }`}
-                />
-                {errors.propertyName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.propertyName}</p>
-                )}
-              </div>
+              <FormInput
+                label="Property Name"
+                name="propertyName"
+                type="text"
+                value={formData.propertyName}
+                onChange={handleChange}
+                placeholder="e.g., Grand Azure Resort & Spa"
+                error={errors.propertyName}
+                required
+              />
 
               {/* Property Type */}
               <div>
@@ -449,27 +442,19 @@ const HotelRegistrationPage: React.FC = () => {
               </div>
 
               {/* Description */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Property Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={5}
-                  placeholder="Describe your property, its unique features, and what makes it special..."
-                  className={`w-full px-4 py-3 bg-white border-2 rounded-xl outline-none transition-all resize-none ${
-                    errors.description ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                  }`}
-                ></textarea>
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-                )}
-                <p className="mt-1 text-xs text-slate-500">
-                  {formData.description.length} / 1000 characters
-                </p>
-              </div>
+              <FormInput
+                label="Property Description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Describe your property, its unique features, and what makes it special..."
+                error={errors.description}
+                rows={5}
+                required
+              />
+              <p className="text-xs text-slate-500">
+                {formData.description.length} / 1000 characters
+              </p>
             </div>
           )}
 
@@ -479,104 +464,70 @@ const HotelRegistrationPage: React.FC = () => {
               <h2 className="text-2xl font-display text-slate-900 mb-6">Location Details</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Country */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Country <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    placeholder="e.g., Maldives"
-                    className={`w-full px-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                      errors.country ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                    }`}
-                  />
-                  {errors.country && (
-                    <p className="mt-1 text-sm text-red-600">{errors.country}</p>
-                  )}
-                </div>
-
-                {/* City */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    City <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="e.g., Malé"
-                    className={`w-full px-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                      errors.city ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                    }`}
-                  />
-                  {errors.city && (
-                    <p className="mt-1 text-sm text-red-600">{errors.city}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Full Address */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Full Address <span className="text-red-500">*</span>
-                </label>
-                <input
+                <FormInput
+                  label="Country"
+                  name="country"
                   type="text"
-                  name="address"
-                  value={formData.address}
+                  value={formData.country}
                   onChange={handleChange}
-                  placeholder="Street address, building number, etc."
-                  className={`w-full px-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                    errors.address ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                  }`}
+                  placeholder="e.g., Maldives"
+                  error={errors.country}
+                  required
                 />
-                {errors.address && (
-                  <p className="mt-1 text-sm text-red-600">{errors.address}</p>
-                )}
+
+                <FormInput
+                  label="City"
+                  name="city"
+                  type="text"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="e.g., Malé"
+                  error={errors.city}
+                  required
+                />
               </div>
+
+              <FormInput
+                label="Full Address"
+                name="address"
+                type="text"
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="Street address, building number, etc."
+                error={errors.address}
+                required
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Zip Code */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Zip/Postal Code
-                  </label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleChange}
-                    placeholder="e.g., 20026"
-                    className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-indigo-400 transition-all"
-                  />
-                </div>
+                <FormInput
+                  label="Zip/Postal Code"
+                  name="zipCode"
+                  type="text"
+                  value={formData.zipCode}
+                  onChange={handleChange}
+                  placeholder="e.g., 20026"
+                />
 
-                {/* Optional Coordinates */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     GPS Coordinates (Optional)
                   </label>
                   <div className="grid grid-cols-2 gap-3">
-                    <input
-                      type="text"
+                    <FormInput
+                      label=""
                       name="latitude"
+                      type="text"
                       value={formData.latitude}
                       onChange={handleChange}
                       placeholder="Latitude (e.g., 4.1755)"
-                      className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-indigo-400 transition-all"
                     />
-                    <input
-                      type="text"
+                    <FormInput
+                      label=""
                       name="longitude"
+                      type="text"
                       value={formData.longitude}
                       onChange={handleChange}
                       placeholder="Longitude (e.g., 73.5093)"
-                      className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-indigo-400 transition-all"
                     />
                   </div>
                 </div>
@@ -589,26 +540,17 @@ const HotelRegistrationPage: React.FC = () => {
             <div className="space-y-6">
               <h2 className="text-2xl font-display text-slate-900 mb-6">Property Details</h2>
               
-              {/* Total Rooms */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Total Number of Rooms <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="totalRooms"
-                  value={formData.totalRooms}
-                  onChange={handleChange}
-                  placeholder="e.g., 50"
-                  min="1"
-                  className={`w-full px-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                    errors.totalRooms ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                  }`}
-                />
-                {errors.totalRooms && (
-                  <p className="mt-1 text-sm text-red-600">{errors.totalRooms}</p>
-                )}
-              </div>
+              <FormInput
+                label="Total Number of Rooms"
+                name="totalRooms"
+                type="number"
+                value={formData.totalRooms}
+                onChange={handleChange}
+                placeholder="e.g., 50"
+                min="1"
+                error={errors.totalRooms}
+                required
+              />
 
               {/* Amenities */}
               <div>
@@ -682,32 +624,20 @@ const HotelRegistrationPage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Base Price */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Base Price Per Night <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <DollarSign size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="number"
-                      name="basePrice"
-                      value={formData.basePrice}
-                      onChange={handleChange}
-                      placeholder="250"
-                      min="0"
-                      step="0.01"
-                      className={`w-full pl-12 pr-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                        errors.basePrice ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                      }`}
-                    />
-                  </div>
-                  {errors.basePrice && (
-                    <p className="mt-1 text-sm text-red-600">{errors.basePrice}</p>
-                  )}
-                </div>
+                <FormInput
+                  label="Base Price Per Night"
+                  name="basePrice"
+                  type="number"
+                  value={formData.basePrice}
+                  onChange={handleChange}
+                  placeholder="250"
+                  min="0"
+                  step="0.01"
+                  icon={<DollarSign size={20} />}
+                  error={errors.basePrice}
+                  required
+                />
 
-                {/* Currency */}
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Currency
@@ -726,46 +656,31 @@ const HotelRegistrationPage: React.FC = () => {
                   </select>
                 </div>
 
-                {/* Tax Rate */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Tax Rate (%) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="taxRate"
-                    value={formData.taxRate}
-                    onChange={handleChange}
-                    placeholder="10"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    className={`w-full px-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                      errors.taxRate ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                    }`}
-                  />
-                  {errors.taxRate && (
-                    <p className="mt-1 text-sm text-red-600">{errors.taxRate}</p>
-                  )}
-                </div>
+                <FormInput
+                  label="Tax Rate (%)"
+                  name="taxRate"
+                  type="number"
+                  value={formData.taxRate}
+                  onChange={handleChange}
+                  placeholder="10"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  error={errors.taxRate}
+                  required
+                />
 
-                {/* Service Charge */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Service Charge (%)
-                  </label>
-                  <input
-                    type="number"
-                    name="serviceCharge"
-                    value={formData.serviceCharge}
-                    onChange={handleChange}
-                    placeholder="5"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-indigo-400 transition-all"
-                  />
-                </div>
+                <FormInput
+                  label="Service Charge (%)"
+                  name="serviceCharge"
+                  type="number"
+                  value={formData.serviceCharge}
+                  onChange={handleChange}
+                  placeholder="5"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                />
               </div>
 
               {/* Price Preview */}
@@ -775,27 +690,27 @@ const HotelRegistrationPage: React.FC = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-slate-600">Base Price</span>
-                      <span className="font-semibold">${parseFloat(formData.basePrice).toFixed(2)}</span>
+                      <span className="font-semibold">${parseFloat(formData.basePrice as string).toFixed(2)}</span>
                     </div>
                     {formData.taxRate && (
                       <div className="flex justify-between">
                         <span className="text-slate-600">Tax ({formData.taxRate}%)</span>
-                        <span className="font-semibold">${(parseFloat(formData.basePrice) * parseFloat(formData.taxRate) / 100).toFixed(2)}</span>
+                        <span className="font-semibold">${(parseFloat(formData.basePrice as string) * parseFloat(formData.taxRate as string) / 100).toFixed(2)}</span>
                       </div>
                     )}
                     {formData.serviceCharge && (
                       <div className="flex justify-between">
                         <span className="text-slate-600">Service Charge ({formData.serviceCharge}%)</span>
-                        <span className="font-semibold">${(parseFloat(formData.basePrice) * parseFloat(formData.serviceCharge) / 100).toFixed(2)}</span>
+                        <span className="font-semibold">${(parseFloat(formData.basePrice as string) * parseFloat(formData.serviceCharge as string) / 100).toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between pt-3 border-t border-indigo-200">
                       <span className="font-bold text-slate-900">Total Per Night</span>
                       <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 text-xl">
                         ${(
-                          parseFloat(formData.basePrice) +
-                          (formData.taxRate ? parseFloat(formData.basePrice) * parseFloat(formData.taxRate) / 100 : 0) +
-                          (formData.serviceCharge ? parseFloat(formData.basePrice) * parseFloat(formData.serviceCharge) / 100 : 0)
+                          parseFloat(formData.basePrice as string) +
+                          (formData.taxRate ? parseFloat(formData.basePrice as string) * parseFloat(formData.taxRate as string) / 100 : 0) +
+                          (formData.serviceCharge ? parseFloat(formData.basePrice as string) * parseFloat(formData.serviceCharge as string) / 100 : 0)
                         ).toFixed(2)}
                       </span>
                     </div>
@@ -893,84 +808,54 @@ const HotelRegistrationPage: React.FC = () => {
               </div>
 
               {/* House Rules */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  House Rules (Optional)
-                </label>
-                <textarea
-                  name="houseRules"
-                  value={formData.houseRules}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="e.g., No smoking, No pets, Quiet hours from 10 PM to 8 AM..."
-                  className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-indigo-400 transition-all resize-none"
-                ></textarea>
-              </div>
+              <FormInput
+                label="House Rules (Optional)"
+                name="houseRules"
+                value={formData.houseRules}
+                onChange={handleChange}
+                placeholder="e.g., No smoking, No pets, Quiet hours from 10 PM to 8 AM..."
+                rows={4}
+              />
 
               {/* Contact Information */}
               <div className="pt-6 border-t border-slate-200">
                 <h3 className="font-bold text-slate-900 mb-4">Contact Information</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Contact Email <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <Mail size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="email"
-                        name="contactEmail"
-                        value={formData.contactEmail}
-                        onChange={handleChange}
-                        placeholder="reservations@yourhotel.com"
-                        className={`w-full pl-12 pr-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                          errors.contactEmail ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                        }`}
-                      />
-                    </div>
-                    {errors.contactEmail && (
-                      <p className="mt-1 text-sm text-red-600">{errors.contactEmail}</p>
-                    )}
-                  </div>
+                  <FormInput
+                    label="Contact Email"
+                    name="contactEmail"
+                    type="email"
+                    value={formData.contactEmail}
+                    onChange={handleChange}
+                    placeholder="reservations@yourhotel.com"
+                    icon={<Mail size={20} />}
+                    error={errors.contactEmail}
+                    required
+                  />
 
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Contact Phone <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <Phone size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="tel"
-                        name="contactPhone"
-                        value={formData.contactPhone}
-                        onChange={handleChange}
-                        placeholder="+92 300 1234567"
-                        className={`w-full pl-12 pr-4 py-3 bg-white border-2 rounded-xl outline-none transition-all ${
-                          errors.contactPhone ? 'border-red-400' : 'border-slate-200 focus:border-indigo-400'
-                        }`}
-                      />
-                    </div>
-                    {errors.contactPhone && (
-                      <p className="mt-1 text-sm text-red-600">{errors.contactPhone}</p>
-                    )}
-                  </div>
+                  <FormInput
+                    label="Contact Phone"
+                    name="contactPhone"
+                    type="tel"
+                    value={formData.contactPhone}
+                    onChange={handleChange}
+                    placeholder="+92 300 1234567"
+                    icon={<Phone size={20} />}
+                    error={errors.contactPhone}
+                    required
+                  />
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Property Website (Optional)
-                    </label>
-                    <div className="relative">
-                      <Globe size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="url"
-                        name="website"
-                        value={formData.website}
-                        onChange={handleChange}
-                        placeholder="https://www.yourhotel.com"
-                        className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-indigo-400 transition-all"
-                      />
-                    </div>
+                    <FormInput
+                      label="Property Website (Optional)"
+                      name="website"
+                      type="url"
+                      value={formData.website}
+                      onChange={handleChange}
+                      placeholder="https://www.yourhotel.com"
+                      icon={<Globe size={20} />}
+                    />
                   </div>
                 </div>
               </div>

@@ -29,6 +29,7 @@ import EventBookingPage from '../pages/event/EventBookingPage';
 import HotelRegistrationPage from '../pages/hotel/HotelRegistrationPage';
 import ListPropertiesPage from '../pages/vendor/VendorPropertiesPage';
 import { AppRoutes } from '../utils/AppRoutes';
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -36,45 +37,42 @@ export const router = createBrowserRouter([
     children: [
       // 1. PUBLIC ROUTES
       { index: true, element: <Homepage /> },
-      { path: 'login', element: <LoginPage /> },
-      { path: 'register/vendor', element: <VendorRegistrationPage /> },
-      { path: 'register/guest', element: <GuestRegistrationPage /> },
-      { path: 'help', element: <HelpCenter /> },
+      { path: AppRoutes.login, element: <LoginPage /> },
+      { path: AppRoutes.registerVendor, element: <VendorRegistrationPage /> },
+      { path: AppRoutes.registerGuest, element: <GuestRegistrationPage /> },
+      { path: AppRoutes.help, element: <HelpCenter /> },
 
       // Hotel Discovery
-      { path: 'hotels', element: <HotelsPage /> },
-      { path: 'hotel/:id', element: <HotelDetails /> },
+      { path: AppRoutes.hotels, element: <HotelsPage /> },
+      { path: AppRoutes.hotelDetails, element: <HotelDetails /> },
 
       // Event Discovery
-      { path: 'events', element: <EventsPage /> },
-      { path: 'event/:id', element: <EventDetails /> },
+      { path: AppRoutes.events, element: <EventsPage /> },
+      { path: AppRoutes.eventDetails, element: <EventDetails /> },
 
       // Waiting 
-      { path: 'registration-pending', element: <WaitingApprovalPage /> },
+      { path: AppRoutes.registrationPending, element: <WaitingApprovalPage /> },
 
 
       // 2. GUEST PROTECTED ROUTES (Need to be logged in as 'guest' or 'vendor')
       {
         element: <ProtectedRoute allowedRoles={['guest']} />,
         children: [
-          { path: 'dashboard', element: <MyBookingsPage /> },
-          { path: 'booking', element: <AddBooking /> },
-          { path: 'event/booking/:id', element: <EventBookingPage /> },
+          { path: AppRoutes.guestDashboard, element: <MyBookingsPage /> },
+          { path: AppRoutes.addBooking, element: <AddBooking /> },
+          { path: AppRoutes.eventBooking, element: <EventBookingPage /> },
 
         ],
       },
 
       // 3. VENDOR PROTECTED ROUTES (Specifically for business management)
       {
-        path: 'vendor',
+        path: AppRoutes.vendorBase,
         element: <ProtectedRoute allowedRoles={['vendor']} />,
         children: [
-          { path: 'dashboard', element: <VendorDashboardPage /> },
-          // { path: 'hotels', element: <div className="p-20">Manage My Hotels</div> },
-          { path: 'event/', element: <EventCreationPage /> },
-          {
-            path: 'event/edit/:id', element: <EventCreationPage />
-          },
+          { path: AppRoutes.vendorDashboard, element: <VendorDashboardPage /> },
+          { path: AppRoutes.vendorEventCreate, element: <EventCreationPage /> },
+          { path: AppRoutes.vendorEventEdit, element: <EventCreationPage /> },
           { path: AppRoutes.vendorAddHotel, element: <HotelRegistrationPage /> },
           { path: AppRoutes.vendorPropertyList, element: <ListPropertiesPage /> },
 

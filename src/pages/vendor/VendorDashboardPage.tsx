@@ -432,7 +432,7 @@ const VendorDashboardPage: React.FC = () => {
                   <p className="text-slate-600">Manage your hotels, tickets, and listings</p>
                 </div>
                 <button
-                  onClick={() => navigate(AppRoutes.vendorAddHotel)}
+                  onClick={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddHotel}`)}
                   className="px-5 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all flex items-center gap-2"
                 >
                   <Plus size={18} />

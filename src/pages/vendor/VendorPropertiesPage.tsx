@@ -155,7 +155,7 @@ const VendorPropertiesPage = () => {
             </div>
             
             <button 
-            onClick={()=>navigate(AppRoutes.vendorAddHotel)}
+            onClick={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddHotel}`)}
             className="mt-6 md:mt-0 inline-flex items-center space-x-2 bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:bg-slate-50 transition-all">
               <Plus size={22} />
               <span>Add Property</span>
