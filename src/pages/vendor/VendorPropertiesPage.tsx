@@ -350,6 +350,7 @@ const VendorPropertiesPage = () => {
                     onEdit={handleEditProperty}
                     onAnalytics={handleAnalytics}
                     onDelete={handleDeleteProperty}
+                    onRoomManagement={()=>navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${property.id}`)}
                   />
                 ))}
               </div>

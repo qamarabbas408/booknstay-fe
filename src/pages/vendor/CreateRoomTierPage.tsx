@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Sparkles, DollarSign, Users, Package, FileText, Save, Eye, Plus, Trash2, AlertCircle, CheckCircle, Bed, Home } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ChevronLeft, Sparkles, DollarSign, Users, Package, FileText, Save, Eye, Plus, Trash2, AlertCircle, CheckCircle, Bed, Home, Loader2 } from 'lucide-react';
+import { useGetHotelByIdQuery, useCreateRoomTiersMutation } from '../../store/services/hotelApi';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
+import { AppRoutes } from '../../utils/AppRoutes';
 
 interface RoomTier {
   id: number;
@@ -11,6 +15,14 @@ interface RoomTier {
 }
 
 const CreateRoomTierPage = () => {
+  const { hotelId } = useParams<{ hotelId: string }>();
+  const navigate = useNavigate();
+
+  const { data: hotelData, isLoading: isLoadingHotel } = useGetHotelByIdQuery(Number(hotelId), {
+    skip: !hotelId,
+  });
+  const [createRoomTiers, { isLoading: isCreating }] = useCreateRoomTiersMutation();
+
   const [roomTiers, setRoomTiers] = useState<RoomTier[]>([
     {
       id: 1,
@@ -97,13 +109,32 @@ const CreateRoomTierPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      console.log('Form is valid, submitting:', roomTiers);
-      // Handle form submission
-      alert('Room tiers created successfully!');
+      const payload = roomTiers.map(tier => ({
+        name: tier.name,
+        base_price: parseFloat(tier.base_price),
+        max_occupancy: parseInt(tier.max_occupancy, 10),
+        total_inventory: parseInt(tier.total_inventory, 10),
+        description: tier.description,
+      }));
+
+      try {
+        await createRoomTiers({ hotelId: hotelId!, roomTiers: payload }).unwrap();
+        showToast.success('Room tiers created successfully!');
+        navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorDashboard}`);
+      } catch (error: any) {
+        console.error('Failed to create room tiers:', error);
+        if (error?.data?.errors) {
+          // TODO: Map backend errors to form fields if possible.
+          // For now, showing a generic message.
+          showToast.error('Validation failed. Please check your input.');
+        } else {
+          showToast.error(error?.data?.message || 'An unexpected error occurred.');
+        }
+      }
     } else {
-      alert('Please fix the errors before submitting');
+      showToast.error('Please fix the errors before submitting');
     }
   };
 
@@ -119,6 +150,7 @@ const CreateRoomTierPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -172,25 +204,6 @@ const CreateRoomTierPage = () => {
         }
       `}</style>
 
-      {/* Navigation */}
-      <nav className="glass sticky top-0 z-50 border-b border-white/40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button className="flex items-center text-slate-700 font-semibold hover:text-purple-600 transition-colors">
-            <ChevronLeft size={20} className="mr-1" />
-            Back to Properties
-          </button>
-          
-          <div className="text-2xl font-display bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            BookNStay
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Sparkles className="text-purple-500" size={18} />
-            <span className="text-slate-700 font-semibold text-sm">Vendor Portal</span>
-          </div>
-        </div>
-      </nav>
-
       {/* Header */}
       <header className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 py-16">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -202,7 +215,7 @@ const CreateRoomTierPage = () => {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-display text-white mb-3 leading-tight">
-            Create Room Tiers
+            Create Room Tiers for {isLoadingHotel ? '...' : hotelData?.data.name}
           </h1>
           
           <p className="text-xl text-white/90 font-serif max-w-2xl">
@@ -210,6 +223,16 @@ const CreateRoomTierPage = () => {
           </p>
         </div>
       </header>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-6 -mt-10">
+        <Link
+          to={`/${AppRoutes.vendorBase}/${AppRoutes.vendorDashboard}`}
+          className="inline-flex items-center space-x-2 text-slate-600 hover:text-purple-600 transition-colors group glass px-4 py-2.5 rounded-xl shadow-lg"
+        >
+          <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="font-semibold">Back to Dashboard</span>
+        </Link>
+      </div>
 
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -453,10 +476,15 @@ const CreateRoomTierPage = () => {
               <div className="glass rounded-2xl p-6 shadow-lg border border-white/40 space-y-3">
                 <button
                   onClick={handleSubmit}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center justify-center"
+                  disabled={isCreating}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <Save size={20} className="mr-2" />
-                  Save Room Tiers
+                  {isCreating ? (
+                    <Loader2 size={20} className="mr-2 animate-spin" />
+                  ) : (
+                    <Save size={20} className="mr-2" />
+                  )}
+                  {isCreating ? 'Saving...' : 'Save Room Tiers'}
                 </button>
 
                 <button

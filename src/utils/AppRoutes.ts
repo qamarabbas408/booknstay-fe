@@ -23,13 +23,13 @@ export const AppRoutes = {
     vendorHotels : "hotels",
     vendorEvents : "events",
     vendorEventCreate: "event",
-    vendorEventEdit: "event/edit/:id",
+    vendorEventEdit: "event/edit/",
     vendorBookings : "bookings",
     vendorProfile : "profile",
     vendorSettings : "settings",
     vendorPropertyList: "properties",
     vendorAddHotel: "add/hotel",
     vendorEditProperty: "properties/edit/:id",
-    vendorAddRoomtier : "add/roomtier",
+    vendorAddRoomtier : "add/roomtier/",
 
 }

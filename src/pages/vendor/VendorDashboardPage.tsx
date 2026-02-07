@@ -465,6 +465,7 @@ const VendorDashboardPage: React.FC = () => {
                       onEdit={() => {}}
                       onAnalytics={() => {}}
                       onDelete={() => {}}
+                      onRoomManagement={()=>navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${hotel.id}`)}
                     />
                   ))}
                   {(!vendorHotelsData?.data || vendorHotelsData.data.length === 0) && (

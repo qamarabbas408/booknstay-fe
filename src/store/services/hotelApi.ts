@@ -86,6 +86,14 @@ export interface VendorHotelQueryParams {
   page?: number;
 }
 
+export interface RoomTierPayload {
+  name: string;
+  base_price: number;
+  max_occupancy: number;
+  total_inventory: number;
+  description?: string;
+}
+
 export const hotelApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getHotels: builder.query<HotelsResponse, HotelQueryParams>({
@@ -111,6 +119,7 @@ export const hotelApi = api.injectEndpoints({
         method: 'GET',
         params,
       }),
+      providesTags: ['VendorHotels'],
     }),
     getHotelById: builder.query<{ data: Hotel }, number>({
       query: (id) => ({
@@ -139,8 +148,17 @@ export const hotelApi = api.injectEndpoints({
         method: 'POST',
         data,
       }),
+      invalidatesTags: ['VendorHotels'],
+    }),
+    createRoomTiers: builder.mutation<any, { hotelId: string | number; roomTiers: RoomTierPayload[] }>({
+      query: ({ hotelId, roomTiers }) => ({
+        url: `/hotels/${hotelId}/room-types`,
+        method: 'POST',
+        data: roomTiers,
+      }),
+      invalidatesTags: ['VendorHotels'],
     }),
   }),
 });
 
-export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery, useGetVendorHotelsQuery, useCreateHotelMutation } = hotelApi;
+export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery, useGetVendorHotelsQuery, useCreateHotelMutation, useCreateRoomTiersMutation } = hotelApi;

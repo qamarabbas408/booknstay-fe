@@ -73,13 +73,10 @@ export const router = createBrowserRouter([
         children: [
           { path: AppRoutes.vendorDashboard, element: <VendorDashboardPage /> },
           { path: AppRoutes.vendorEventCreate, element: <EventCreationPage /> },
-          { path: AppRoutes.vendorEventEdit, element: <EventCreationPage /> },
+          { path: AppRoutes.vendorEventEdit+':eventId', element: <EventCreationPage /> },
           { path: AppRoutes.vendorAddHotel, element: <HotelRegistrationPage /> },
           { path: AppRoutes.vendorPropertyList, element: <ListPropertiesPage /> },
-          { path: AppRoutes.vendorAddRoomtier, element: <CreateRoomTierPage /> },
-
-
-
+          { path: AppRoutes.vendorAddRoomtier+':hotelId', element: <CreateRoomTierPage /> },
         ],
       },
 

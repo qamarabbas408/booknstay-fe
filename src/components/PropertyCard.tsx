@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Star, Edit, Trash2, BarChart3, Eye, AlertCircle, Users } from 'lucide-react';
+import { MapPin, Star, Edit, Trash2, BarChart3, Eye, AlertCircle, Users, Hotel } from 'lucide-react';
 
 interface PropertyCardProps {
   id: number;
@@ -18,6 +18,7 @@ interface PropertyCardProps {
   onEdit?: (id: number) => void;
   onAnalytics?: (id: number) => void;
   onDelete?: (id: number) => void;
+  onRoomManagement?: (id: number) => void;
   animationDelay?: string;
 }
 
@@ -38,6 +39,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   onEdit,
   onAnalytics,
   onDelete,
+  onRoomManagement,
   animationDelay = '0s',
 }) => {
   const getStatusBadge = (status: string) => {
@@ -157,14 +159,23 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               <Edit size={18} />
               Edit
             </button>
-            <button
+            {/* <button
               onClick={() => onAnalytics?.(id)}
               className="flex items-center gap-2 px-5 py-3 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 transition-all font-bold text-sm"
               aria-label={`View analytics for ${name}`}
             >
               <BarChart3 size={18} />
               Analytics
+            </button> */}
+            <button
+              onClick={() => onRoomManagement?.(id)}
+              className="flex items-center gap-2 px-5 py-3 bg-purple-50 text-purple-600 rounded-xl hover:bg-red-100 transition-all font-bold text-sm ml-auto"
+              aria-label={`Delete ${name}`}
+            >
+              <Hotel size={18} />
+              Add a Room
             </button>
+
             <button
               onClick={() => onDelete?.(id)}
               className="flex items-center gap-2 px-5 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all font-bold text-sm ml-auto"
@@ -173,6 +184,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               <Trash2 size={18} />
               Delete
             </button>
+
+            {/* <Hotel size={20} */}
           </div>
         </div>
       </div>
