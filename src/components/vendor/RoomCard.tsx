@@ -8,6 +8,7 @@ interface RoomCardProps {
   available: number;
   pricePerNight: string;
   status: 'active' | 'maintenance';
+   
   amenities?: string[];
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
@@ -20,6 +21,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   available,
   pricePerNight,
   status,
+  
   amenities,
   onEdit,
   onDelete,

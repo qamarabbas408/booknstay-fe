@@ -4,6 +4,7 @@ import { ChevronLeft, Sparkles, DollarSign, Users, Package, FileText, Save, Eye,
 import { useGetHotelByIdQuery, useCreateRoomTiersMutation } from '../../store/services/hotelApi';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import { AppRoutes } from '../../utils/AppRoutes';
+import SkeletonLoader from '../../components/SkeletonLoader';
 
 interface RoomTier {
   id: number;
@@ -147,6 +148,16 @@ const CreateRoomTierPage = () => {
       sum + ((Number(tier.base_price) || 0) * (Number(tier.total_inventory) || 0)), 0
     );
   };
+
+  if (isLoadingHotel) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20 p-6">
+        <div className="max-w-7xl mx-auto">
+          <SkeletonLoader type="event-details" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20">

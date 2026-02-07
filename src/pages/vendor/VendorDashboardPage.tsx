@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import RoomCard from '../../components/vendor/RoomCard';
+import SectionHeader from '../../components/vendor/SectionHeader';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
-import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut, Ticket, Building2 } from 'lucide-react';
+import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut, Ticket, Building2, Home } from 'lucide-react';
 import { useGetVendorEventsQuery, useDeleteEventMutation } from '../../store/services/eventApi';
 import { useGetVendorHotelsQuery } from '../../store/services/hotelApi';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
@@ -112,17 +114,7 @@ const mockBookings: Booking[] = [
   },
 ];
 
-interface Room {
-  id: number;
-  type: string;
-  total: number;
-  available: number;
-  pricePerNight: string;
-  status: 'active' | 'maintenance';
-  amenities?: string[];
-}
-
-const mockRooms: Room[] = [
+const mockRooms: any[] = [
   {
     id: 1,
     type: 'Standard Room',
@@ -130,7 +122,9 @@ const mockRooms: Room[] = [
     available: 32,
     pricePerNight: '$180',
     status: 'active',
-    amenities: ['WiFi', 'TV', 'AC']
+    amenities: ['WiFi', 'TV', 'AC'],
+    onEdit: () => { },
+    onDelete: () => { }
   },
   {
     id: 2,
@@ -139,7 +133,9 @@ const mockRooms: Room[] = [
     available: 15,
     pricePerNight: '$250',
     status: 'active',
-    amenities: ['WiFi', 'TV', 'AC', 'Minibar', 'Balcony']
+    amenities: ['WiFi', 'TV', 'AC', 'Minibar', 'Balcony'],
+    onEdit: () => { },
+    onDelete: () => { }
   },
   {
     id: 3,
@@ -148,7 +144,9 @@ const mockRooms: Room[] = [
     available: 7,
     pricePerNight: '$320',
     status: 'maintenance',
-    amenities: ['WiFi', 'TV', 'AC', 'Kitchen', 'Pool']
+    amenities: ['WiFi', 'TV', 'AC', 'Kitchen', 'Pool'],
+    onEdit: () => { },
+    onDelete: () => { }
   },
 ];
 
@@ -335,9 +333,9 @@ const VendorDashboardPage: React.FC = () => {
                       >
                         <div className="flex items-start gap-3">
                           <div className={`p-2 rounded-lg ${notification.type === 'booking' ? 'bg-blue-100 text-blue-600' :
-                              notification.type === 'review' ? 'bg-amber-100 text-amber-600' :
-                                notification.type === 'maintenance' ? 'bg-red-100 text-red-600' :
-                                  'bg-green-100 text-green-600'
+                            notification.type === 'review' ? 'bg-amber-100 text-amber-600' :
+                              notification.type === 'maintenance' ? 'bg-red-100 text-red-600' :
+                                'bg-green-100 text-green-600'
                             }`}>
                             {notification.type === 'booking' && <Calendar size={16} />}
                             {notification.type === 'review' && <Star size={16} />}
@@ -381,9 +379,9 @@ const VendorDashboardPage: React.FC = () => {
               { id: 'properties', label: 'Hotel Management', icon: <Building2 size={20} /> },
               { id: 'events', label: 'Event Management', icon: <Ticket size={20} /> },
               { id: 'rooms', label: 'Room Management', icon: <Hotel size={20} /> },
-              { id: 'reviews', label: 'Reviews & Ratings', icon: <Star size={20} /> },
-              { id: 'analytics', label: 'Analytics', icon: <TrendingUp size={20} /> },
-              { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
+              // { id: 'reviews', label: 'Reviews & Ratings', icon: <Star size={20} /> },
+              // { id: 'analytics', label: 'Analytics', icon: <TrendingUp size={20} /> },
+              // { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
             ].map(item => (
               <button
                 key={item.id}
@@ -392,8 +390,8 @@ const VendorDashboardPage: React.FC = () => {
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${activeSection === item.id
-                    ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-                    : 'text-slate-700 hover:bg-slate-100'
+                  ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                  : 'text-slate-700 hover:bg-slate-100'
                   }`}
               >
                 {item.icon}
@@ -426,20 +424,17 @@ const VendorDashboardPage: React.FC = () => {
       <main className="lg:ml-64 pt-24 pb-20 px-4 lg:px-6">
         <div className="max-w-7xl mx-auto">
           {activeSection === 'properties' ? (
-            <section className="mb-8">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Your Properties</h1>
-                  <p className="text-slate-600">Manage your hotels, tickets, and listings</p>
-                </div>
-                <button
-                  onClick={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddHotel}`)}
-                  className="px-5 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all flex items-center gap-2"
-                >
-                  <Plus size={18} />
-                  Add your Hotel
-                </button>
-              </div>
+            <div className="animate-fadeIn">
+              <SectionHeader
+                icon={<Building2 size={24} className="text-white" />}
+                title="Your Properties"
+                description="Manage your hotels, tickets, and listings"
+                buttonText="Add your Hotel"
+                onButtonClick={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddHotel}`)}
+                gradientFrom="from-purple-600"
+                gradientTo="to-pink-600"
+              />
+
               {isLoadingHotels ? (
                 <div className="flex justify-center py-12">
                   <PulseLoader />
@@ -461,11 +456,11 @@ const VendorDashboardPage: React.FC = () => {
                       rating={hotel.reviews_avg_rating || 0}
                       reviews={hotel.reviews_count}
                       createdAt={hotel.created_at}
-                      onView={() => {}}
-                      onEdit={() => {}}
-                      onAnalytics={() => {}}
-                      onDelete={() => {}}
-                      onRoomManagement={()=>navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${hotel.id}`)}
+                      onView={() => { }}
+                      onEdit={() => { }}
+                      onAnalytics={() => { }}
+                      onDelete={() => { }}
+                      onRoomManagement={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${hotel.id}`)}
                     />
                   ))}
                   {(!vendorHotelsData?.data || vendorHotelsData.data.length === 0) && (
@@ -475,22 +470,19 @@ const VendorDashboardPage: React.FC = () => {
                   )}
                 </div>
               )}
-            </section>
+            </div>
           ) : activeSection === 'events' ? (
             <div className="animate-fadeIn">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Event Management</h1>
-                  <p className="text-slate-600">Manage your events, tickets, and listings</p>
-                </div>
-                <button
-                  onClick={() => navigate('/vendor/event')}
-                  className="px-5 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all flex items-center gap-2"
-                >
-                  <Plus size={18} />
-                  Create Event
-                </button>
-              </div>
+             
+                <SectionHeader
+                icon={<Building2 size={24} className="text-white" />}
+                title="Event Management"
+                description="Manage your events, tickets, and listings"
+                buttonText="Add an Event"
+                onButtonClick={() => navigate('/vendor/event')}
+                gradientFrom="from-purple-600"
+                gradientTo="to-pink-600"
+              />
 
               {isLoadingEvents ? (
                 <div className="flex justify-center py-12">
@@ -519,6 +511,37 @@ const VendorDashboardPage: React.FC = () => {
                 </div>
               )}
             </div>
+          ) : activeSection === 'rooms' ? (
+            <div className="animate-fadeIn">
+              <SectionHeader
+                icon={<Hotel size={24} className="text-white" />}
+                title="Room Management"
+                description="Manage your rooms, bookings, and listings"
+                buttonText="Select a Hotel Now"
+                onButtonClick={() => setActiveSection('properties')}
+                gradientFrom="to-purple-600"
+                gradientTo="from-pink-600"
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {mockRooms.map(room => (
+                  <RoomCard
+                    key={room.id}
+                    id={room.id}
+                    type={room.type}
+                    total={room.total}
+                    available={room.available}
+                    pricePerNight={room.pricePerNight}
+                    status={'active'}
+                    onEdit={() => { }}
+                    onDelete={() => { }}
+                    amenities={room.amenities}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : activeSection === 'bookings' ? (
+            <div>booking</div>
           ) : (
             <>
               {/* Welcome Header */}
@@ -647,9 +670,9 @@ const VendorDashboardPage: React.FC = () => {
                           <td className="p-4 text-slate-700">{booking.roomType}</td>
                           <td className="p-4">
                             <span className={`px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                                booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                                  booking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
-                                    'bg-red-100 text-red-700'
+                              booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                booking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
+                                  'bg-red-100 text-red-700'
                               }`}>
                               {booking.status === 'confirmed' && <CheckCircle size={14} />}
                               {booking.status === 'pending' && <Clock size={14} />}
@@ -688,9 +711,9 @@ const VendorDashboardPage: React.FC = () => {
                           <p className="text-sm text-slate-500">{booking.roomType}</p>
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                            booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                              booking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
-                                'bg-red-100 text-red-700'
+                          booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                            booking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
+                              'bg-red-100 text-red-700'
                           }`}>
                           {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                         </span>
@@ -722,91 +745,6 @@ const VendorDashboardPage: React.FC = () => {
                 </div>
               </section>
 
-              {/* Room Management */}
-              <section className="mb-8">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                  <h2 className="text-2xl font-bold text-slate-900 flex items-center">
-                    <Hotel className="text-indigo-600 mr-3" size={24} />
-                    Room Inventory
-                  </h2>
-                  <button
-                  onClick={()=>navigate(`${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}`)}
-                  className="bg-linear-tFo-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2">
-                    <Plus size={18} />
-                    Add Room Type
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {mockRooms.map(room => (
-                    <div key={room.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-200 shadow-lg hover:shadow-xl transition-all">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="font-bold text-xl text-slate-900">{room.type}</h3>
-                          <p className="text-2xl font-bold text-indigo-600 mt-1">{room.pricePerNight}</p>
-                          <p className="text-sm text-slate-500">per night</p>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${room.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                          }`}>
-                          {room.status.charAt(0).toUpperCase() + room.status.slice(1)}
-                        </span>
-                      </div>
-
-                      <div className="space-y-3 mb-4">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Total Rooms:</span>
-                          <span className="font-semibold text-slate-900">{room.total}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Available:</span>
-                          <span className="font-semibold text-green-600">{room.available}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Occupied:</span>
-                          <span className="font-semibold text-amber-600">{room.total - room.available}</span>
-                        </div>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="mb-4">
-                        <div className="flex justify-between text-xs text-slate-600 mb-1">
-                          <span>Occupancy</span>
-                          <span>{Math.round(((room.total - room.available) / room.total) * 100)}%</span>
-                        </div>
-                        <div className="w-full bg-slate-200 rounded-full h-2">
-                          <div
-                            className="bg-linear-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all"
-                            style={{ width: `${((room.total - room.available) / room.total) * 100}%` }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {room.amenities && (
-                        <div className="mb-4">
-                          <p className="text-xs text-slate-600 mb-2">Amenities:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {room.amenities.map((amenity, idx) => (
-                              <span key={idx} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs">
-                                {amenity}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex gap-3 pt-4 border-t border-slate-200">
-                        <button className="flex-1 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
-                          <Edit size={16} />
-                          Edit
-                        </button>
-                        <button className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2">
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
 
               {/* Recent Reviews */}
               <section>
@@ -903,9 +841,9 @@ const VendorDashboardPage: React.FC = () => {
                     <div>
                       <p className="text-sm text-slate-600 mb-1">Status</p>
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${selectedBooking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                          selectedBooking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                            selectedBooking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
-                              'bg-red-100 text-red-700'
+                        selectedBooking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                          selectedBooking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
+                            'bg-red-100 text-red-700'
                         }`}>
                         {selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1)}
                       </span>
@@ -966,6 +904,6 @@ const VendorDashboardPage: React.FC = () => {
   );
 };
 
-
+//VendorDashboardPage.tsx
 
 export default VendorDashboardPage;
