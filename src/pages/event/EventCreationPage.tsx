@@ -16,7 +16,7 @@ interface TicketType {
 
 const EventCreationPage = () => {
   const navigate = useNavigate();
-  const { id: eventId } = useParams<{ id: string }>();
+  const { eventId: eventId } = useParams<{ eventId: string }>();
   const isEditMode = Boolean(eventId);
 
   // API Hooks

@@ -424,7 +424,9 @@ const VendorDashboardPage: React.FC = () => {
       <main className="lg:ml-64 pt-24 pb-20 px-4 lg:px-6">
         <div className="max-w-7xl mx-auto">
           {activeSection === 'properties' ? (
-            <div className="animate-fadeIn">
+            <div style={{
+              animationDelay: '0s'
+            }} className="glass rounded-3xl overflow-hidden shadow-lg hover:shadow-xl card-hover border border-white/40 animate-fadeInUp">
               <SectionHeader
                 icon={<Building2 size={24} className="text-white" />}
                 title="Your Properties"
@@ -473,8 +475,8 @@ const VendorDashboardPage: React.FC = () => {
             </div>
           ) : activeSection === 'events' ? (
             <div className="animate-fadeIn">
-             
-                <SectionHeader
+
+              <SectionHeader
                 icon={<Building2 size={24} className="text-white" />}
                 title="Event Management"
                 description="Manage your events, tickets, and listings"
