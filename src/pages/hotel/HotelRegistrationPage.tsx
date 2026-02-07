@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Upload, X, MapPin, DollarSign, Image as ImageIcon, Star, Wifi, Coffee, Car, Utensils, Dumbbell, Wind, Tv, Lock, Phone, Globe, Calendar, Users, Bed, Home, Building2, Sparkles, Info, Mail } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Upload, X, MapPin, DollarSign, Image as ImageIcon, Star, Wifi, Coffee, Car, Utensils, Dumbbell, Wind, Tv, Lock, Phone, Globe, Calendar, Users, Bed, Home, Building2, Sparkles, Info, Mail, Waves, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useGetAmenitiesQuery } from '../../store/services/miscApi';
+import { useCreateHotelMutation } from '../../store/services/hotelApi';
+import { CustomToaster, showToast } from '../../components/CustomToaster';
 
 const HotelRegistrationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -27,7 +30,7 @@ const HotelRegistrationPage: React.FC = () => {
     totalRooms: '',
     checkInTime: '14:00',
     checkOutTime: '11:00',
-    amenities: [] as string[],
+    amenities: [] as number[],
     
     // Step 4: Pricing
     basePrice: '',
@@ -47,6 +50,36 @@ const HotelRegistrationPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [imagePreview, setImagePreview] = useState<string[]>([]);
 
+  const { data: amenitiesList, isLoading: isLoadingAmenities } = useGetAmenitiesQuery();
+  const [createHotel, { isLoading: isCreating }] = useCreateHotelMutation();
+
+  const iconMap: Record<string, any> = {
+    Wifi,
+    Car,
+    Utensils,
+    Dumbbell,
+    Waves,
+    Wind,
+    Tv,
+    Coffee,
+    Lock,
+    Sparkles,
+    wifi: Wifi,
+    parking: Car,
+    restaurant: Utensils,
+    gym: Dumbbell,
+    pool: Waves,
+    spa: '💆',
+    ac: Wind,
+    tv: Tv,
+    breakfast: Coffee,
+    room_service: '🛎️',
+    laundry: '🧺',
+    safe: Lock,
+    waves: Waves,
+    sparkles: Sparkles,
+  };
+
   // Property Types
   const propertyTypes = [
     { value: 'hotel', label: 'Hotel', icon: '🏨' },
@@ -57,20 +90,20 @@ const HotelRegistrationPage: React.FC = () => {
   ];
 
   // Available Amenities
-  const availableAmenities = [
-    { id: 'wifi', label: 'Free WiFi', icon: Wifi },
-    { id: 'parking', label: 'Free Parking', icon: Car },
-    { id: 'restaurant', label: 'Restaurant', icon: Utensils },
-    { id: 'gym', label: 'Fitness Center', icon: Dumbbell },
-    { id: 'pool', label: 'Swimming Pool', icon: '🏊' },
-    { id: 'spa', label: 'Spa & Wellness', icon: '💆' },
-    { id: 'ac', label: 'Air Conditioning', icon: Wind },
-    { id: 'tv', label: 'TV', icon: Tv },
-    { id: 'breakfast', label: 'Breakfast Included', icon: Coffee },
-    { id: 'room_service', label: '24/7 Room Service', icon: '🛎️' },
-    { id: 'laundry', label: 'Laundry Service', icon: '🧺' },
-    { id: 'safe', label: 'Safe Deposit Box', icon: Lock },
-  ];
+  // const availableAmenities = [
+  //   { id: 'wifi', label: 'Free WiFi', icon: Wifi },
+  //   { id: 'parking', label: 'Free Parking', icon: Car },
+  //   { id: 'restaurant', label: 'Restaurant', icon: Utensils },
+  //   { id: 'gym', label: 'Fitness Center', icon: Dumbbell },
+  //   { id: 'pool', label: 'Swimming Pool', icon: '🏊' },
+  //   { id: 'spa', label: 'Spa & Wellness', icon: '💆' },
+  //   { id: 'ac', label: 'Air Conditioning', icon: Wind },
+  //   { id: 'tv', label: 'TV', icon: Tv },
+  //   { id: 'breakfast', label: 'Breakfast Included', icon: Coffee },
+  //   { id: 'room_service', label: '24/7 Room Service', icon: '🛎️' },
+  //   { id: 'laundry', label: 'Laundry Service', icon: '🧺' },
+  //   { id: 'safe', label: 'Safe Deposit Box', icon: Lock },
+  // ];
 
   // Cancellation Policies
   const cancellationPolicies = [
@@ -88,7 +121,7 @@ const HotelRegistrationPage: React.FC = () => {
     }
   };
 
-  const toggleAmenity = (amenityId: string) => {
+  const toggleAmenity = (amenityId: number) => {
     setFormData(prev => ({
       ...prev,
       amenities: prev.amenities.includes(amenityId)
@@ -121,8 +154,10 @@ const HotelRegistrationPage: React.FC = () => {
 
     if (step === 1) {
       if (!formData.propertyName.trim()) newErrors.propertyName = 'Property name is required';
+      if (formData.propertyName.length > 255) newErrors.propertyName = 'Property name must be less than 255 characters';
       if (formData.starRating === 0) newErrors.starRating = 'Please select a star rating';
-      if (!formData.description.trim()) newErrors.description = 'Description is required';
+      if (formData.starRating < 3) newErrors.starRating = 'Star rating must be at least 3';
+      if (!formData.description.trim() || formData.description.length < 50) newErrors.description = 'Description must be at least 50 characters';
     }
 
     if (step === 2) {
@@ -142,7 +177,7 @@ const HotelRegistrationPage: React.FC = () => {
     }
 
     if (step === 5) {
-      if (formData.images.length === 0) newErrors.images = 'Upload at least one image';
+      if (formData.images.length < 5) newErrors.images = 'Please upload at least 5 images';
       if (!formData.contactEmail.trim()) newErrors.contactEmail = 'Contact email is required';
       if (!formData.contactPhone.trim()) newErrors.contactPhone = 'Contact phone is required';
     }
@@ -170,11 +205,33 @@ const HotelRegistrationPage: React.FC = () => {
   const handleSubmit = async () => {
     if (!validateStep(currentStep)) return;
 
-    // TODO: Submit to API
-    console.log('Form Data:', formData);
+    const submissionData = new FormData();
+    submissionData.append('name', formData.propertyName);
+    submissionData.append('description', formData.description);
+    submissionData.append('star_rating', formData.starRating.toString());
+    submissionData.append('country', formData.country);
+    submissionData.append('city', formData.city);
+    submissionData.append('full_address', formData.address);
+    if (formData.zipCode) submissionData.append('zip_code', formData.zipCode);
+    if (formData.latitude) submissionData.append('latitude', formData.latitude);
+    if (formData.longitude) submissionData.append('longitude', formData.longitude);
     
-    // Navigate to success page or dashboard
-    navigate('/vendor/dashboard');
+    formData.amenities.forEach((id) => submissionData.append('amenities[]', id.toString()));
+    formData.images.forEach((file) => submissionData.append('images[]', file));
+
+    try {
+      await createHotel(submissionData).unwrap();
+      showToast.success('Hotel registered successfully!');
+      navigate('/vendor/dashboard');
+    } catch (error: any) {
+      console.error('Registration failed:', error);
+      if (error?.data?.errors) {
+        setErrors(error.data.errors);
+        showToast.error('Please check the form for errors.');
+      } else {
+        showToast.error(error?.data?.message || 'Failed to register hotel. Please try again.');
+      }
+    }
   };
 
   const steps = [
@@ -187,6 +244,7 @@ const HotelRegistrationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 pb-12">
+      <CustomToaster />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -552,75 +610,53 @@ const HotelRegistrationPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Check-in/Check-out Times */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Check-in Time
-                  </label>
-                  <input
-                    type="time"
-                    name="checkInTime"
-                    value={formData.checkInTime}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-indigo-400 transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Check-out Time
-                  </label>
-                  <input
-                    type="time"
-                    name="checkOutTime"
-                    value={formData.checkOutTime}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-indigo-400 transition-all"
-                  />
-                </div>
-              </div>
-
               {/* Amenities */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   Amenities & Facilities <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {availableAmenities.map((amenity) => {
-                    const Icon = typeof amenity.icon === 'string' ? null : amenity.icon;
-                    const isSelected = formData.amenities.includes(amenity.id);
-                    
-                    return (
-                      <button
-                        key={amenity.id}
-                        type="button"
-                        onClick={() => toggleAmenity(amenity.id)}
-                        className={`p-4 rounded-xl border-2 transition-all text-left ${
-                          isSelected
-                            ? 'border-indigo-500 bg-indigo-50'
-                            : 'border-slate-200 hover:border-indigo-300 bg-white'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-2 mb-1">
-                          {Icon ? (
-                            <Icon size={20} className={isSelected ? 'text-indigo-600' : 'text-slate-500'} />
-                          ) : (
-                            <span className="text-xl">{amenity.icon}</span>
-                          )}
-                          {isSelected && (
-                            <Check size={16} className="text-indigo-600" />
-                          )}
-                        </div>
-                        <div className={`text-xs font-semibold ${
-                          isSelected ? 'text-indigo-700' : 'text-slate-700'
-                        }`}>
-                          {amenity.label}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                {isLoadingAmenities ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="animate-spin text-indigo-600" size={24} />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {amenitiesList?.map((amenity) => {
+                      const Icon = iconMap[amenity.icon] || Sparkles;
+                      const isIconComponent = typeof Icon !== 'string';
+                      const isSelected = formData.amenities.includes(amenity.id);
+                      
+                      return (
+                        <button
+                          key={amenity.id}
+                          type="button"
+                          onClick={() => toggleAmenity(amenity.id)}
+                          className={`p-4 rounded-xl border-2 transition-all text-left ${
+                            isSelected
+                              ? 'border-indigo-500 bg-indigo-50'
+                              : 'border-slate-200 hover:border-indigo-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2 mb-1">
+                            {isIconComponent ? (
+                              <Icon size={20} className={isSelected ? 'text-indigo-600' : 'text-slate-500'} />
+                            ) : (
+                              <span className="text-xl">{Icon}</span>
+                            )}
+                            {isSelected && (
+                              <Check size={16} className="text-indigo-600" />
+                            )}
+                          </div>
+                          <div className={`text-xs font-semibold ${
+                            isSelected ? 'text-indigo-700' : 'text-slate-700'
+                          }`}>
+                            {amenity.name}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
                 {errors.amenities && (
                   <p className="mt-2 text-sm text-red-600">{errors.amenities}</p>
                 )}
@@ -966,10 +1002,15 @@ const HotelRegistrationPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:shadow-xl hover:shadow-green-500/40 transition-all"
+                disabled={isCreating}
+                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:shadow-xl hover:shadow-green-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Check size={20} />
-                <span>Submit Property</span>
+                {isCreating ? (
+                  <Loader2 className="animate-spin" size={20} />
+                ) : (
+                  <Check size={20} />
+                )}
+                <span>{isCreating ? 'Submitting...' : 'Submit Property'}</span>
               </button>
             )}
           </div>

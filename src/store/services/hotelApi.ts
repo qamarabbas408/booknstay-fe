@@ -1,4 +1,5 @@
 import { api } from './api';
+import { APIENDPOINTS } from '../../utils/ApiConstants';
 
 export interface Hotel {
   id: number;
@@ -132,7 +133,14 @@ export const hotelApi = api.injectEndpoints({
       }),
       invalidatesTags: ['Booking'],
     }),
+    createHotel: builder.mutation<any, FormData>({
+      query: (data) => ({
+        url: APIENDPOINTS.base_url_v2 + '/vendor/hotel',
+        method: 'POST',
+        data,
+      }),
+    }),
   }),
 });
 
-export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery, useGetVendorHotelsQuery } = hotelApi;
+export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery, useGetVendorHotelsQuery, useCreateHotelMutation } = hotelApi;
