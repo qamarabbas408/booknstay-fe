@@ -6,6 +6,7 @@ import { APIENDPOINTS } from '../../utils/ApiConstants';
 import { AppImages } from '../../utils/AppImages';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
+import RoomSelector from '../../components/RoomSelector';
 
 const HotelDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ const HotelDetails = () => {
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(2);
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
 
   const [createHotelBooking, { isLoading: isBooking }] = useCreateHotelBookingMutation();
   const { data: hotelResponse, isLoading, isError } = useGetHotelByIdQuery(Number(id), {
@@ -23,6 +25,36 @@ const HotelDetails = () => {
   const [triggerAvailabilityCheck, { data: availabilityData, isFetching: isCheckingAvailability }] = useLazyGetHotelAvailabilityQuery();
 
   const hotel = hotelResponse?.data;
+
+  const mockRooms = [
+    {
+      id: 1,
+      name: "Deluxe King Room",
+      description: "Spacious room with a king-size bed and city views.",
+      price: 250,
+      features: ["King Bed", "City View", "Free WiFi", "Breakfast included"],
+      image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      id: 2,
+      name: "Ocean View Suite",
+      description: "Luxury suite with panoramic ocean views and private balcony.",
+      price: 450,
+      features: ["King Bed", "Ocean View", "Balcony", "Jacuzzi"],
+      image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      id: 3,
+      name: "Family Double Room",
+      description: "Perfect for families, featuring two double beds and extra space.",
+      price: 320,
+      features: ["2 Double Beds", "Garden View", "Mini Bar"],
+      image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80"
+    }
+  ];
+
+  const selectedRoom = mockRooms.find(r => r.id === selectedRoomId);
+  const displayPrice = selectedRoom ? selectedRoom.price : (hotel?.pricePerNight || 0);
 
   useEffect(() => {
     if (checkIn && checkOut && hotel) {
@@ -207,28 +239,6 @@ const HotelDetails = () => {
         }
       `}</style>
 
-      {/* Navigation */}
-      <nav className="glass sticky top-0 z-50 border-b border-white/40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="flex items-center text-slate-700 font-semibold hover:text-indigo-600 transition-colors">
-            <ChevronLeft size={20} className="mr-1" />
-            Back to Results
-          </button>
-          
-          <div className="text-2xl font-display bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            BookNStay
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <Share2 size={20} className="text-slate-600" />
-            </button>
-            <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <Heart size={20} className="text-slate-600" />
-            </button>
-          </div>
-        </div>
-      </nav>
 
       {/* Image Gallery Modal */}
       {showGallery && (
@@ -352,6 +362,13 @@ const HotelDetails = () => {
               </div>
             </div>
 
+            {/* Room Selection */}
+            <RoomSelector 
+              rooms={mockRooms}
+              selectedRoomId={selectedRoomId}
+              onSelectRoom={setSelectedRoomId}
+            />
+
             {/* Reviews */}
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -393,7 +410,7 @@ const HotelDetails = () => {
                 <div className="mb-6">
                   <div className="text-sm text-slate-500 mb-1">Starting from</div>
                   <div className="text-4xl font-display bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    ${hotel.pricePerNight}
+                    ${displayPrice}
                     <span className="text-lg text-slate-600 font-normal ml-2">/night</span>
                   </div>
                 </div>
@@ -477,16 +494,16 @@ const HotelDetails = () => {
 
                 <div className="mt-6 pt-6 border-t border-slate-200 space-y-3">
                   <div className="flex justify-between text-slate-600">
-                    <span>${hotel.pricePerNight} × 3 nights</span>
-                    <span>${hotel.pricePerNight * 3}</span>
+                    <span>${displayPrice} × 3 nights</span>
+                    <span>${displayPrice * 3}</span>
                   </div>
                   <div className="flex justify-between text-slate-600">
                     <span>Service fee</span>
-                    <span>${(hotel.pricePerNight * 3 * 0.1).toFixed(0)}</span>
+                    <span>${(displayPrice * 3 * 0.1).toFixed(0)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg text-slate-900 pt-3 border-t border-slate-200">
                     <span>Total</span>
-                    <span>${(hotel.pricePerNight * 3 * 1.1).toFixed(0)}</span>
+                    <span>${(displayPrice * 3 * 1.1).toFixed(0)}</span>
                   </div>
                 </div>
               </div>
