@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RoomCard from '../../components/vendor/RoomCard';
 import SectionHeader from '../../components/vendor/SectionHeader';
 import { useNavigate } from 'react-router-dom';
@@ -11,9 +11,13 @@ import { APIENDPOINTS } from '../../utils/ApiConstants';
 import PulseLoader from '../../components/PulseLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import VendorPropertiesPage from './VendorPropertiesPage';
+import SkeletonLoader from '../../components/SkeletonLoader';
 import PropertyCard from '../../components/PropertyCard';
 import EventCard from '../../components/vendor/EventCard';
 import { AppRoutes } from '../../utils/AppRoutes';
+import HotelSelectionModal, {type  HotelType } from '../../components/HotelSelectionModal';
+import RoomManagementSection from '../../components/RoomManagementSection';
+import { useDeleteRoomTypeMutation } from '../../store/services/roomApi';
 
 // Mock data for hotel vendor dashboard
 interface Stat {
@@ -114,41 +118,149 @@ const mockBookings: Booking[] = [
   },
 ];
 
-const mockRooms: any[] = [
+const mockHotels: any[] = [
   {
     id: 1,
-    type: 'Standard Room',
-    total: 50,
-    available: 32,
-    pricePerNight: '$180',
-    status: 'active',
-    amenities: ['WiFi', 'TV', 'AC'],
-    onEdit: () => { },
-    onDelete: () => { }
+    name: 'Serene Bay Resort',
+    location: 'Karachi, Pakistan',
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80',
+    roomCount: 3,
   },
   {
     id: 2,
-    type: 'Deluxe Suite',
-    total: 20,
-    available: 15,
-    pricePerNight: '$250',
-    status: 'active',
-    amenities: ['WiFi', 'TV', 'AC', 'Minibar', 'Balcony'],
-    onEdit: () => { },
-    onDelete: () => { }
+    name: 'Mountain Valley Hotel',
+    location: 'Islamabad, Pakistan',
+    rating: 4.5,
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=400&q=80',
+    roomCount: 4,
   },
   {
     id: 3,
-    type: 'Executive Villa',
-    total: 10,
-    available: 7,
-    pricePerNight: '$320',
-    status: 'maintenance',
-    amenities: ['WiFi', 'TV', 'AC', 'Kitchen', 'Pool'],
-    onEdit: () => { },
-    onDelete: () => { }
+    name: 'Urban Luxury Suites',
+    location: 'Lahore, Pakistan',
+    rating: 4.7,
+    image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=400&q=80',
+    roomCount: 5,
   },
 ];
+
+const mockRoomsByHotel: Record<number, any[]> = {
+  1: [
+    {
+      id: 1,
+      type: 'Standard Room',
+      total: 50,
+      available: 32,
+      pricePerNight: '$180',
+      status: 'active',
+      amenities: ['WiFi', 'TV', 'AC'],
+    },
+    {
+      id: 2,
+      type: 'Deluxe Suite',
+      total: 20,
+      available: 15,
+      pricePerNight: '$250',
+      status: 'active',
+      amenities: ['WiFi', 'TV', 'AC', 'Minibar', 'Balcony'],
+    },
+    {
+      id: 3,
+      type: 'Executive Villa',
+      total: 10,
+      available: 7,
+      pricePerNight: '$320',
+      status: 'maintenance',
+      amenities: ['WiFi', 'TV', 'AC', 'Kitchen', 'Pool'],
+    },
+  ],
+  2: [
+    {
+      id: 4,
+      type: 'Economy Room',
+      total: 60,
+      available: 40,
+      pricePerNight: '$120',
+      status: 'active',
+      amenities: ['WiFi', 'TV'],
+    },
+    {
+      id: 5,
+      type: 'Premium Room',
+      total: 25,
+      available: 18,
+      pricePerNight: '$200',
+      status: 'active',
+      amenities: ['WiFi', 'TV', 'AC', 'Minibar'],
+    },
+    {
+      id: 6,
+      type: 'Suite',
+      total: 8,
+      available: 5,
+      pricePerNight: '$280',
+      status: 'active',
+      amenities: ['WiFi', 'TV', 'AC', 'Kitchen', 'Balcony'],
+    },
+    {
+      id: 7,
+      type: 'Penthouse',
+      total: 2,
+      available: 1,
+      pricePerNight: '$450',
+      status: 'active',
+      amenities: ['WiFi', 'TV', 'AC', 'Kitchen', 'Balcony', 'Jacuzzi', 'Pool Access'],
+    },
+  ],
+  3: [
+    {
+      id: 8,
+      type: 'Basic Room',
+      total: 100,
+      available: 65,
+      pricePerNight: '$100',
+      status: 'active',
+      amenities: ['WiFi', 'TV'],
+    },
+    {
+      id: 9,
+      type: 'Standard Double',
+      total: 50,
+      available: 35,
+      pricePerNight: '$150',
+      status: 'active',
+      amenities: ['WiFi', 'TV', 'AC'],
+    },
+    {
+      id: 10,
+      type: 'Deluxe Double',
+      total: 30,
+      available: 22,
+      pricePerNight: '$220',
+      status: 'active',
+      amenities: ['WiFi', 'TV', 'AC', 'Minibar', 'Balcony'],
+    },
+    {
+      id: 11,
+      type: 'Grand Suite',
+      total: 15,
+      available: 10,
+      pricePerNight: '$350',
+      status: 'maintenance',
+      amenities: ['WiFi', 'TV', 'AC', 'Kitchen', 'Balcony', 'Living Room'],
+    },
+    {
+      id: 12,
+      type: 'Royal Suite',
+      total: 5,
+      available: 3,
+      pricePerNight: '$500',
+      status: 'active',
+      amenities: ['WiFi', 'TV', 'AC', 'Kitchen', 'Balcony', 'Jacuzzi', 'Concierge'],
+    },
+  ],
+};
 
 interface Review {
   id: number;
@@ -234,9 +346,13 @@ const VendorDashboardPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [eventToDelete, setEventToDelete] = useState<number | null>(null);
+  const [showHotelModal, setShowHotelModal] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState<any | null>(null);
+  const [roomToDelete, setRoomToDelete] = useState<number | null>(null);
 
   const { data: vendorEventsData, isLoading: isLoadingEvents } = useGetVendorEventsQuery();
   const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
+  const [deleteRoomType, { isLoading: isDeletingRoom }] = useDeleteRoomTypeMutation();
   const { data: vendorHotelsData, isLoading: isLoadingHotels } = useGetVendorHotelsQuery({ limit: 3 });
   const vendorEvents = vendorEventsData?.data || [];
 
@@ -244,6 +360,24 @@ const VendorDashboardPage: React.FC = () => {
     dispatch(logout());
     navigate('/login');
   };
+
+  // Fetch initial hotel for Room Management (limit 1)
+  const { data: initialHotelData, isLoading: isLoadingInitialHotel } = useGetVendorHotelsQuery(
+    { limit: 1 },
+    { skip: activeSection !== 'rooms' || !!selectedHotel }
+  );
+
+  // Fetch all hotels for selection modal
+  const { data: allHotelsData, isLoading: isLoadingAllHotels } = useGetVendorHotelsQuery(
+    { limit: 100 },
+    { skip: !showHotelModal }
+  );
+
+  useEffect(() => {
+    if (activeSection === 'rooms' && !selectedHotel && initialHotelData && initialHotelData?.data?.length > 0) {
+      setSelectedHotel(initialHotelData?.data[0]);
+    }
+  }, [activeSection, initialHotelData, selectedHotel]);
 
   const unreadNotifications = mockNotifications.filter(n => !n.read).length;
 
@@ -265,6 +399,27 @@ const VendorDashboardPage: React.FC = () => {
       } catch (error) {
         console.error('Failed to delete event:', error);
         showToast.error('Failed to delete event');
+      }
+    }
+  };
+
+  const handleConfirmDeleteRoom = async () => {
+    if (roomToDelete && selectedHotel) {
+      try {
+        await deleteRoomType(roomToDelete).unwrap();
+        showToast.success('Room type deleted successfully');
+        
+        // Update local state to remove the deleted room immediately
+        const updatedRoomTiers = selectedHotel.room_tiers.filter((tier: any) => tier.id !== roomToDelete);
+        setSelectedHotel({
+          ...selectedHotel,
+          room_tiers: updatedRoomTiers
+        });
+        
+        setRoomToDelete(null);
+      } catch (error: any) {
+        console.error('Failed to delete room:', error);
+        showToast.error(error?.data?.message || 'Failed to delete room type');
       }
     }
   };
@@ -514,34 +669,77 @@ const VendorDashboardPage: React.FC = () => {
               )}
             </div>
           ) : activeSection === 'rooms' ? (
-            <div className="animate-fadeIn">
-              <SectionHeader
-                icon={<Hotel size={24} className="text-white" />}
-                title="Room Management"
-                description="Manage your rooms, bookings, and listings"
-                buttonText="Select a Hotel Now"
-                onButtonClick={() => setActiveSection('properties')}
-                gradientFrom="to-purple-600"
-                gradientTo="from-pink-600"
-              />
+            isLoadingInitialHotel ? (
+              <div className="animate-fadeIn space-y-8">
+                {/* Header Skeleton */}
+                <div className="h-32 bg-slate-100 rounded-2xl animate-pulse border border-slate-200"></div>
+                
+                {/* Stats Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-24 bg-white rounded-2xl animate-pulse border border-slate-200"></div>
+                  ))}
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {mockRooms.map(room => (
-                  <RoomCard
-                    key={room.id}
-                    id={room.id}
-                    type={room.type}
-                    total={room.total}
-                    available={room.available}
-                    pricePerNight={room.pricePerNight}
-                    status={'active'}
-                    onEdit={() => { }}
-                    onDelete={() => { }}
-                    amenities={room.amenities}
-                  />
-                ))}
+                {/* Room Cards Skeleton */}
+                <div>
+                  <div className="h-8 w-48 bg-slate-200 rounded-lg mb-6 animate-pulse"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    {[...Array(3)].map((_, i) => (
+                      <SkeletonLoader key={i} type="hotel" />
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+            <>
+              <RoomManagementSection
+                selectedHotel={selectedHotel ? {
+                  id: selectedHotel.id,
+                  name: selectedHotel.name,
+                  location: selectedHotel.city,
+                  rating: selectedHotel.reviews_avg_rating || 0,
+                  image: getImageUrl(selectedHotel.images?.[0]?.path),
+                  roomCount: selectedHotel.room_tiers?.length || 0
+                } : null}
+                rooms={selectedHotel?.room_tiers?.map((tier: any) => ({
+                  id: tier.id,
+                  type: tier.type,
+                  total: tier.total_inventory,
+                  available: tier.available,
+                  pricePerNight: `$${tier.base_price}`,
+                  status: tier.status,
+                  amenities: []
+                })) || []}
+                onChangeHotel={() => setShowHotelModal(true)}
+                onEditRoom={(roomId) => {
+                  // Handle room edit
+                  console.log('Edit room:', roomId);
+                }}
+                onDeleteRoom={(roomId) => {
+                  setRoomToDelete(roomId);
+                }}
+              />
+              <HotelSelectionModal
+                isOpen={showHotelModal}
+                hotels={allHotelsData?.data?.map((h: any) => ({
+                  id: h.id,
+                  name: h.name,
+                  location: h.city,
+                  rating: h.reviews_avg_rating || 0,
+                  image: getImageUrl(h.images?.[0]?.path),
+                  roomCount: h.room_tiers?.length || 0
+                })) || []}
+                onClose={() => setShowHotelModal(false)}
+                onSelect={(hotel) => {
+                  const fullHotel = allHotelsData?.data?.find((h: any) => h.id === hotel.id);
+                  if (fullHotel) setSelectedHotel(fullHotel);
+                  setShowHotelModal(false);
+                }}
+                isLoading={isLoadingAllHotels}
+              />
+            </>
+            )
           ) : activeSection === 'bookings' ? (
             <div>booking</div>
           ) : (
@@ -897,6 +1095,38 @@ const VendorDashboardPage: React.FC = () => {
                 className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all flex items-center justify-center gap-2"
               >
                 {isDeleting ? 'Deleting...' : 'Delete Event'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Room Confirmation Modal */}
+      {roomToDelete && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setRoomToDelete(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle size={32} className="text-red-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Delete Room Type?</h3>
+              <p className="text-slate-600">
+                Are you sure you want to delete this room type? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setRoomToDelete(null)}
+                className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDeleteRoom}
+                disabled={isDeletingRoom}
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+              >
+                {isDeletingRoom ? 'Deleting...' : 'Delete Room'}
               </button>
             </div>
           </div>
