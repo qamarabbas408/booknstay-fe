@@ -17,6 +17,7 @@ const HotelDetails = () => {
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(2);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
+  const [roomCount, setRoomCount] = useState(1);
 
   const [createHotelBooking, { isLoading: isBooking }] = useCreateHotelBookingMutation();
   const { data: hotelResponse, isLoading, isError } = useGetHotelByIdQuery(Number(id), {
@@ -26,34 +27,16 @@ const HotelDetails = () => {
 
   const hotel = hotelResponse?.data;
 
-  const mockRooms = [
-    {
-      id: 1,
-      name: "Deluxe King Room",
-      description: "Spacious room with a king-size bed and city views.",
-      price: 250,
-      features: ["King Bed", "City View", "Free WiFi", "Breakfast included"],
-      image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      id: 2,
-      name: "Ocean View Suite",
-      description: "Luxury suite with panoramic ocean views and private balcony.",
-      price: 450,
-      features: ["King Bed", "Ocean View", "Balcony", "Jacuzzi"],
-      image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      id: 3,
-      name: "Family Double Room",
-      description: "Perfect for families, featuring two double beds and extra space.",
-      price: 320,
-      features: ["2 Double Beds", "Garden View", "Mini Bar"],
-      image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80"
-    }
-  ];
+  const rooms = hotel?.room_tiers?.map((tier) => ({
+    id: tier.id,
+    name: tier.type,
+    description: tier.description || "",
+    price: tier.base_price,
+    features: [`Max Occupancy: ${tier.max_occupancy}`, "Free WiFi", "Breakfast included"],
+    image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80"
+  })) || [];
 
-  const selectedRoom = mockRooms.find(r => r.id === selectedRoomId);
+  const selectedRoom = rooms.find(r => r.id === selectedRoomId);
   const displayPrice = selectedRoom ? selectedRoom.price : (hotel?.pricePerNight || 0);
 
   useEffect(() => {
@@ -70,6 +53,10 @@ const HotelDetails = () => {
   const minCheckOut = checkIn 
     ? new Date(new Date(checkIn).getTime() + 86400000).toISOString().split('T')[0] 
     : today;
+
+  const nights = checkIn && checkOut 
+    ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)) 
+    : 0;
 
   const getImageUrl = (path: string | null | undefined) => {
     if (!path) return AppImages.placeholders.hotels_placeholder;
@@ -96,15 +83,20 @@ const HotelDetails = () => {
     return Check;
   };
 
-  const displayAmenities = hotel?.amenities.map(name => ({
-    icon: getAmenityIcon(name),
-    name: name.charAt(0).toUpperCase() + name.slice(1)
+  const displayAmenities = hotel?.amenities.map(amenity => ({
+    icon: getAmenityIcon(amenity.name),
+    name: amenity.name
   })) || [];
 
   const handleReserve = async () => {
     if (!hotel) return;
     if (!checkIn || !checkOut) {
       showToast.error("Please select check-in and check-out dates.");
+      return;
+    }
+
+    if (!selectedRoomId) {
+      showToast.error("Please select a room type.");
       return;
     }
 
@@ -118,7 +110,9 @@ const HotelDetails = () => {
         hotel_id: hotel.id,
         check_in: checkIn,
         check_out: checkOut,
-        guests_count: guests
+        guests_count: guests,
+        rooms_count: roomCount,
+        room_type_id: selectedRoomId
       }).unwrap();
       
       showToast.success(response.message || "Hotel booked successfully!");
@@ -315,12 +309,12 @@ const HotelDetails = () => {
                   <div className="flex items-center text-slate-600 space-x-4">
                     <div className="flex items-center">
                       <MapPin size={18} className="mr-1.5 text-slate-400" />
-                      <span>{hotel.location}</span>
+                      <span>{hotel.location_summary}</span>
                     </div>
                     <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-lg">
                       <Star size={16} fill="#f59e0b" className="text-amber-500 mr-1" />
                       <span className="font-bold text-amber-700">{hotel.rating || hotel.stars}</span>
-                      <span className="text-slate-600 ml-1">({hotel.reviewCount} reviews)</span>
+                      <span className="text-slate-600 ml-1">({hotel.reviews} reviews)</span>
                     </div>
                   </div>
                 </div>
@@ -328,7 +322,7 @@ const HotelDetails = () => {
 
               <div className="bg-linear-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
                 <p className="text-lg text-slate-700 font-serif leading-relaxed">
-                  {hotel.description || hotel.descripton}
+                  {hotel.description}
                 </p>
               </div>
             </div>
@@ -364,9 +358,11 @@ const HotelDetails = () => {
 
             {/* Room Selection */}
             <RoomSelector 
-              rooms={mockRooms}
+              rooms={rooms}
               selectedRoomId={selectedRoomId}
               onSelectRoom={setSelectedRoomId}
+              selectedRoomCount={roomCount}
+              onRoomCountChange={setRoomCount}
             />
 
             {/* Reviews */}
@@ -494,16 +490,16 @@ const HotelDetails = () => {
 
                 <div className="mt-6 pt-6 border-t border-slate-200 space-y-3">
                   <div className="flex justify-between text-slate-600">
-                    <span>${displayPrice} × 3 nights</span>
-                    <span>${displayPrice * 3}</span>
+                    <span>${displayPrice} × {roomCount} rooms × {nights || 1} nights</span>
+                    <span>${displayPrice * roomCount * (nights || 1)}</span>
                   </div>
                   <div className="flex justify-between text-slate-600">
                     <span>Service fee</span>
-                    <span>${(displayPrice * 3 * 0.1).toFixed(0)}</span>
+                    <span>${(displayPrice * roomCount * (nights || 1) * 0.1).toFixed(0)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg text-slate-900 pt-3 border-t border-slate-200">
                     <span>Total</span>
-                    <span>${(displayPrice * 3 * 1.1).toFixed(0)}</span>
+                    <span>${(displayPrice * roomCount * (nights || 1) * 1.1).toFixed(0)}</span>
                   </div>
                 </div>
               </div>

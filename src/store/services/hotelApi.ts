@@ -1,20 +1,56 @@
 import { api } from './api';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
 
+export interface HotelAmenity {
+  id: number;
+  name: string;
+  icon: string;
+  slug: string;
+}
+
+export interface HotelLocation {
+  country: string | null;
+  city: string | null;
+  full_address: string | null;
+  zip_code: string | null;
+  latitude: string | null;
+  longitude: string | null;
+}
+
+export interface RoomTier {
+  id: number;
+  type: string;
+  description: string;
+  base_price: number;
+  max_occupancy: number;
+  total_inventory: number;
+  status: string;
+  available: number;
+  is_locked: boolean;
+  active_bookings_count: number;
+}
+
 export interface Hotel {
   id: number;
   name: string;
-  location: string;
+  location: HotelLocation;
+  location_summary: string;
   pricePerNight: number;
   image: string;
+  thumbnail: string;
   stars: number;
   rating: number;
-  reviewCount: number;
-  featured: boolean;
-  amenities: string[];
+  reviews: number;
+  featured?: boolean;
+  amenities: HotelAmenity[];
   badges?: string[];
   description?: string;
-  descripton?: string; // Handling API typo
+  room_tiers?: RoomTier[];
+  gallery?: any[];
+  status?: string;
+  bookings?: number;
+  revenue?: number;
+  createdAt?: string;
 }
 
 export interface VendorHotel {
@@ -134,9 +170,10 @@ export const hotelApi = api.injectEndpoints({
         method: 'GET',
       }),
     }),
-    createHotelBooking: builder.mutation<any, { hotel_id: number; check_in: string; check_out: string; guests_count: number }>({
+    createHotelBooking: builder.mutation<any, { hotel_id: number; check_in: string; check_out: string; guests_count: number; rooms_count: number; room_type_id: number }>({
       query: (data) => ({
-        url: '/guest/hotel/booking',
+        // url: '/guest/hotel/booking',
+        url: APIENDPOINTS.base_url_v2 + '/guest/hotel/booking',
         method: 'POST',
         data,
       }),

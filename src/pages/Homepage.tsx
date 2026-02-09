@@ -39,12 +39,12 @@ const Homepage: React.FC = () => {
     id: hotel.id,
     type: 'hotel',
     title: hotel.name,
-    location: hotel.location,
+    location: hotel.location_summary,
     price: `$${hotel.pricePerNight}/night`,
-    rating: hotel.rating,
-    image: hotel.image ? (hotel.image.startsWith('http') ? hotel.image : `${APIENDPOINTS.content_url}${hotel.image}`) : AppImages.placeholders.hotels_placeholder,
-    featured: hotel.featured,
-  })) || [];
+  rating: hotel.rating,
+  image: hotel.image ? (hotel.image.startsWith('http') ? hotel.image : `${APIENDPOINTS.content_url}${hotel.image}`) : AppImages.placeholders.hotels_placeholder,
+  featured: hotel.featured,
+})) || [];
 
   const events: Item[] = eventsData?.data?.map((event) => ({
     id: event.id,

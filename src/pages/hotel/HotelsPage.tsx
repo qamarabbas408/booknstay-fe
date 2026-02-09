@@ -464,12 +464,12 @@ const HotelsPage: React.FC = () => {
 
                         <div className="flex items-center text-slate-500 text-sm mb-1">
                           <MapPin size={16} className="mr-1.5 flex-shrink-0" />
-                          <span>{hotel.location}</span>
+                          <span>{hotel.location_summary}</span>
                         </div>
 
                         <div className="flex items-center text-slate-400 text-xs mb-4">
                           <Users size={14} className="mr-1" />
-                          <span>{hotel.reviewCount.toLocaleString()} reviews</span>
+                          <span>{hotel.reviews.toLocaleString()} reviews</span>
                         </div>
 
                         {/* Badges */}
