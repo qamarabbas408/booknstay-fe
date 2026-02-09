@@ -5,6 +5,7 @@ import { APIENDPOINTS } from '../../utils/ApiConstants';
 import { AppImages } from '../../utils/AppImages';
 import { useGetHotelsQuery } from '../../store/services/hotelApi';
 import { useGetAmenitiesQuery } from '../../store/services/miscApi';
+import HotelCard from '../../components/guest/HotelCard';
 import SkeletonLoader from '../../components/SkeletonLoader';
 
 const HotelsPage: React.FC = () => {
@@ -79,24 +80,10 @@ const HotelsPage: React.FC = () => {
   const activeFiltersCount = selectedStars.length + selectedAmenities.length + 
     (priceRange[0] !== 50 || priceRange[1] !== 500 ? 1 : 0);
 
-  const HotelImage = ({ src, alt }: { src: string | null | undefined; alt: string }) => {
-    const getImageUrl = (path: string | null | undefined) => {
-      if (!path) return AppImages.placeholders.hotels_placeholder;
-      if (path.startsWith('http')) return path;
-      return `${APIENDPOINTS.content_url}${path}`;
-    };
-
-    const [imgSrc, setImgSrc] = useState(getImageUrl(src));
-    useEffect(() => setImgSrc(getImageUrl(src)), [src]);
-
-    return (
-      <img
-        src={imgSrc}
-        alt={alt}
-        onError={() => setImgSrc(AppImages.placeholders.hotels_placeholder)}
-        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-      />
-    );
+  const getImageUrl = (path: string | null | undefined) => {
+    if (!path) return AppImages.placeholders.hotels_placeholder;
+    if (path.startsWith('http')) return path;
+    return `${APIENDPOINTS.content_url}${path}`;
   };
 
   return (
@@ -411,106 +398,16 @@ const HotelsPage: React.FC = () => {
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {filteredHotels.map((hotel, index) => (
-                    <div
-                      key={hotel.id}
-                      onClick={() => navigate(`/hotel/${hotel.id}`)}
-                      className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl card-hover border border-slate-100 cursor-pointer group animate-fadeInUp"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="relative h-56 overflow-hidden">
-                        <HotelImage src={hotel.image} alt={hotel.name} />
-                        
-                        {/* Favorite Button */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(hotel.id);
-                          }}
-                          className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all hover:scale-110"
-                        >
-                          <Heart
-                            size={18}
-                            className={favorites.includes(hotel.id) ? 'fill-red-500 text-red-500' : 'text-slate-600'}
-                          />
-                        </button>
-
-                        {/* Featured Badge */}
-                        {hotel.featured && (
-                          <div className="absolute top-3 left-3 bg-linear-to-r from-yellow-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center shadow-lg">
-                            <Sparkles size={14} className="text-white mr-1" />
-                            <span className="text-white text-xs font-bold">Featured</span>
-                          </div>
-                        )}
-
-                        {/* Star Rating */}
-                        <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg flex items-center">
-                          {[...Array(hotel.stars)].map((_, i) => (
-                            <Star key={i} size={12} fill="#f59e0b" className="text-amber-500" />
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="p-5">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-bold text-lg text-slate-900 leading-tight line-clamp-2 flex-1 pr-2">
-                            {hotel.name}
-                          </h3>
-                          <div className="flex items-center bg-amber-50 px-2.5 py-1.5 rounded-lg flex-shrink-0">
-                            <Star size={14} fill="#f59e0b" className="text-amber-500 mr-1" />
-                            <span className="text-sm font-bold text-amber-700">{hotel.rating}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center text-slate-500 text-sm mb-1">
-                          <MapPin size={16} className="mr-1.5 flex-shrink-0" />
-                          <span>{hotel.location_summary}</span>
-                        </div>
-
-                        <div className="flex items-center text-slate-400 text-xs mb-4">
-                          <Users size={14} className="mr-1" />
-                          <span>{hotel.reviews.toLocaleString()} reviews</span>
-                        </div>
-
-                        {/* Badges */}
-                        <div className="flex flex-wrap gap-1.5 mb-4">
-                          {hotel.badges?.slice(0, 2).map((badge) => (
-                            <span
-                              key={badge}
-                              className="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-medium"
-                            >
-                              {badge}
-                            </span>
-                          ))}
-                          {hotel.badges && hotel.badges.length > 2 && (
-                            <span className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
-                              +{hotel.badges.length - 2} more
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-end justify-between pt-4 border-t border-slate-100">
-                          <div>
-                            <div className="text-xs text-slate-500 mb-0.5">From</div>
-                            <div className="flex items-baseline">
-                              <span className="text-2xl font-display gradient-text">
-                                ${hotel.pricePerNight}
-                              </span>
-                              <span className="text-sm text-slate-500 ml-1">/ night</span>
-                            </div>
-                          </div>
-
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/hotel/${hotel.id}`);
-                            }}
-                            className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group-hover:scale-105"
-                          >
-                            View Deal
-                          </button>
-                        </div>
-                      </div>
+                  {filteredHotels.map((hotel: any, index) => (
+                    <div key={hotel.id} className="animate-fadeInUp" style={{ animationDelay: `${index * 0.1}s` }}>
+                      <HotelCard
+                        {...hotel}
+                        image={getImageUrl(hotel.image)}
+                        reviewCount={hotel.reviewCount || hotel.reviews}
+                        onView={(id) => navigate(`/hotel/${id}`)}
+                        onLike={toggleFavorite}
+                        isLiked={favorites.includes(hotel.id)}
+                      />
                     </div>
                   ))}
                 </div>

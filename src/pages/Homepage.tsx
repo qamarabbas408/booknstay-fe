@@ -7,6 +7,7 @@ import { useGetHotelsQuery } from '../store/services/hotelApi';
 import { useGetEventsQuery } from '../store/services/eventApi';
 import SkeletonLoader from '../components/SkeletonLoader';
 import HotelCard from '../components/guest/HotelCard';
+import EventCard from '../components/guest/EventCard';
 
 // Mock data interfaces for type safety
 interface Item {
@@ -59,6 +60,7 @@ const Homepage: React.FC = () => {
     image: event.image ? (event.image.startsWith('http') ? event.image : `${APIENDPOINTS.content_url}${event.image}`) : AppImages.placeholders.event_placeholder,
     date: event.start_date,
     featured: event.featured,
+    data: event,
   })) || [];
 
   const filteredItems = activeTab === 'all'
@@ -199,6 +201,32 @@ const Homepage: React.FC = () => {
                     image={item.image}
                     reviewCount={item.data.reviewCount || item.data.reviews}
                     onView={(id) => navigate(`/hotel/${id}`)}
+                  />
+                </div>
+              ) : item.type === 'event' && item.data ? (
+                <div key={`${item.type}-${item.id}`} className="animate-fadeInUp" style={{ animationDelay: `${idx * 0.1}s` }}>
+                  <EventCard
+                    id={item.data.id}
+                    title={item.data.title}
+                    category={item.data.category || 'Music'}
+                    location={item.data.location}
+                    venue={item.data.venue || item.data.location}
+                    price={item.data.price || '$0'}
+                    start_date={item.data.start_date}
+                    end_date={item.data.end_date || item.data.start_date}
+                    image={item.image}
+                    rating={item.data.rating || 0}
+                    onView={(id) => navigate(`/event/${id}`)}
+                    is_past={new Date(item.data.end_date || item.data.start_date) < new Date()}
+                    highlights={item.data.highlights || []}
+                    description={item.data.description || 'Join us for an exciting event!'}
+                    total_capacity={item.data.total_capacity || 100}
+                    tickets_left={item.data.tickets_left || 50}
+                    is_sold_out={item.data.is_sold_out || false}
+                    attendees={item.data.attendees || 0}
+                    featured={item.data.featured || false}
+                    trending={item.data.trending || false}
+                    ticketTypes={item.data.ticketTypes || []}
                   />
                 </div>
               ) : (

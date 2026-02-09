@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Star, Users, Bed, Wifi, Coffee, Car, Dumbbell, Waves, Sparkles, Heart, Eye, ChevronRight } from 'lucide-react';
+import { AppImages } from '../../utils/AppImages';
 
 interface RoomTier {
   id: number;
@@ -114,7 +115,7 @@ const HotelCard: React.FC<HotelCardProps> = ({
       {/* Image Section */}
       <div className="relative h-64 overflow-hidden group">
         <img
-          src={image}
+          src={image ?? AppImages.placeholders.hotels_placeholder}
           alt={name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
         />

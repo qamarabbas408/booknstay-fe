@@ -12,12 +12,12 @@ import PulseLoader from '../../components/PulseLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import VendorPropertiesPage from './VendorPropertiesPage';
 import SkeletonLoader from '../../components/SkeletonLoader';
-import PropertyCard from '../../components/PropertyCard';
 import EventCard from '../../components/vendor/EventCard';
 import { AppRoutes } from '../../utils/AppRoutes';
 import HotelSelectionModal, {type  HotelType } from '../../components/HotelSelectionModal';
 import RoomManagementSection from '../../components/RoomManagementSection';
 import { useDeleteRoomTypeMutation } from '../../store/services/roomApi';
+import VendorHotelCard from '../../components/vendor/VendorHotelCard';
 
 // Mock data for hotel vendor dashboard
 interface Stat {
@@ -430,6 +430,21 @@ const VendorDashboardPage: React.FC = () => {
     return `${APIENDPOINTS.content_url}${path}`;
   };
 
+  const handleEditHotel = (hotelId: number) => {
+    console.log("Edit hotel:", hotelId);
+    // navigate(`/vendor/hotel/edit/${hotelId}`); // TODO: Add edit hotel route
+  };
+
+  const handleDeleteHotel = (hotelId: number) => {
+    console.log("Delete hotel:", hotelId);
+    // TODO: Implement delete confirmation and API call
+  };
+
+  const handleToggleHotelStatus = (hotelId: number) => {
+    console.log("Toggle status for hotel:", hotelId);
+    // TODO: Implement status toggle API call
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <CustomToaster />
@@ -597,30 +612,41 @@ const VendorDashboardPage: React.FC = () => {
                   <PulseLoader />
                 </div>
               ) : (
-                <div className="space-y-6">
-                  {vendorHotelsData?.data.map((hotel) => (
-                    // console.log(hotel) && 
-                    <PropertyCard
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {vendorHotelsData?.data.map((hotel: any) => (
+                     <VendorHotelCard
                       key={hotel.id}
-                      id={hotel.id}
-                      name={hotel.name}
-                      location={hotel.city}
-                      image={getImageUrl(hotel.images?.[0]?.path)}
-                      stars={0} // API doesn't return stars yet, defaulting to 0 or could be added to API
-                      pricePerNight={hotel.room_types_min_base_price}
-                      status={hotel.status}
-                      bookings={hotel.bookings_count}
-                      revenue={hotel.bookings_sum_total_price || 0}
-                      rating={hotel.reviews_avg_rating || 0}
-                      reviews={hotel.reviews_count}
-                      createdAt={hotel.createdAt}
-                      hasRoomTiers={hotel.room_tiers && hotel.room_tiers.length > 0}
-                      onView={() => { }}
-                      onEdit={() => { }}
-                      onAnalytics={() => { }}
-                      onDelete={() => { }}
-                      onRoomManagement={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${hotel.id}`)}
-                      onNoRoomCta={()=>navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${hotel.id}`)}
+                      hotel={{
+                        id: hotel.id,
+                        name: hotel.name,
+                        description: hotel.description,
+                        image: hotel.images?.[0]?.path || '',
+                        thumbnail: hotel.images?.[0]?.path || '',
+                        room_tiers: hotel.room_tiers || [],
+                        gallery: hotel.gallery?.map((img: any, index: number) => ({ id: img.id, url: img.url, is_primary: index === 0 })) || [],
+                        location: {
+                          country: hotel.location?.country || '',
+                          city: hotel.location?.city || hotel.city || '',
+                          full_address: hotel.location?.full_address || hotel.address || '',
+                          zip_code: hotel.location?.zip_code || '',
+                          latitude: Number(hotel.location?.latitude) || 0,
+                          longitude: Number(hotel.location?.longitude) || 0,
+                        },
+                        amenities: hotel.amenities || [],
+                        location_summary: `${hotel.city}, ${hotel.location?.country || ''}`,
+                        stars: hotel.star_rating || 0,
+                        status: hotel.status,
+                        pricePerNight: hotel.room_types_min_base_price || 0,
+                        bookings: hotel.bookings_count || 0,
+                        revenue: hotel.bookings_sum_total_price || 0,
+                        rating: hotel.reviews_avg_rating || 0,
+                        reviews: hotel.reviews_count || 0,
+                        createdAt: hotel.createdAt,
+                      }}
+                      baseImageUrl={APIENDPOINTS.content_url}
+                      onEdit={handleEditHotel}
+                      onDelete={handleDeleteHotel}
+                      onToggleStatus={handleToggleHotelStatus}
                     />
                   ))}
                   {(!vendorHotelsData?.data || vendorHotelsData.data.length === 0) && (
@@ -1139,7 +1165,4 @@ const VendorDashboardPage: React.FC = () => {
     </div>
   );
 };
-
-//VendorDashboardPage.tsx
-
-export default VendorDashboardPage;
+export default VendorDashboardPage; 
