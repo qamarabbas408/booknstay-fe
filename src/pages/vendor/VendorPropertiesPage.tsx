@@ -344,8 +344,10 @@ const VendorPropertiesPage = () => {
                     revenue={property.bookings_sum_total_price || 0}
                     rating={property.reviews_avg_rating || 0}
                     reviews={property.reviews_count}
-                    createdAt={property.created_at}
+                    createdAt={property.createdAt}
                     animationDelay={`${index * 0.05}s`}
+                    hasRoomTiers={property.room_tiers && property.room_tiers.length > 0}
+                    onNoRoomCta={()=>navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${property.id}`)}
                     onView={handleViewProperty}
                     onEdit={handleEditProperty}
                     onAnalytics={handleAnalytics}

@@ -353,7 +353,7 @@ const VendorDashboardPage: React.FC = () => {
   const { data: vendorEventsData, isLoading: isLoadingEvents } = useGetVendorEventsQuery();
   const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
   const [deleteRoomType, { isLoading: isDeletingRoom }] = useDeleteRoomTypeMutation();
-  const { data: vendorHotelsData, isLoading: isLoadingHotels } = useGetVendorHotelsQuery({ limit: 3 });
+  const { data: vendorHotelsData, isLoading: isLoadingHotels } = useGetVendorHotelsQuery({});
   const vendorEvents = vendorEventsData?.data || [];
 
   const handleLogout = () => {
@@ -599,6 +599,7 @@ const VendorDashboardPage: React.FC = () => {
               ) : (
                 <div className="space-y-6">
                   {vendorHotelsData?.data.map((hotel) => (
+                    // console.log(hotel) && 
                     <PropertyCard
                       key={hotel.id}
                       id={hotel.id}
@@ -612,12 +613,14 @@ const VendorDashboardPage: React.FC = () => {
                       revenue={hotel.bookings_sum_total_price || 0}
                       rating={hotel.reviews_avg_rating || 0}
                       reviews={hotel.reviews_count}
-                      createdAt={hotel.created_at}
+                      createdAt={hotel.createdAt}
+                      hasRoomTiers={hotel.room_tiers && hotel.room_tiers.length > 0}
                       onView={() => { }}
                       onEdit={() => { }}
                       onAnalytics={() => { }}
                       onDelete={() => { }}
                       onRoomManagement={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${hotel.id}`)}
+                      onNoRoomCta={()=>navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${hotel.id}`)}
                     />
                   ))}
                   {(!vendorHotelsData?.data || vendorHotelsData.data.length === 0) && (

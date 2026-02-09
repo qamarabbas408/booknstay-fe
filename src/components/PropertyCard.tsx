@@ -14,11 +14,13 @@ interface PropertyCardProps {
   rating: number;
   reviews: number;
   createdAt: string;
+  hasRoomTiers? : boolean;
   onView?: (id: number) => void;
   onEdit?: (id: number) => void;
   onAnalytics?: (id: number) => void;
   onDelete?: (id: number) => void;
   onRoomManagement?: (id: number) => void;
+  onNoRoomCta?: (id:number) => void;
   animationDelay?: string;
 }
 
@@ -35,11 +37,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   rating,
   reviews,
   createdAt,
+  hasRoomTiers=false,
   onView,
   onEdit,
   onAnalytics,
   onDelete,
   onRoomManagement,
+  onNoRoomCta,
   animationDelay = '0s',
 }) => {
   const getStatusBadge = (status: string) => {
@@ -123,7 +127,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           <div className="grid grid-cols-3 gap-6 py-6 border-t-2 border-b-2 border-slate-200 mb-6">
             <div>
               <p className="text-xs text-slate-500 font-semibold mb-2">BOOKINGS</p>
-              <p className="text-3xl font-display text-indigo-600">{bookings}</p>
+              <p className="text-3xl font-display text-indigo-600">{bookings ?? 0}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500 font-semibold mb-2">REVENUE</p>
@@ -132,11 +136,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             <div>
               <p className="text-xs text-slate-500 font-semibold mb-2">ADDED</p>
               <p className="text-lg font-bold text-slate-700">
-                {new Date(createdAt).toLocaleDateString('en-US', {
+                {
+                  createdAt
+                }
+                {/* {new Date(createdAt).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
-                })}
+                })} */}
               </p>
             </div>
           </div>
@@ -189,6 +196,19 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           </div>
         </div>
       </div>
+
+      {
+        !hasRoomTiers && <div className="text-center py-10 px-6 bg-amber-50/50 rounded-2xl border-2 border-dashed border-amber-300 m-4">
+        <div className="text-5xl mb-4">🏨</div>
+        <h3 className="text-xl font-bold text-amber-900 mb-2">This Hotel has no Rooms</h3>
+        <p className="text-amber-800 mb-4">
+          Your hotel will not be visible to the public until you add at least one room tier.
+        </p>
+        <button onClick={() => onNoRoomCta?.(id)} className="bg-amber-500 text-white font-bold px-6 py-3 rounded-xl hover:bg-amber-600 transition-all">
+          Add Room Tiers Now
+        </button>
+      </div>
+      }
     </div>
   );
 };

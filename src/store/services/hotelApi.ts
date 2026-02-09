@@ -65,8 +65,12 @@ export interface VendorHotel {
   bookings_sum_total_price: number;
   reviews_count: number;
   reviews_avg_rating: number;
-  created_at: string;
+  createdAt: string;
+  room_types_count: number;
   images: { id: number; path: string }[];
+  location: HotelLocation;
+  amenities: HotelAmenity[];
+  room_tiers?: RoomTier[];
 }
 
 export interface HotelAvailabilityResponse {
