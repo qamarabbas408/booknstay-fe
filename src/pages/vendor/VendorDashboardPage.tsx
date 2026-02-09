@@ -713,8 +713,9 @@ const VendorDashboardPage: React.FC = () => {
                 })) || []}
                 onChangeHotel={() => setShowHotelModal(true)}
                 onEditRoom={(roomId) => {
-                  // Handle room edit
-                  console.log('Edit room:', roomId);
+                  if (selectedHotel) {
+                    navigate(`/${AppRoutes.vendorBase}/${AppRoutes.editRoomtier}${roomId}`);
+                  }
                 }}
                 onDeleteRoom={(roomId) => {
                   setRoomToDelete(roomId);

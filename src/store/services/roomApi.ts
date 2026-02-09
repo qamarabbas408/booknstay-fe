@@ -9,7 +9,21 @@ export const roomApi = api.injectEndpoints({
       }),
       invalidatesTags: ['VendorHotels'],
     }),
+    getRoomTypeById: builder.query<{ data: any }, string | number>({
+      query: (id) => ({
+        url: `vendor/room-types/${id}`,
+        method: 'GET',
+      }),
+    }),
+    updateRoomType: builder.mutation<any, { id: string | number; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `/room-types/${id}`,
+        method: 'POST',
+        data,
+      }),
+      invalidatesTags: ['VendorHotels'],
+    }),
   }),
 });
 
-export const { useDeleteRoomTypeMutation } = roomApi;
+export const { useDeleteRoomTypeMutation, useGetRoomTypeByIdQuery, useUpdateRoomTypeMutation } = roomApi;

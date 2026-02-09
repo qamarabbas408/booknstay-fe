@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, Sparkles, DollarSign, Users, Package, FileText, Save, Eye, Plus, Trash2, AlertCircle, CheckCircle, Bed, Home, Loader2 } from 'lucide-react';
 import { useGetHotelByIdQuery, useCreateRoomTiersMutation } from '../../store/services/hotelApi';
+import { useGetRoomTypeByIdQuery, useUpdateRoomTypeMutation } from '../../store/services/roomApi';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import { AppRoutes } from '../../utils/AppRoutes';
 import SkeletonLoader from '../../components/SkeletonLoader';
@@ -16,13 +17,19 @@ interface RoomTier {
 }
 
 const CreateRoomTierPage = () => {
-  const { hotelId } = useParams<{ hotelId: string }>();
+  const { hotelId, roomId } = useParams<{ hotelId: string; roomId?: string }>();
+
   const navigate = useNavigate();
+  const isEditMode = !!roomId;
 
   const { data: hotelData, isLoading: isLoadingHotel } = useGetHotelByIdQuery(Number(hotelId), {
-    skip: !hotelId,
+    skip: !hotelId || isEditMode,
+  });
+  const { data: roomData, isLoading: isLoadingRoom, isError: isRoomError } = useGetRoomTypeByIdQuery(roomId!, {
+    skip: !isEditMode,
   });
   const [createRoomTiers, { isLoading: isCreating }] = useCreateRoomTiersMutation();
+  const [updateRoomType, { isLoading: isUpdating }] = useUpdateRoomTypeMutation();
 
   const [roomTiers, setRoomTiers] = useState<RoomTier[]>([
     {
@@ -37,6 +44,20 @@ const CreateRoomTierPage = () => {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPreview, setShowPreview] = useState(false);
+
+  React.useEffect(() => {
+    if (roomData?.data) {
+      const room = roomData.data;
+      setRoomTiers([{
+        id: room.id,
+        name: room.type || '', // API returns 'type' usually for room name
+        base_price: String(room.base_price || ''),
+        max_occupancy: String(room.max_occupancy || ''),
+        total_inventory: String(room.total_inventory || ''),
+        description: room.description || ''
+      }]);
+    }
+  }, [roomData]);
 
   const addRoomTier = () => {
     const newId = roomTiers.length > 0 ? Math.max(...roomTiers.map(t => t.id)) + 1 : 1;
@@ -112,17 +133,31 @@ const CreateRoomTierPage = () => {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      const payload = roomTiers.map(tier => ({
-        name: tier.name,
-        base_price: parseFloat(tier.base_price),
-        max_occupancy: parseInt(tier.max_occupancy, 10),
-        total_inventory: parseInt(tier.total_inventory, 10),
-        description: tier.description,
-      }));
-
       try {
-        await createRoomTiers({ hotelId: hotelId!, roomTiers: payload }).unwrap();
-        showToast.success('Room tiers created successfully!');
+        if (isEditMode) {
+          const tier = roomTiers[0];
+          const formData = new FormData();
+          formData.append('name', tier.name);
+          formData.append('base_price', tier.base_price);
+          formData.append('max_occupancy', tier.max_occupancy);
+          formData.append('total_inventory', tier.total_inventory);
+          formData.append('description', tier.description);
+          formData.append('_method', 'PUT');
+
+          await updateRoomType({ id: roomId!, data: formData }).unwrap();
+          showToast.success('Room tier updated successfully!');
+        } else {
+          const payload = roomTiers.map(tier => ({
+            name: tier.name,
+            base_price: parseFloat(tier.base_price),
+            max_occupancy: parseInt(tier.max_occupancy, 10),
+            total_inventory: parseInt(tier.total_inventory, 10),
+            description: tier.description,
+          }));
+
+          await createRoomTiers({ hotelId: hotelId!, roomTiers: payload }).unwrap();
+          showToast.success('Room tiers created successfully!');
+        }
         navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorDashboard}`);
       } catch (error: any) {
         console.error('Failed to create room tiers:', error);
@@ -149,11 +184,26 @@ const CreateRoomTierPage = () => {
     );
   };
 
-  if (isLoadingHotel) {
+  if (isLoadingHotel || isLoadingRoom) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20 p-6">
         <div className="max-w-7xl mx-auto">
           <SkeletonLoader type="event-details" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isEditMode && isRoomError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
+        <div className="text-center p-8 glass rounded-3xl border border-white/40 shadow-xl">
+          <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Room Not Found</h2>
+          <p className="text-slate-600 mb-6">The room tier you are trying to edit does not exist or could not be loaded.</p>
+          <button onClick={() => navigate(-1)} className="px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors">
+            Go Back
+          </button>
         </div>
       </div>
     );
@@ -226,7 +276,7 @@ const CreateRoomTierPage = () => {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-display text-white mb-3 leading-tight">
-            Create Room Tiers for {isLoadingHotel ? '...' : hotelData?.data.name}
+            {isEditMode ? 'Edit Room Tier' : `Create Room Tiers for ${isLoadingHotel ? '...' : hotelData?.data.name}`}
           </h1>
           
           <p className="text-xl text-white/90 font-serif max-w-2xl">
@@ -262,13 +312,13 @@ const CreateRoomTierPage = () => {
                     </div>
                     <div>
                       <h2 className="text-xl font-display text-white">
-                        Room Tier #{index + 1}
+                        {isEditMode ? 'Room Details' : `Room Tier #${index + 1}`}
                       </h2>
                       <p className="text-white/80 text-sm">Configure room details</p>
                     </div>
                   </div>
                   
-                  {roomTiers.length > 1 && (
+                  {!isEditMode && roomTiers.length > 1 && (
                     <button
                       onClick={() => removeRoomTier(tier.id)}
                       className="p-2 bg-red-500/20 backdrop-blur-sm hover:bg-red-500/30 rounded-lg transition-colors"
@@ -435,7 +485,7 @@ const CreateRoomTierPage = () => {
               </div>
             ))}
 
-            {/* Add Room Tier Button */}
+            {!isEditMode && (
             <button
               onClick={addRoomTier}
               className="w-full glass rounded-2xl p-8 border-2 border-dashed border-purple-300 hover:border-purple-500 hover:bg-purple-50/50 transition-all group"
@@ -450,6 +500,7 @@ const CreateRoomTierPage = () => {
                 </div>
               </div>
             </button>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -463,10 +514,12 @@ const CreateRoomTierPage = () => {
                 </h3>
                 
                 <div className="space-y-4">
+                  {!isEditMode && (
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4">
                     <p className="text-sm text-purple-700 font-semibold mb-1">Total Room Tiers</p>
                     <p className="text-3xl font-display text-purple-900">{roomTiers.length}</p>
                   </div>
+                  )}
 
                   <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4">
                     <p className="text-sm text-blue-700 font-semibold mb-1">Total Rooms</p>
@@ -487,15 +540,15 @@ const CreateRoomTierPage = () => {
               <div className="glass rounded-2xl p-6 shadow-lg border border-white/40 space-y-3">
                 <button
                   onClick={handleSubmit}
-                  disabled={isCreating}
+                  disabled={isCreating || isUpdating}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {isCreating ? (
+                  {isCreating || isUpdating ? (
                     <Loader2 size={20} className="mr-2 animate-spin" />
                   ) : (
                     <Save size={20} className="mr-2" />
                   )}
-                  {isCreating ? 'Saving...' : 'Save Room Tiers'}
+                  {isCreating || isUpdating ? 'Saving...' : (isEditMode ? 'Update Room Tier' : 'Save Room Tiers')}
                 </button>
 
                 <button
@@ -523,7 +576,7 @@ const CreateRoomTierPage = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div>lets
           </div>
         </div>
 

@@ -77,7 +77,9 @@ export const router = createBrowserRouter([
           { path: AppRoutes.vendorAddHotel, element: <HotelRegistrationPage /> },
           { path: AppRoutes.vendorPropertyList, element: <ListPropertiesPage /> },
           { path: AppRoutes.vendorAddRoomtier+':hotelId', element: <CreateRoomTierPage /> },
-        ],
+          { path: AppRoutes.editRoomtier+':roomId', element: <CreateRoomTierPage /> },
+
+        ],  
       },
 
       // 4. CATCH-ALL ROUTE (Not Found) 
