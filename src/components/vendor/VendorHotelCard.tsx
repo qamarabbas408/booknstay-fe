@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Edit2, 
-  Trash2, 
-  Eye, 
+import {
+  Edit2,
+  Trash2,
+  Eye,
   EyeOff,
-  Star, 
-  MapPin, 
-  DollarSign, 
-  Bed, 
-  Users, 
-  TrendingUp, 
+  Star,
+  MapPin,
+  DollarSign,
+  Bed,
+  Users,
+  TrendingUp,
   Calendar,
   Image as ImageIcon,
   MoreVertical,
@@ -64,7 +64,7 @@ interface Hotel {
   name: string;
   image: string;
   thumbnail: string;
-  description:string; 
+  description: string;
   room_tiers: RoomTier[];
   gallery: GalleryImage[];
   location: Location;
@@ -85,22 +85,24 @@ interface VendorHotelCardProps {
   onEdit?: (hotelId: number) => void;
   onDelete?: (hotelId: number) => void;
   onToggleStatus?: (hotelId: number) => void;
+  onTierManage?:(hotelId:number)=>void; 
   baseImageUrl?: string;
 }
 
-const VendorHotelCard: React.FC<VendorHotelCardProps> = ({ 
-  hotel, 
-  onEdit, 
-  onDelete, 
+const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
+  hotel,
+  onEdit,
+  onDelete,
   onToggleStatus,
+  onTierManage,
   baseImageUrl = APIENDPOINTS.content_url
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [imageError, setImageError] = useState(false);
-    console.log("Hotel",hotel);
+  console.log("Hotel", hotel);
   const primaryImage = hotel.gallery.find(img => img.is_primary)?.url || hotel.image || hotel.thumbnail;
-  const imageUrl = imageError 
-    ? 'https://placehold.co/800x600?text=Hotel+Image' 
+  const imageUrl = imageError
+    ? 'https://placehold.co/800x600?text=Hotel+Image'
     : `${baseImageUrl}${primaryImage}`;
 
   const activeRoomTiers = hotel.room_tiers.filter(tier => tier.status === 'active');
@@ -126,6 +128,11 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
     setShowMenu(false);
     onToggleStatus?.(hotel.id);
   };
+
+  const handleTierMange = () => {
+    // setShowMenu(false);
+    onTierManage?.(hotel.id);
+  }
 
   return (
     <div className="glass rounded-3xl overflow-hidden shadow-lg border border-white/40 hover:shadow-2xl transition-all duration-300 group">
@@ -155,22 +162,21 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
           alt={hotel.name}
           onError={(error) => {
             console.log(error);
-             setImageError(true)
+            setImageError(true)
           }}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
         />
-        
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
 
         {/* Status Badge */}
         <div className="absolute top-4 left-4">
-          <div className={`px-3 py-1.5 rounded-full backdrop-blur-md border flex items-center space-x-1.5 ${
-            hotel.status === 'active' 
-              ? 'bg-green-500/90 border-green-300 text-white' 
+          <div className={`px-3 py-1.5 rounded-full backdrop-blur-md border flex items-center space-x-1.5 ${hotel.status === 'active'
+              ? 'bg-green-500/90 border-green-300 text-white'
               : hotel.status === 'pending'
                 ? 'bg-amber-500/90 border-amber-300 text-white'
                 : 'bg-slate-500/90 border-slate-300 text-white'
-          }`}>
+            }`}>
             {hotel.status === 'active' ? <CheckCircle size={14} /> : <Lock size={14} />}
             <span className="text-xs font-bold uppercase tracking-wider">
               {hotel.status}
@@ -207,11 +213,11 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
 
             {showMenu && (
               <>
-                <div 
-                  className="fixed inset-0 z-10" 
+                <div
+                  className="fixed inset-0 z-10"
                   onClick={() => setShowMenu(false)}
                 ></div>
-                
+
                 <div className="absolute bottom-full right-0 mb-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-20">
                   <button
                     onClick={handleEdit}
@@ -220,7 +226,7 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
                     <Edit2 size={16} className="text-indigo-600" />
                     <span className="text-sm font-semibold text-slate-700">Edit Hotel</span>
                   </button>
-                  
+
                   <button
                     onClick={handleToggleStatus}
                     className="w-full flex items-center space-x-2 px-4 py-3 hover:bg-amber-50 transition-colors text-left"
@@ -237,7 +243,7 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
                       </>
                     )}
                   </button>
-                  
+
                   <button
                     onClick={handleDelete}
                     className="w-full flex items-center space-x-2 px-4 py-3 hover:bg-red-50 transition-colors text-left border-t border-slate-100"
@@ -254,7 +260,7 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
 
       {/* Content Section */}
       <div className="p-6">
-        
+
         {/* Hotel Name & Location */}
         <div className="mb-4">
           <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight">
@@ -320,19 +326,22 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
         <div className="mb-5">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-bold text-slate-900 text-sm">Room Tiers ({activeRoomTiers.length})</h4>
-            <Link 
-              to={`/vendor/hotels/${hotel.id}/room-tiers`}
-              className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center"
+            <button
+              onClick={handleTierMange}
+              className="group text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center transition-colors cursor-pointer"
             >
               <span>Manage</span>
-              <ChevronRight size={14} />
-            </Link>
+              <span className="transform transition-transform duration-200 group-hover:translate-x-1">
+                <ChevronRight size={14} />
+              </span>
+            </button>
+
           </div>
 
           {activeRoomTiers.length > 0 ? (
             <div className="space-y-2">
               {activeRoomTiers.slice(0, 2).map((tier) => (
-                <div 
+                <div
                   key={tier.id}
                   className="bg-slate-50 rounded-xl p-3 border border-slate-200"
                 >
@@ -363,14 +372,13 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
                   {/* Availability Bar */}
                   <div className="flex items-center space-x-2">
                     <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all ${
-                          tier.available > tier.total_inventory / 2 
-                            ? 'bg-green-500' 
-                            : tier.available > 0 
-                              ? 'bg-amber-500' 
+                      <div
+                        className={`h-full rounded-full transition-all ${tier.available > tier.total_inventory / 2
+                            ? 'bg-green-500'
+                            : tier.available > 0
+                              ? 'bg-amber-500'
                               : 'bg-red-500'
-                        }`}
+                          }`}
                         style={{ width: `${(tier.available / tier.total_inventory) * 100}%` }}
                       ></div>
                     </div>
@@ -419,7 +427,7 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
             <h4 className="font-bold text-slate-900 text-sm mb-3">Amenities</h4>
             <div className="flex flex-wrap gap-2">
               {hotel.amenities.slice(0, 4).map((amenity) => (
-                <div 
+                <div
                   key={amenity.id}
                   className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-semibold border border-indigo-200"
                 >
@@ -444,7 +452,7 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
             <Eye size={16} />
             <span>View Details</span>
           </Link>
-          
+
           <Link
             to={`/vendor/hotels/${hotel.id}/edit`}
             className="flex items-center justify-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
@@ -456,10 +464,10 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
 
         {/* Created Date */}
         <div className="mt-4 text-center text-xs text-slate-500">
-          Created on {new Date(hotel.createdAt).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
+          Created on {new Date(hotel.createdAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
           })}
         </div>
       </div>

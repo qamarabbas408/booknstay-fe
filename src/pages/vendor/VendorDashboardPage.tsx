@@ -8,7 +8,6 @@ import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Set
 import { useGetVendorEventsQuery, useDeleteEventMutation } from '../../store/services/eventApi';
 import { useGetVendorHotelsQuery } from '../../store/services/hotelApi';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
-import PulseLoader from '../../components/PulseLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import VendorPropertiesPage from './VendorPropertiesPage';
 import SkeletonLoader from '../../components/SkeletonLoader';
@@ -16,8 +15,9 @@ import EventCard from '../../components/vendor/EventCard';
 import { AppRoutes } from '../../utils/AppRoutes';
 import HotelSelectionModal, {type  HotelType } from '../../components/HotelSelectionModal';
 import RoomManagementSection from '../../components/RoomManagementSection';
-import { useDeleteRoomTypeMutation } from '../../store/services/roomApi';
+import { useDeleteRoomTypeMutation, useGetRoomTiersByHotelIdQuery } from '../../store/services/roomApi';
 import VendorHotelCard from '../../components/vendor/VendorHotelCard';
+import RoomTiersModal from '../../components/vendor/RoomTierModal';
 
 // Mock data for hotel vendor dashboard
 interface Stat {
@@ -349,6 +349,7 @@ const VendorDashboardPage: React.FC = () => {
   const [showHotelModal, setShowHotelModal] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState<any | null>(null);
   const [roomToDelete, setRoomToDelete] = useState<number | null>(null);
+  const [selectedHotelIdForTiers, setSelectedHotelIdForTiers] = useState<number | null>(null);
 
   const { data: vendorEventsData, isLoading: isLoadingEvents } = useGetVendorEventsQuery();
   const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
@@ -372,6 +373,10 @@ const VendorDashboardPage: React.FC = () => {
     { limit: 100 },
     { skip: !showHotelModal }
   );
+
+  const { data: roomTiersData, isLoading: isLoadingRoomTiers } = useGetRoomTiersByHotelIdQuery(selectedHotelIdForTiers ?? 0, {
+    skip: !selectedHotelIdForTiers,
+  });
 
   useEffect(() => {
     if (activeSection === 'rooms' && !selectedHotel && initialHotelData && initialHotelData?.data?.length > 0) {
@@ -424,6 +429,16 @@ const VendorDashboardPage: React.FC = () => {
     }
   };
 
+  const handleDeleteRoomTierDirectly = async (tierId: number) => {
+    try {
+      await deleteRoomType(tierId).unwrap();
+      showToast.success('Room type deleted successfully');
+    } catch (error: any) {
+      console.error('Failed to delete room:', error);
+      showToast.error(error?.data?.message || 'Failed to delete room type');
+    }
+  };
+
   const getImageUrl = (path: string | null | undefined) => {
     if (!path) return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
     if (path.startsWith('http')) return path;
@@ -443,6 +458,10 @@ const VendorDashboardPage: React.FC = () => {
   const handleToggleHotelStatus = (hotelId: number) => {
     console.log("Toggle status for hotel:", hotelId);
     // TODO: Implement status toggle API call
+  };
+
+  const handleManageTier = (hotelId:number) => {
+    setSelectedHotelIdForTiers(hotelId);
   };
 
   return (
@@ -608,8 +627,10 @@ const VendorDashboardPage: React.FC = () => {
               />
 
               {isLoadingHotels ? (
-                <div className="flex justify-center py-12">
-                  <PulseLoader />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {[...Array(4)].map((_, i) => (
+                    <SkeletonLoader key={i} type="hotel" />
+                  ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -647,6 +668,7 @@ const VendorDashboardPage: React.FC = () => {
                       onEdit={handleEditHotel}
                       onDelete={handleDeleteHotel}
                       onToggleStatus={handleToggleHotelStatus}
+                      onTierManage={handleManageTier}
                     />
                   ))}
                   {(!vendorHotelsData?.data || vendorHotelsData.data.length === 0) && (
@@ -671,8 +693,10 @@ const VendorDashboardPage: React.FC = () => {
               />
 
               {isLoadingEvents ? (
-                <div className="flex justify-center py-12">
-                  <PulseLoader />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, i) => (
+                    <SkeletonLoader key={i} type="hotel" />
+                  ))}
                 </div>
               ) : vendorEvents.length === 0 ? (
                 <div className="text-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-200">
@@ -1161,6 +1185,20 @@ const VendorDashboardPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Room Tiers Management Modal */}
+      {selectedHotelIdForTiers && (
+        <RoomTiersModal
+          isOpen={!!selectedHotelIdForTiers}
+          onClose={() => setSelectedHotelIdForTiers(null)}
+          hotelName={vendorHotelsData?.data.find((h: any) => h.id === selectedHotelIdForTiers)?.name || 'Hotel'}
+          roomTiers={roomTiersData?.data || []}
+          isLoading={isLoadingRoomTiers}
+          onAddTier={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${selectedHotelIdForTiers}`)}
+          onEditTier={(tierId) => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.editRoomtier}/${tierId}`)}
+          onDeleteTier={handleDeleteRoomTierDirectly}
+        />
       )}
     </div>
   );

@@ -23,7 +23,14 @@ export const roomApi = api.injectEndpoints({
       }),
       invalidatesTags: ['VendorHotels'],
     }),
+    getRoomTiersByHotelId: builder.query<{ data: any[] }, number>({
+      query: (hotelId) => ({
+        url: `/hotels/${hotelId}/room-types`,
+        method: 'GET',
+      }),
+      providesTags: ['VendorHotels'],
+    }),
   }),
 });
 
-export const { useDeleteRoomTypeMutation, useGetRoomTypeByIdQuery, useUpdateRoomTypeMutation } = roomApi;
+export const { useDeleteRoomTypeMutation, useGetRoomTypeByIdQuery, useUpdateRoomTypeMutation, useGetRoomTiersByHotelIdQuery } = roomApi;
