@@ -65,7 +65,7 @@ const HotelRegistrationPage: React.FC = () => {
 
   useEffect(() => {
     if (isEditMode && hotelToEdit?.data) {
-      
+      const h = hotelToEdit.data;
       console.log(h);
       setFormData({
         propertyName: h.name || '',
