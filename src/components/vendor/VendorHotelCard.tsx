@@ -115,7 +115,7 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
     onEdit?.(hotel.id);
   };
 
-  console.log(`${baseImageUrl}${primaryImage}`);
+
 
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete "${hotel.name}"?`)) {
@@ -454,7 +454,7 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
           </Link>
 
           <Link
-            to={`/vendor/hotels/${hotel.id}/edit`}
+            to={`/vendor/hotel/${hotel.id}/edit`}
             className="flex items-center justify-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
           >
             <Edit2 size={16} />

@@ -32,5 +32,6 @@ export const AppRoutes = {
     vendorEditProperty: "properties/edit/:id",
     vendorAddRoomtier : "add/roomtier/",
     editRoomtier : "roomtier/",
+    editHotel : "hotel/",
 
 }

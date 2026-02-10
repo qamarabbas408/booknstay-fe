@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, Check, Upload, X, MapPin, DollarSign, Image as ImageIcon, Star, Wifi, Coffee, Car, Utensils, Dumbbell, Wind, Tv, Lock, Phone, Globe, Calendar, Users, Bed, Home, Building2, Sparkles, Info, Mail, Waves, Loader2 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useGetAmenitiesQuery } from '../../store/services/miscApi';
-import { useCreateHotelMutation } from '../../store/services/hotelApi';
+import { useCreateHotelMutation, useUpdateHotelMutation, useGetVendorHotelByIdQuery } from '../../store/services/hotelApi';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import { FormInput } from '../../components/FormInput';
+import { APIENDPOINTS } from '../../utils/ApiConstants';
 
 const HotelRegistrationPage: React.FC = () => {
   const navigate = useNavigate();
+  const { hotelId } = useParams<{ hotelId: string }>();
+  const isEditMode = !!hotelId;
+
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
+
+  const { data: hotelToEdit, isLoading: isLoadingHotel } = useGetVendorHotelByIdQuery(Number(hotelId), { skip: !isEditMode });
 
   // Form Data State
   const [formData, setFormData] = useState({
@@ -46,6 +52,7 @@ const HotelRegistrationPage: React.FC = () => {
     contactEmail: '',
     contactPhone: '',
     website: '',
+    stars: 0,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -53,6 +60,43 @@ const HotelRegistrationPage: React.FC = () => {
 
   const { data: amenitiesList, isLoading: isLoadingAmenities } = useGetAmenitiesQuery();
   const [createHotel, { isLoading: isCreating }] = useCreateHotelMutation();
+  const [updateHotel, { isLoading: isUpdating }] = useUpdateHotelMutation();
+  const isLoadingAction = isCreating || isUpdating;
+
+  useEffect(() => {
+    if (isEditMode && hotelToEdit?.data) {
+      
+      console.log(h);
+      setFormData({
+        propertyName: h.name || '',
+        propertyType: h.property_type || 'hotel',
+        starRating: h.star_rating || 0,
+        description: h.description || '',
+        country: h.location?.country || '',
+        city: h.location?.city || h.city || '',
+        address: h.location?.full_address || h.address || '',
+        zipCode: h.location?.zip_code || '',
+        latitude: h.location?.latitude || '',
+        longitude: h.location?.longitude || '',
+        totalRooms: h.total_rooms?.toString() || '',
+        checkInTime: '14:00', // These are not in API, using defaults
+        checkOutTime: '11:00', // These are not in API, using defaults
+        amenities: h.amenities?.map(a => a.id) || [],
+        basePrice: h.base_price?.toString() || '',
+        currency: h.currency || 'USD',
+        taxRate: h.tax_rate?.toString() || '',
+        serviceCharge: h.service_charge?.toString() || '',
+        images: [], // Can't populate files, will handle previews
+        cancellationPolicy: h.cancellation_policy || 'flexible',
+        houseRules: h.house_rules || '',
+        contactEmail: h.contact_email || '',
+        contactPhone: h.contact_phone || '',
+        website: h.website || '',
+        stars : h.star_rating || 0,
+      });
+      setImagePreview(h.images?.map(img => `${APIENDPOINTS.content_url}${img.path}`) || []);
+    }
+  }, [isEditMode, hotelToEdit]);
 
   const iconMap: Record<string, any> = {
     Wifi,
@@ -207,30 +251,64 @@ const HotelRegistrationPage: React.FC = () => {
     if (!validateStep(currentStep)) return;
 
     const submissionData = new FormData();
+    // Step 1
     submissionData.append('name', formData.propertyName);
-    submissionData.append('description', formData.description);
+    submissionData.append('property_type', formData.propertyType);
     submissionData.append('star_rating', formData.starRating.toString());
+    submissionData.append('description', formData.description);
+
+    // Step 2
     submissionData.append('country', formData.country);
     submissionData.append('city', formData.city);
     submissionData.append('full_address', formData.address);
     if (formData.zipCode) submissionData.append('zip_code', formData.zipCode);
     if (formData.latitude) submissionData.append('latitude', formData.latitude);
     if (formData.longitude) submissionData.append('longitude', formData.longitude);
-    
+
+    // Step 3
+    if (formData.totalRooms) submissionData.append('total_rooms', formData.totalRooms);
+    submissionData.append('check_in_time', formData.checkInTime);
+    submissionData.append('check_out_time', formData.checkOutTime);
     formData.amenities.forEach((id) => submissionData.append('amenities[]', id.toString()));
-    formData.images.forEach((file) => submissionData.append('images[]', file));
+
+    // Step 4
+    if (formData.basePrice) submissionData.append('base_price', formData.basePrice);
+    submissionData.append('currency', formData.currency);
+    if (formData.taxRate) submissionData.append('tax_rate', formData.taxRate);
+    if (formData.serviceCharge) submissionData.append('service_fee', formData.serviceCharge);
+
+    // Step 5
+    formData.images.forEach((file) => {
+      if (file instanceof File) { // Only append new files
+        submissionData.append('images[]', file);
+      }
+    });
+    submissionData.append('cancellation_policy', formData.cancellationPolicy);
+    if (formData.houseRules) submissionData.append('house_rules', formData.houseRules);
+    submissionData.append('contact_email', formData.contactEmail);
+    submissionData.append('contact_phone', formData.contactPhone);
+    if (formData.website) submissionData.append('website', formData.website);
+
+    if (isEditMode) {
+      submissionData.append('_method', 'PUT');
+    }
 
     try {
-      await createHotel(submissionData).unwrap();
-      showToast.success('Hotel registered successfully!');
+      if (isEditMode) {
+        await updateHotel({ id: Number(hotelId), data: submissionData }).unwrap();
+        showToast.success('Hotel updated successfully!');
+      } else {
+        await createHotel(submissionData).unwrap();
+        showToast.success('Hotel registered successfully!');
+      }
       navigate('/vendor/dashboard');
     } catch (error: any) {
-      console.error('Registration failed:', error);
+      console.error('Submission failed:', error);
       if (error?.data?.errors) {
         setErrors(error.data.errors);
         showToast.error('Please check the form for errors.');
       } else {
-        showToast.error(error?.data?.message || 'Failed to register hotel. Please try again.');
+        showToast.error(error?.data?.message || `Failed to ${isEditMode ? 'update' : 'register'} hotel. Please try again.`);
       }
     }
   };
@@ -320,10 +398,10 @@ const HotelRegistrationPage: React.FC = () => {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-display text-slate-900 mb-3 leading-tight">
-            Register Your Hotel
+            {isEditMode ? 'Edit Your Hotel' : 'Register Your Hotel'}
           </h1>
           <p className="text-lg text-slate-600 font-serif">
-            Fill in the details to list your property on BookNStay
+            {isEditMode ? 'Update the details of your property.' : 'Fill in the details to list your property on BookNStay'}
           </p>
         </div>
 
@@ -369,6 +447,13 @@ const HotelRegistrationPage: React.FC = () => {
 
         {/* Form Content */}
         <div className="glass rounded-3xl p-6 md:p-10 shadow-2xl border border-white/40 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+          {isLoadingHotel && isEditMode ? (
+            <div className="flex flex-col items-center justify-center h-96">
+              <Loader2 className="animate-spin text-indigo-600" size={48} />
+              <p className="mt-4 text-slate-600 font-semibold">Loading hotel data...</p>
+            </div>
+          ) : (
+            <>
           
           {/* Step 1: Basic Information */}
           {currentStep === 1 && (
@@ -887,18 +972,20 @@ const HotelRegistrationPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isCreating}
+                disabled={isLoadingAction}
                 className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:shadow-xl hover:shadow-green-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isCreating ? (
+                {isLoadingAction ? (
                   <Loader2 className="animate-spin" size={20} />
                 ) : (
                   <Check size={20} />
                 )}
-                <span>{isCreating ? 'Submitting...' : 'Submit Property'}</span>
+                <span>{isLoadingAction ? 'Submitting...' : isEditMode ? 'Update Property' : 'Submit Property'}</span>
               </button>
             )}
           </div>
+          </>
+          )}
         </div>
       </div>
     </div>

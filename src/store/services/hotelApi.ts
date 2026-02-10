@@ -70,7 +70,19 @@ export interface VendorHotel {
   images: { id: number; path: string }[];
   location: HotelLocation;
   amenities: HotelAmenity[];
+  star_rating?: number;
   room_tiers?: RoomTier[];
+  property_type?: string;
+  total_rooms?: number;
+  base_price?: number;
+  currency?: string;
+  tax_rate?: number;
+  service_charge?: number;
+  cancellation_policy?: string;
+  house_rules?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  website?: string;
 }
 
 export interface HotelAvailabilityResponse {
@@ -167,6 +179,13 @@ export const hotelApi = api.injectEndpoints({
         method: 'GET',
       }),
     }),
+    getVendorHotelById: builder.query<{ data: VendorHotel }, number>({
+      query: (id) => ({
+        url: `/vendor/hotels/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'VendorHotels', id }],
+    }),
     getHotelAvailability: builder.query<HotelAvailabilityResponse, { hotelId: number; check_in: string; check_out: string }>({
       query: ({ hotelId, check_in, check_out }) => ({
         url: `/hotel/${hotelId}/availability`,
@@ -191,6 +210,14 @@ export const hotelApi = api.injectEndpoints({
       }),
       invalidatesTags: ['VendorHotels'],
     }),
+    updateHotel: builder.mutation<any, { id: number; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: APIENDPOINTS.base_url_v2 + `/vendor/hotels/${id}`,
+        method: 'POST', // Using POST with _method: 'PUT' in FormData
+        data,
+      }),
+      invalidatesTags: (result, error, { id }) => ['VendorHotels', { type: 'VendorHotels', id }],
+    }),
     createRoomTiers: builder.mutation<any, { hotelId: string | number; roomTiers: RoomTierPayload[] }>({
       query: ({ hotelId, roomTiers }) => ({
         url: `/hotels/${hotelId}/room-types`,
@@ -202,4 +229,4 @@ export const hotelApi = api.injectEndpoints({
   }),
 });
 
-export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery, useGetVendorHotelsQuery, useCreateHotelMutation, useCreateRoomTiersMutation } = hotelApi;
+export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery, useGetVendorHotelsQuery, useCreateHotelMutation, useCreateRoomTiersMutation, useGetVendorHotelByIdQuery, useUpdateHotelMutation } = hotelApi;
