@@ -1,5 +1,6 @@
 import React from 'react';
 import { Minus, Plus } from 'lucide-react';
+import { AppImages } from '../utils/AppImages';
 
 interface Room {
   id: number;
@@ -19,6 +20,8 @@ interface RoomSelectorProps {
 }
 
 const RoomSelector: React.FC<RoomSelectorProps> = ({ rooms, selectedRoomId, onSelectRoom, selectedRoomCount = 1, onRoomCountChange }) => {
+
+  console.log("Room ====",rooms)
   return (
     <div>
       <h2 className="text-2xl font-display text-slate-900 mb-6">Choose Your Room</h2>
@@ -33,7 +36,7 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({ rooms, selectedRoomId, onSe
             }`}
           >
             <div className="md:w-1/3 h-48 md:h-auto relative">
-              <img src={room.image} alt={room.name} className="w-full h-full object-cover" />
+              <img src={AppImages.placeholders.room_placeholder} alt={room.name} className="w-full h-full object-cover" />
             </div>
             <div className="p-6 flex-1 flex flex-col justify-between">
               <div>

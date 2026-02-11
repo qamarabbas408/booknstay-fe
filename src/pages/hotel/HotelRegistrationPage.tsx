@@ -6,6 +6,7 @@ import { useCreateHotelMutation, useUpdateHotelMutation, useGetVendorHotelByIdQu
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import { FormInput } from '../../components/FormInput';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
+import AmenitiesMultiSelector from '../../components/AmenitiesMultiSelector';
 
 const HotelRegistrationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -164,15 +165,6 @@ const HotelRegistrationPage: React.FC = () => {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-  };
-
-  const toggleAmenity = (amenityId: number) => {
-    setFormData(prev => ({
-      ...prev,
-      amenities: prev.amenities.includes(amenityId)
-        ? prev.amenities.filter(a => a !== amenityId)
-        : [...prev.amenities, amenityId]
-    }));
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -638,52 +630,25 @@ const HotelRegistrationPage: React.FC = () => {
               />
 
               {/* Amenities */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">
-                  Amenities & Facilities <span className="text-red-500">*</span>
-                </label>
-                {isLoadingAmenities ? (
-                  <div className="flex justify-center py-8">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-display text-slate-900 mb-6">Property Details</h2>
+                {isLoadingAmenities ?
+                  (<div className="flex justify-center py-8">
                     <Loader2 className="animate-spin text-indigo-600" size={24} />
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {amenitiesList?.map((amenity) => {
-                      const Icon = iconMap[amenity.icon] || Sparkles;
-                      const isIconComponent = typeof Icon !== 'string';
-                      const isSelected = formData.amenities.includes(amenity.id);
-                      
-                      return (
-                        <button
-                          key={amenity.id}
-                          type="button"
-                          onClick={() => toggleAmenity(amenity.id)}
-                          className={`p-4 rounded-xl border-2 transition-all text-left ${
-                            isSelected
-                              ? 'border-indigo-500 bg-indigo-50'
-                              : 'border-slate-200 hover:border-indigo-300 bg-white'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-2 mb-1">
-                            {isIconComponent ? (
-                              <Icon size={20} className={isSelected ? 'text-indigo-600' : 'text-slate-500'} />
-                            ) : (
-                              <span className="text-xl">{Icon}</span>
-                            )}
-                            {isSelected && (
-                              <Check size={16} className="text-indigo-600" />
-                            )}
-                          </div>
-                          <div className={`text-xs font-semibold ${
-                            isSelected ? 'text-indigo-700' : 'text-slate-700'
-                          }`}>
-                            {amenity.name}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                  </div>) :
+                  (<AmenitiesMultiSelector
+                    amenities={amenitiesList || []}
+                    selectedAmenities={formData.amenities}
+                    onChange={(selectedIds) => {
+                      setFormData(prev => ({ ...prev, amenities: selectedIds }));
+                      if (errors.amenities) {
+                        setErrors(prev => ({ ...prev, amenities: '' }));
+                      }
+                    }}
+                    label="Amenities & Facilities"
+                    required
+                  />)
+                }
                 {errors.amenities && (
                   <p className="mt-2 text-sm text-red-600">{errors.amenities}</p>
                 )}

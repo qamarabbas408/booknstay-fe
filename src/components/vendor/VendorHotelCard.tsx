@@ -86,6 +86,7 @@ interface VendorHotelCardProps {
   onDelete?: (hotelId: number) => void;
   onToggleStatus?: (hotelId: number) => void;
   onTierManage?:(hotelId:number)=>void; 
+  onViewDetails?:(hotelId:number)=>void; 
   baseImageUrl?: string;
 }
 
@@ -95,11 +96,12 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
   onDelete,
   onToggleStatus,
   onTierManage,
+  onViewDetails,
   baseImageUrl = APIENDPOINTS.content_url
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [imageError, setImageError] = useState(false);
-  console.log("Hotel", hotel);
+  // console.log("Hotel", hotel);
   const primaryImage = hotel.gallery.find(img => img.is_primary)?.url || hotel.image || hotel.thumbnail;
   const imageUrl = imageError
     ? 'https://placehold.co/800x600?text=Hotel+Image'
@@ -115,13 +117,20 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
     onEdit?.(hotel.id);
   };
 
+  const handleViewDetails = () => {
+    setShowMenu(false);
+    onViewDetails?.(hotel.id);
+  };
+
 
 
   const handleDelete = () => {
-    if (window.confirm(`Are you sure you want to delete "${hotel.name}"?`)) {
-      setShowMenu(false);
+     setShowMenu(false);
       onDelete?.(hotel.id);
-    }
+    // if (window.confirm(`Are you sure you want to delete "${hotel.name}"?`)) {
+    //   setShowMenu(false);
+    //   onDelete?.(hotel.id);
+    // }
   };
 
   const handleToggleStatus = () => {
@@ -161,7 +170,7 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
           src={imageUrl}
           alt={hotel.name}
           onError={(error) => {
-            console.log(error);
+            // console.log(error);
             setImageError(true)
           }}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -445,13 +454,13 @@ const VendorHotelCard: React.FC<VendorHotelCardProps> = ({
 
         {/* Footer Actions */}
         <div className="grid grid-cols-2 gap-3">
-          <Link
-            to={`/vendor/hotels/${hotel.id}`}
+          <button
+            onClick={handleViewDetails}
             className="flex items-center justify-center space-x-2 bg-slate-100 text-slate-700 px-4 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
           >
             <Eye size={16} />
             <span>View Details</span>
-          </Link>
+          </button>
 
           <Link
             to={`/vendor/hotel/${hotel.id}/edit`}

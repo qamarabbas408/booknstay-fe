@@ -8,11 +8,22 @@ import { useNavigate } from 'react-router-dom';
 import PulseLoader from '../../components/PulseLoader';
 
 // Mock booking data
+// Mock booking data
+export interface Location {
+  id: number;
+  country: string;
+  city: string;
+  full_address: string;
+  zip_code: string;
+  latitude: string;
+  longitude: string;
+}
+
 export interface Booking {
   id: number;
   type: 'hotel' | 'event';
   title: string;
-  location: string;
+  location: string | Location | null;
   dates: string;
   status: 'confirmed' | 'pending' | 'cancelled' | 'completed';
   price: number;
@@ -81,7 +92,7 @@ const BookingDetailsModal = ({ bookingId, onClose }: { bookingId: number, onClos
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg animate-scaleIn relative flex flex-col max-h-[90vh]">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors z-10"
         >
@@ -99,9 +110,8 @@ const BookingDetailsModal = ({ bookingId, onClose }: { bookingId: number, onClos
           <>
             <div className="bg-slate-50 p-8 border-b border-slate-100 flex-shrink-0">
               <div className="flex justify-between items-start mb-4">
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                  booking.type === 'hotel' ? 'bg-emerald-100 text-emerald-700' : 'bg-purple-100 text-purple-700'
-                }`}>
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${booking.type === 'hotel' ? 'bg-emerald-100 text-emerald-700' : 'bg-purple-100 text-purple-700'
+                  }`}>
                   {booking.type === 'hotel' ? 'Hotel Stay' : 'Event Ticket'}
                 </div>
                 <div className="text-right">
@@ -112,7 +122,7 @@ const BookingDetailsModal = ({ bookingId, onClose }: { bookingId: number, onClos
               <h2 className="text-2xl font-display text-slate-900 mb-2">{booking.title}</h2>
               <div className="flex items-center text-slate-600">
                 <MapPin size={16} className="mr-1.5" />
-                {booking.location}
+                {typeof booking.location === 'object' && booking.location !== null ? (booking.location as Location).full_address : booking.location}
               </div>
             </div>
 
@@ -194,7 +204,7 @@ const MyBookingsPage: React.FC = () => {
   const [filterType, setFilterType] = useState<'all' | 'hotel' | 'event'>('all');
   const [page, setPage] = useState(1);
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 500);
@@ -319,18 +329,18 @@ const MyBookingsPage: React.FC = () => {
       {/* Hero Section */}
       <div className="relative bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 text-white py-16 overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
-        
+
         {/* Decorative elements */}
         <div className="absolute top-10 left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl"></div>
-        
+
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">
             <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-4 border border-white/30">
               <Calendar size={16} />
               <span className="text-sm font-semibold">Your Travel Dashboard</span>
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl font-display mb-3 leading-tight">
               My Bookings
             </h1>
@@ -368,21 +378,19 @@ const MyBookingsPage: React.FC = () => {
           <div className="inline-flex bg-white/80 backdrop-blur-sm p-1.5 rounded-2xl shadow-sm border border-slate-200 w-full sm:w-auto">
             <button
               onClick={() => setActiveTab('upcoming')}
-              className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold transition-all ${
-                activeTab === 'upcoming'
+              className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'upcoming'
                   ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
+                }`}
             >
               Upcoming
             </button>
             <button
               onClick={() => setActiveTab('past')}
-              className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold transition-all ${
-                activeTab === 'past'
+              className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'past'
                   ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
+                }`}
             >
               Past
             </button>
@@ -400,11 +408,10 @@ const MyBookingsPage: React.FC = () => {
                 <button
                   key={filter.value}
                   onClick={() => setFilterType(filter.value as any)}
-                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${
-                    filterType === filter.value
+                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${filterType === filter.value
                       ? 'bg-indigo-600 text-white shadow-md'
                       : 'bg-white/80 text-slate-700 hover:bg-slate-100 border border-slate-200'
-                  }`}
+                    }`}
                 >
                   <Icon size={18} />
                   <span className="hidden sm:inline">{filter.label}</span>
@@ -430,12 +437,14 @@ const MyBookingsPage: React.FC = () => {
               {searchQuery ? 'No matching bookings' : 'No bookings yet'}
             </h2>
             <p className="text-slate-600 font-serif text-lg mb-8 max-w-md mx-auto">
-              {searchQuery 
+              {searchQuery
                 ? 'Try adjusting your search or filters'
                 : 'Start exploring amazing hotels and unforgettable events — your next adventure awaits!'}
             </p>
             {!searchQuery && (
-              <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-indigo-500/30 transition-all">
+              <button
+                onClick={() => navigate('/')}
+                className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-indigo-500/30 transition-all">
                 Browse Hotels & Events
               </button>
             )}
@@ -461,14 +470,13 @@ const MyBookingsPage: React.FC = () => {
                         alt={booking.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      
+
                       {/* Type Badge */}
                       <div className="absolute top-4 left-4">
-                        <div className={`glass px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md ${
-                          booking.type === 'hotel' 
-                            ? 'bg-emerald-500/90 text-white' 
+                        <div className={`glass px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md ${booking.type === 'hotel'
+                            ? 'bg-emerald-500/90 text-white'
                             : 'bg-purple-500/90 text-white'
-                        }`}>
+                          }`}>
                           {booking.type === 'hotel' ? '🏨 Hotel' : '🎫 Event'}
                         </div>
                       </div>
@@ -491,7 +499,11 @@ const MyBookingsPage: React.FC = () => {
                           </h3>
                           <div className="flex items-center text-slate-600 mb-3">
                             <MapPin size={18} className="mr-2 flex-shrink-0 text-slate-400" />
-                            <span className="font-medium">{booking.location || 'Location TBD'}</span>
+                            <span className="font-medium">
+                              {booking.location
+                                ? (typeof booking.location === 'object' ? (booking.location as Location).full_address : booking.location)
+                                : 'Location TBD'}
+                            </span>
                           </div>
                         </div>
 
@@ -508,7 +520,7 @@ const MyBookingsPage: React.FC = () => {
                           <Calendar size={18} className="mr-2" />
                           <span>{booking.dates}</span>
                         </div>
-                        
+
                         {booking.checkIn && booking.checkOut && (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-sm">
                             <div className="flex items-center text-slate-600">
@@ -551,17 +563,17 @@ const MyBookingsPage: React.FC = () => {
                                 <Download size={18} className="mr-2" />
                                 <span className="hidden sm:inline">Download</span>
                               </button>
-                              
+
                               <button className="flex items-center justify-center px-5 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-semibold hover:border-indigo-400 hover:text-indigo-600 transition-all">
                                 <Mail size={18} className="mr-2" />
                                 <span className="hidden sm:inline">Email</span>
                               </button>
                             </>
                           )}
-                          
+
                           <button
-                          onClick={()=> setSelectedBookingId(booking.id)}
-                          className="flex-1 sm:flex-none flex items-center justify-center bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
+                            onClick={() => setSelectedBookingId(booking.id)}
+                            className="flex-1 sm:flex-none flex items-center justify-center bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all group">
                             <span>View Details</span>
                             <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                           </button>
@@ -585,7 +597,7 @@ const MyBookingsPage: React.FC = () => {
             >
               Previous
             </button>
-            
+
             <span className="px-5 py-3 bg-white border-2 border-slate-200 rounded-xl font-semibold">
               Page {pagination.currentPage} of {pagination.lastPage}
             </span>

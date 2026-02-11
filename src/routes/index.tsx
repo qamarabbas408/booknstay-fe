@@ -30,6 +30,7 @@ import HotelRegistrationPage from '../pages/hotel/HotelRegistrationPage';
 import ListPropertiesPage from '../pages/vendor/VendorPropertiesPage';
 import { AppRoutes } from '../utils/AppRoutes';
 import CreateRoomTierPage from '../pages/vendor/CreateRoomTierPage';
+import HotelDetailsPage from '../pages/v2/HotelDetailsPage';
 
 export const router = createBrowserRouter([
   {
@@ -45,7 +46,9 @@ export const router = createBrowserRouter([
 
       // Hotel Discovery
       { path: AppRoutes.hotels, element: <HotelsPage /> },
+      // { path: AppRoutes.hotelDetails+'/v2', element: <HotelDetailsPage /> },
       { path: AppRoutes.hotelDetails, element: <HotelDetails /> },
+
 
       // Event Discovery
       { path: AppRoutes.events, element: <EventsPage /> },
@@ -79,7 +82,7 @@ export const router = createBrowserRouter([
           { path: AppRoutes.vendorPropertyList, element: <ListPropertiesPage /> },
           { path: AppRoutes.vendorAddRoomtier+':hotelId', element: <CreateRoomTierPage /> },
           { path: AppRoutes.editRoomtier+':roomId', element: <CreateRoomTierPage /> },
-
+          // { path: 'vendor/'+AppRoutes.hotelDetails, element: <HotelDetails /> },
         ],  
       },
 

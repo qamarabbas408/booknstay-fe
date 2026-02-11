@@ -9,6 +9,52 @@ const Shimmer = ({ w = '100%', h = 16, mb = 0, r = 8 }: { w?: string | number, h
   }} />
 );
 
+const HotelDetailsModalSkeleton = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
+    {/* Header */}
+    <Shimmer w="70%" h={36} mb={12} />
+    <Shimmer w="40%" h={20} mb={24} />
+
+    {/* Image Gallery */}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', height: '12rem' }}>
+      <div style={{ gridColumn: 'span 2 / span 2', gridRow: 'span 2 / span 2' }}>
+        <Shimmer h="100%" r={12} />
+      </div>
+      {[...Array(3)].map((_, i) => (
+        <Shimmer key={i} h="100%" r={12} />
+      ))}
+    </div>
+
+    {/* Description */}
+    <Shimmer w="100%" h={20} mb={8} />
+    <Shimmer w="95%" h={16} mb={8} />
+    <Shimmer w="80%" h={16} mb={24} />
+
+    {/* Key Details */}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+      {[...Array(6)].map((_, i) => (
+        <Shimmer key={i} h={60} r={12} />
+      ))}
+    </div>
+
+    {/* Amenities */}
+    <Shimmer w="50%" h={28} mb={16} />
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+      {[...Array(6)].map((_, i) => (
+        <Shimmer key={i} h={48} r={12} />
+      ))}
+    </div>
+
+    {/* Room Tiers */}
+    <Shimmer w="60%" h={28} mb={16} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {[...Array(2)].map((_, i) => (
+        <Shimmer key={i} h={120} r={12} />
+      ))}
+    </div>
+  </div>
+);
+
 const EventDetailsSkeleton = () => (
   <div>
     <style>{`
@@ -99,6 +145,9 @@ interface SkeletonLoaderProps {
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ type = 'hotel' }) => {
   if (type === 'event-details') {
     return <EventDetailsSkeleton />;
+  }
+  if (type === 'hotel-details-modal') {
+    return <HotelDetailsModalSkeleton />;
   }
 
   return (

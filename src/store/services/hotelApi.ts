@@ -1,26 +1,35 @@
 import { api } from './api';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
-
+export interface Gallery {
+  id: number,
+  url: string,
+  is_primary: boolean,
+}
 export interface HotelAmenity {
-  id: number;
   name: string;
   icon: string;
-  slug: string;
 }
 
 export interface HotelLocation {
-  country: string | null;
-  city: string | null;
-  full_address: string | null;
-  zip_code: string | null;
-  latitude: string | null;
-  longitude: string | null;
+  city: string;
+  country: string;
+  full_address: string;
+  lat: string;
+  lng: string;
+}
+
+export interface PricingDetails {
+  base_price: number;
+  tax_percentage: number;
+  service_fee: number;
+  currency: string;
 }
 
 export interface RoomTier {
   id: number;
   type: string;
   description: string;
+  price: number;
   base_price: number;
   max_occupancy: number;
   total_inventory: number;
@@ -28,29 +37,40 @@ export interface RoomTier {
   available: number;
   is_locked: boolean;
   active_bookings_count: number;
+  name: string,
+  max_guests?: number
 }
 
+//public hotel resource
+//public hotel resource
 export interface Hotel {
   id: number;
   name: string;
-  location: HotelLocation;
-  location_summary: string;
-  pricePerNight: number;
-  image: string;
-  thumbnail: string;
+  description: string;
   stars: number;
+  pricePerNight: number;
+  totalStartingPrice: number;
+  starting_price: number;
+  pricing_details: PricingDetails;
+  location: HotelLocation;
+  image: string;
   rating: number;
   reviews: number;
-  featured?: boolean;
+  reviewCount: number;
   amenities: HotelAmenity[];
+  room_tiers: RoomTier[];
+
+  // Legacy/Optional fields
+  location_summary?: string;
+  thumbnail?: string;
+  featured?: boolean;
   badges?: string[];
-  description?: string;
-  room_tiers?: RoomTier[];
   gallery?: any[];
   status?: string;
   bookings?: number;
   revenue?: number;
   createdAt?: string;
+  roomTiers?: RoomTier[];
 }
 
 export interface VendorHotel {
@@ -68,6 +88,7 @@ export interface VendorHotel {
   createdAt: string;
   room_types_count: number;
   images: { id: number; path: string }[];
+  gallery: Gallery[];
   location: HotelLocation;
   amenities: HotelAmenity[];
   star_rating?: number;
@@ -85,14 +106,24 @@ export interface VendorHotel {
   website?: string;
 }
 
+export interface HotelAvailabilityRoomTier {
+  room_type_id: number;
+  name: string;
+  base_price: number;
+  max_occupancy: number;
+  total_inventory: number;
+  available_count: number;
+  is_available: boolean;
+}
+
 export interface HotelAvailabilityResponse {
   status: string;
   message: string;
   data: {
-    hotel_id: number;
-    total_rooms: number;
-    occupied_rooms: number;
-    available_rooms: number;
+    hotel_name: string;
+    check_in: string;
+    check_out: string;
+    room_tiers: HotelAvailabilityRoomTier[];
     is_available: boolean;
   };
 }
@@ -226,7 +257,23 @@ export const hotelApi = api.injectEndpoints({
       }),
       invalidatesTags: ['VendorHotels'],
     }),
+    deleteHotel: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/vendor/hotels/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['VendorHotels'],
+    }),
   }),
 });
 
-export const { useGetHotelsQuery, useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery, useGetVendorHotelsQuery, useCreateHotelMutation, useCreateRoomTiersMutation, useGetVendorHotelByIdQuery, useUpdateHotelMutation } = hotelApi;
+export const { useGetHotelsQuery,
+  useDeleteHotelMutation,
+  useGetHotelByIdQuery,
+  useCreateHotelBookingMutation,
+  useLazyGetHotelAvailabilityQuery,
+  useGetVendorHotelsQuery,
+  useCreateHotelMutation,
+  useCreateRoomTiersMutation,
+  useGetVendorHotelByIdQuery,
+  useUpdateHotelMutation } = hotelApi;

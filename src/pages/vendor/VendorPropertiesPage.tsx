@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Calendar, TrendingUp, DollarSign, BarChart3, Search } from 'lucide-react';
-import PropertyCard from '../../components/PropertyCard';
+import VendorHotelCard from '../../components/vendor/VendorHotelCard';
 import { useGetVendorHotelsQuery } from '../../store/services/hotelApi';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
 import SkeletonLoader from '../../components/SkeletonLoader';
@@ -53,12 +53,6 @@ const VendorPropertiesPage = () => {
 
   const handleDeleteProperty = (id: number) => {
     console.log('Delete property:', id);
-  };
-
-  const getImageUrl = (path: string | null | undefined) => {
-    if (!path) return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
-    if (path.startsWith('http')) return path;
-    return `${APIENDPOINTS.content_url}${path}`;
   };
 
   return (
@@ -329,30 +323,42 @@ const VendorPropertiesPage = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {vendorProperties.map((property, index) => (
-                  <PropertyCard
+                  <VendorHotelCard
                     key={property.id}
-                    id={property.id}
-                    name={property.name}
-                    location={property.city}
-                    image={getImageUrl(property.images?.[0]?.path)}
-                    stars={0} // Not available in API yet
-                    pricePerNight={property.room_types_min_base_price}
-                    status={property.status}
-                    bookings={property.bookings_count}
-                    revenue={property.bookings_sum_total_price || 0}
-                    rating={property.reviews_avg_rating || 0}
-                    reviews={property.reviews_count}
-                    createdAt={property.createdAt}
-                    animationDelay={`${index * 0.05}s`}
-                    hasRoomTiers={property.room_tiers && property.room_tiers.length > 0}
-                    onNoRoomCta={()=>navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${property.id}`)}
-                    onView={handleViewProperty}
+                    hotel={{
+                      id: property.id,
+                      name: property.name,
+                      image: property.images?.[0]?.path || '',
+                      thumbnail: property.images?.[0]?.path || '',
+                      description: property.description,
+                      room_tiers: property.room_tiers || [],
+                      gallery: property.images?.map((img: any, index: number) => ({ id: img.id, url: img.path, is_primary: index === 0 })) || [],
+                      location: {
+                        country: property.location?.country || '',
+                        city: property.location?.city || property.city || '',
+                        full_address: property.location?.full_address || property.address || '',
+                        zip_code: property.location?.zip_code || '',
+                        latitude: Number(property.location?.latitude) || 0,
+                        longitude: Number(property.location?.longitude) || 0,
+                      },
+                      amenities: property.amenities || [],
+                      location_summary: `${property.city}, ${property.location?.country || ''}`,
+                      stars: property.star_rating || 0,
+                      status: property.status,
+                      pricePerNight: property.room_types_min_base_price || 0,
+                      bookings: property.bookings_count || 0,
+                      revenue: property.bookings_sum_total_price || 0,
+                      rating: property.reviews_avg_rating || 0,
+                      reviews: property.reviews_count || 0,
+                      createdAt: property.createdAt,
+                    }}
+                    baseImageUrl={APIENDPOINTS.content_url}
                     onEdit={handleEditProperty}
-                    onAnalytics={handleAnalytics}
                     onDelete={handleDeleteProperty}
-                    onRoomManagement={()=>navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${property.id}`)}
+                    onViewDetails={handleViewProperty}
+                    onTierManage={(id) => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${id}`)}
                   />
                 ))}
               </div>

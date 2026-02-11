@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, MapPin, Star, Wifi, Coffee, Car, Dumbbell, Heart, Share2, Check, Calendar, Users, X, ChevronRight, Waves, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { ChevronLeft, MapPin, Star, Wifi, Coffee, Car, Dumbbell, Heart, Share2, Check, Calendar, Users, X, ChevronRight, Waves, Loader2, AlertCircle, CheckCircle, Sparkles } from 'lucide-react';
 import { useGetHotelByIdQuery, useCreateHotelBookingMutation, useLazyGetHotelAvailabilityQuery } from '../../store/services/hotelApi';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
 import { AppImages } from '../../utils/AppImages';
@@ -29,10 +29,11 @@ const HotelDetails = () => {
 
   const rooms = hotel?.room_tiers?.map((tier) => ({
     id: tier.id,
-    name: tier.type,
+    name: tier.type || tier.name,
     description: tier.description || "",
-    price: tier.base_price,
-    features: [`Max Occupancy: ${tier.max_occupancy}`, "Free WiFi", "Breakfast included"],
+    price: tier.price,
+    maxOccupancy: tier.max_guests || tier.max_occupancy,
+    features: [`Max Occupancy: ${tier.max_guests}`, "Free WiFi", "Breakfast included"],
     image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80"
   })) || [];
 
@@ -50,12 +51,12 @@ const HotelDetails = () => {
   }, [checkIn, checkOut, hotel, triggerAvailabilityCheck]);
 
   const today = new Date().toISOString().split('T')[0];
-  const minCheckOut = checkIn 
-    ? new Date(new Date(checkIn).getTime() + 86400000).toISOString().split('T')[0] 
+  const minCheckOut = checkIn
+    ? new Date(new Date(checkIn).getTime() + 86400000).toISOString().split('T')[0]
     : today;
 
-  const nights = checkIn && checkOut 
-    ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)) 
+  const nights = checkIn && checkOut
+    ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
 
   const getImageUrl = (path: string | null | undefined) => {
@@ -78,6 +79,7 @@ const HotelDetails = () => {
     if (lower.includes('wifi')) return Wifi;
     if (lower.includes('breakfast') || lower.includes('coffee')) return Coffee;
     if (lower.includes('pool')) return Waves;
+    if (lower.includes('spa')) return Sparkles;
     if (lower.includes('gym') || lower.includes('fitness')) return Dumbbell;
     if (lower.includes('parking') || lower.includes('car')) return Car;
     return Check;
@@ -100,11 +102,21 @@ const HotelDetails = () => {
       return;
     }
 
-    if (availabilityData && !availabilityData.data.is_available) {
-      showToast.error("Sorry, no rooms available for the selected dates. Please try other dates.");
-      return;
+    if (availabilityData?.data?.room_tiers && selectedRoomId) {
+      const selectedTier = availabilityData.data.room_tiers.find((tier: any) => tier.room_type_id === selectedRoomId);
+
+      if (selectedTier) {
+        if (!selectedTier.is_available) {
+          showToast.error("Sorry, this room is not available for the selected dates.");
+          return;
+        }
+        if (selectedTier.available_count < roomCount) {
+          showToast.error(`Sorry, only ${selectedTier.available_count} rooms available for this room type.`);
+          return;
+        }
+      }
     }
-    
+
     try {
       const response = await createHotelBooking({
         hotel_id: hotel.id,
@@ -114,7 +126,7 @@ const HotelDetails = () => {
         rooms_count: roomCount,
         room_type_id: selectedRoomId
       }).unwrap();
-      
+
       showToast.success(response.message || "Hotel booked successfully!");
       navigate('/dashboard');
     } catch (error: any) {
@@ -134,19 +146,42 @@ const HotelDetails = () => {
       );
     }
 
-    if (availabilityData) {
-      if (availabilityData.data.is_available) {
+    if (availabilityData?.data?.room_tiers) {
+      if (selectedRoomId) {
+        const selectedTier = availabilityData.data.room_tiers.find((tier: any) => tier.room_type_id === selectedRoomId);
+
+        if (selectedTier) {
+          if (selectedTier.is_available && selectedTier.available_count >= roomCount) {
+            return (
+              <div className="mt-4 flex items-center text-sm text-green-700 p-3 bg-green-50 rounded-lg border border-green-200">
+                <CheckCircle className="mr-2" size={16} />
+                {`Good news! ${selectedTier.available_count} rooms available for this room type.`}
+              </div>
+            );
+          } else {
+            return (
+              <div className="mt-4 flex items-center text-sm text-red-700 p-3 bg-red-50 rounded-lg border border-red-200">
+                <AlertCircle className="mr-2" size={16} />
+                {`Sorry, this room is not available for the selected dates.`}
+              </div>
+            );
+          }
+        }
+      }
+
+      const anyAvailable = availabilityData.data.room_tiers.some((tier: any) => tier.is_available);
+      if (anyAvailable) {
         return (
           <div className="mt-4 flex items-center text-sm text-green-700 p-3 bg-green-50 rounded-lg border border-green-200">
             <CheckCircle className="mr-2" size={16} />
-            {`Good news! ${availabilityData.data.available_rooms} rooms available for these dates.`}
+            {selectedRoomId ? "Checking room availability..." : "Select a room to check specific availability."}
           </div>
         );
       } else {
         return (
           <div className="mt-4 flex items-center text-sm text-red-700 p-3 bg-red-50 rounded-lg border border-red-200">
             <AlertCircle className="mr-2" size={16} />
-            Sorry, no rooms available. Please try other dates.
+            Sorry, no rooms available for these dates.
           </div>
         );
       }
@@ -181,6 +216,14 @@ const HotelDetails = () => {
       </div>
     );
   }
+
+  const isReserveDisabled = isBooking || !checkIn || !checkOut || isCheckingAvailability || (
+    availabilityData?.data && (
+      selectedRoomId
+        ? !availabilityData.data.room_tiers?.find((t: any) => t.room_type_id === selectedRoomId && t.is_available && t.available_count >= roomCount)
+        : !(availabilityData.data.is_available || availabilityData.data.room_tiers?.some((t: any) => t.is_available))
+    )
+  );
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
@@ -237,33 +280,33 @@ const HotelDetails = () => {
       {/* Image Gallery Modal */}
       {showGallery && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center animate-fadeIn">
-          <button 
+          <button
             onClick={() => setShowGallery(false)}
             className="absolute top-6 right-6 text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
             <X size={28} />
           </button>
-          
-          <button 
+
+          <button
             onClick={() => setSelectedImage(selectedImage === 0 ? images.length - 1 : selectedImage - 1)}
             className="absolute left-6 text-white p-3 hover:bg-white/10 rounded-lg transition-colors"
           >
             <ChevronLeft size={32} />
           </button>
-          
-          <img 
-            src={images[selectedImage]} 
-            alt="Hotel" 
+
+          <img
+            src={images[selectedImage]}
+            alt="Hotel"
             className="max-h-[85vh] max-w-[90vw] object-contain"
           />
-          
-          <button 
+
+          <button
             onClick={() => setSelectedImage((selectedImage + 1) % images.length)}
             className="absolute right-6 text-white p-3 hover:bg-white/10 rounded-lg transition-colors"
           >
             <ChevronRight size={32} />
           </button>
-          
+
           <div className="absolute bottom-6 text-white text-lg font-semibold">
             {selectedImage + 1} / {images.length}
           </div>
@@ -273,16 +316,16 @@ const HotelDetails = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Image Grid */}
         <div className="grid grid-cols-4 gap-2 mb-8 h-[500px] animate-slideUp">
-          <div 
+          <div
             className="col-span-2 row-span-2 relative overflow-hidden rounded-2xl cursor-pointer group"
             onClick={() => { setSelectedImage(0); setShowGallery(true); }}
           >
             <img src={images[0]} alt="Hotel main" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
           </div>
-          
+
           {images.slice(1, 5).map((img, idx) => (
-            <div 
+            <div
               key={idx}
               className="relative overflow-hidden rounded-2xl cursor-pointer group"
               onClick={() => { setSelectedImage(idx + 1); setShowGallery(true); }}
@@ -300,7 +343,7 @@ const HotelDetails = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Details */}
-          <div className="lg:col-span-2 space-y-8 animate-slideUp" style={{animationDelay: '0.1s'}}>
+          <div className="lg:col-span-2 space-y-8 animate-slideUp" style={{ animationDelay: '0.1s' }}>
             {/* Header */}
             <div>
               <div className="flex items-start justify-between mb-4">
@@ -309,7 +352,7 @@ const HotelDetails = () => {
                   <div className="flex items-center text-slate-600 space-x-4">
                     <div className="flex items-center">
                       <MapPin size={18} className="mr-1.5 text-slate-400" />
-                      <span>{hotel.location_summary}</span>
+                      <span>{hotel.location_summary || (hotel.location ? `${hotel.location.city}, ${hotel.location.country}` : 'Location Available')}</span>
                     </div>
                     <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-lg">
                       <Star size={16} fill="#f59e0b" className="text-amber-500 mr-1" />
@@ -357,7 +400,7 @@ const HotelDetails = () => {
             </div>
 
             {/* Room Selection */}
-            <RoomSelector 
+            <RoomSelector
               rooms={rooms}
               selectedRoomId={selectedRoomId}
               onSelectRoom={setSelectedRoomId}
@@ -373,7 +416,7 @@ const HotelDetails = () => {
                   See All Reviews
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 {reviews.map((review, idx) => (
                   <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-200">
@@ -400,7 +443,7 @@ const HotelDetails = () => {
           </div>
 
           {/* Right Column - Booking Card */}
-          <div className="lg:col-span-1 animate-slideUp" style={{animationDelay: '0.2s'}}>
+          <div className="lg:col-span-1 animate-slideUp" style={{ animationDelay: '0.2s' }}>
             <div className="sticky top-24">
               <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200">
                 <div className="mb-6">
@@ -416,7 +459,7 @@ const HotelDetails = () => {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Check-in</label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                      <input 
+                      <input
                         type="date"
                         value={checkIn}
                         min={today}
@@ -435,7 +478,7 @@ const HotelDetails = () => {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Check-out</label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                      <input 
+                      <input
                         type="date"
                         value={checkOut}
                         min={minCheckOut}
@@ -449,7 +492,7 @@ const HotelDetails = () => {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Guests</label>
                     <div className="relative">
                       <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                      <select 
+                      <select
                         value={guests}
                         onChange={(e) => setGuests(Number(e.target.value))}
                         className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors appearance-none bg-white"
@@ -466,9 +509,9 @@ const HotelDetails = () => {
 
                 <AvailabilityStatus />
 
-                <button 
+                <button
                   onClick={handleReserve}
-                  disabled={isBooking || !checkIn || !checkOut || isCheckingAvailability || (availabilityData && !availabilityData.data.is_available)}
+                  disabled={isReserveDisabled}
                   className="w-full mt-4 bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all mb-4 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isBooking ? (
@@ -491,15 +534,46 @@ const HotelDetails = () => {
                 <div className="mt-6 pt-6 border-t border-slate-200 space-y-3">
                   <div className="flex justify-between text-slate-600">
                     <span>${displayPrice} × {roomCount} rooms × {nights || 1} nights</span>
-                    <span>${displayPrice * roomCount * (nights || 1)}</span>
+                    <span>${(displayPrice * roomCount * (nights || 1)).toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-slate-600">
-                    <span>Service fee</span>
-                    <span>${(displayPrice * roomCount * (nights || 1) * 0.1).toFixed(0)}</span>
-                  </div>
+
+                  {hotel.pricing_details && (
+                    <>
+                      <div className="flex justify-between text-slate-600">
+                        <span>Taxes ({hotel.pricing_details.tax_percentage}%)</span>
+                        <span>
+                          ${((displayPrice * roomCount * (nights || 1)) * (hotel.pricing_details.tax_percentage / 100)).toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-slate-600">
+                        <span>Service fee</span>
+                        <span>
+                          ${(hotel.pricing_details.service_fee * roomCount * (nights || 1)).toFixed(2)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+
+                  {!hotel.pricing_details && (
+                    <div className="flex justify-between text-slate-600">
+                      <span>Taxes & Fees (Est. 15%)</span>
+                      <span>${((displayPrice * roomCount * (nights || 1)) * 0.15).toFixed(2)}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between font-bold text-lg text-slate-900 pt-3 border-t border-slate-200">
                     <span>Total</span>
-                    <span>${(displayPrice * roomCount * (nights || 1) * 1.1).toFixed(0)}</span>
+                    <span>
+                      $
+                      {hotel.pricing_details
+                        ? (
+                          (displayPrice * roomCount * (nights || 1)) +
+                          ((displayPrice * roomCount * (nights || 1)) * (hotel.pricing_details.tax_percentage / 100)) +
+                          (hotel.pricing_details.service_fee * roomCount * (nights || 1))
+                        ).toFixed(2)
+                        : ((displayPrice * roomCount * (nights || 1)) * 1.15).toFixed(2)
+                      }
+                    </span>
                   </div>
                 </div>
               </div>

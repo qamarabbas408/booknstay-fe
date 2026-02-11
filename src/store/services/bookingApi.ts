@@ -1,10 +1,20 @@
 import { api } from './api';
 
+export interface Location {
+  id: number;
+  country: string;
+  city: string;
+  full_address: string;
+  zip_code: string;
+  latitude: string;
+  longitude: string;
+}
+
 export interface Booking {
   id: number;
   type: 'hotel' | 'event';
   title: string;
-  location: string | null;
+  location: string | Location | null;
   status: 'confirmed' | 'pending' | 'cancelled' | 'completed';
   price: number;
   bookingCode: string;
