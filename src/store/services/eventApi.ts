@@ -1,51 +1,83 @@
 import { api } from './api';
 
+export interface EventLocation {
+  city: string;
+  country: string;
+  lat: number | string;
+  lng: number | string;
+  address?: string;
+  full_address?: string;
+  zip_code?: string | null;
+}
+
+export interface TicketBase {
+  id: number;
+  name: string;
+  price: number;
+  features: string[];
+}
+
+export interface PublicTicket extends TicketBase {
+  available: number;
+  soldOut: boolean;
+  description?: string | null;
+  popular?: boolean;
+}
+
+export interface BaseEvent {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  highlights: string[];
+  location_details: EventLocation;
+}
+
 export interface Event {
   id: number;
   title: string;
+  description: string;
   category: string;
-  location: string;
-  venue: string;
-  price: string;
-  start_date: string;
-  end_date: string;
-  image: string;
+  highlights: string[];
+  location_details: EventLocation;
+  date: string;
+  time: string;
+  is_past: boolean;
+  image: string | null;
+  gallery: string[];
   rating: number;
-  attendees: number;
-  featured: boolean;
-  trending: boolean;
-  is_sold_out: boolean;
-  total_capacity: number;
-  tickets_left: number | null;
+  attendees: string;
+  ticketTypes: PublicTicket[];
+  // Optional UI fields
+  featured?: boolean;
+  trending?: boolean;
+  price?: string;
 }
 
-export interface VendorEvent {
+export interface VendorTicket extends TicketBase {
+  quantity: number;
+  sold_count: number;
+  is_locked: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface VendorImage {
   id: number;
-  title: string;
+  url: string;
+  is_primary: number;
+}
+
+export interface VendorEvent extends BaseEvent {
   status: string;
   visibility: string;
-  description?: string;
-  venue?: string;
-  location?: string;
   start_date: string;
   end_date: string;
   total_capacity: number;
   tickets_sold: number;
   revenue: number;
-  category: string;
-  highlights?: string[];
-  tickets: {
-    id: number;
-    name: string;
-    price: number;
-    quantity: number;
-    sold_count: number;
-    created_at: string;
-    updated_at: string;
-    is_locked?: boolean;
-    features?: string[];
-  }[];
-  images: { id: number; url: string; is_primary: number }[];
+  images: VendorImage[];
+  tickets: VendorTicket[];
 }
 
 export interface EventsResponse {
@@ -72,31 +104,9 @@ export interface EventQueryParams {
   limit?: number;
 }
 
-export interface EventTicketType {
-  id: number;
-  name: string;
-  price: number;
-  available: number;
-  soldOut: boolean;
-  description: string | null;
-  features: string[];
-  popular: boolean;
-}
+export type EventTicketType = PublicTicket;
 
-export interface EventDetailsData {
-  id: number;
-  title: string;
-  location: string;
-  venue: string;
-  date: string;
-  time: string;
-  image: string | null;
-  description: string;
-  highlights: string[];
-  rating: number;
-  attendees: string;
-  ticketTypes: EventTicketType[];
-}
+export type EventDetailsData = Event;
 
 export interface EventDetailsResponse {
   status: string;

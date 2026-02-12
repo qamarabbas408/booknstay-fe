@@ -379,8 +379,8 @@ const MyBookingsPage: React.FC = () => {
             <button
               onClick={() => setActiveTab('upcoming')}
               className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'upcoming'
-                  ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
             >
               Upcoming
@@ -388,8 +388,8 @@ const MyBookingsPage: React.FC = () => {
             <button
               onClick={() => setActiveTab('past')}
               className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'past'
-                  ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
             >
               Past
@@ -409,8 +409,8 @@ const MyBookingsPage: React.FC = () => {
                   key={filter.value}
                   onClick={() => setFilterType(filter.value as any)}
                   className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${filterType === filter.value
-                      ? 'bg-indigo-600 text-white shadow-md'
-                      : 'bg-white/80 text-slate-700 hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'bg-white/80 text-slate-700 hover:bg-slate-100 border border-slate-200'
                     }`}
                 >
                   <Icon size={18} />
@@ -474,8 +474,8 @@ const MyBookingsPage: React.FC = () => {
                       {/* Type Badge */}
                       <div className="absolute top-4 left-4">
                         <div className={`glass px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md ${booking.type === 'hotel'
-                            ? 'bg-emerald-500/90 text-white'
-                            : 'bg-purple-500/90 text-white'
+                          ? 'bg-emerald-500/90 text-white'
+                          : 'bg-purple-500/90 text-white'
                           }`}>
                           {booking.type === 'hotel' ? '🏨 Hotel' : '🎫 Event'}
                         </div>
@@ -552,7 +552,7 @@ const MyBookingsPage: React.FC = () => {
                         <div>
                           <div className="text-sm text-slate-500 mb-1">Total Amount</div>
                           <div className="text-3xl font-display gradient-text">
-                            ${booking.price.toLocaleString()}
+                            ${booking.priceDetails.totalPaid.toLocaleString()}
                           </div>
                         </div>
 

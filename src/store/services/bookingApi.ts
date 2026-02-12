@@ -1,4 +1,5 @@
 import { api } from './api';
+import type { PricingDetails } from './hotelApi';
 
 export interface Location {
   id: number;
@@ -9,7 +10,11 @@ export interface Location {
   latitude: string;
   longitude: string;
 }
+export interface BookingPriceDetails extends PricingDetails {
+  totalPaid: number;
+  currency: string;
 
+}
 export interface Booking {
   id: number;
   type: 'hotel' | 'event';
@@ -24,6 +29,12 @@ export interface Booking {
   checkIn?: string;
   checkOut?: string;
   bookedAt?: string;
+  priceDetails: BookingPriceDetails;
+  itemDetails: {
+    name : string, 
+    description?: string,
+  }
+
 }
 
 export interface BookingsResponse {

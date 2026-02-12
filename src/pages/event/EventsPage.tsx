@@ -305,7 +305,11 @@ const EventsPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event, idx) => (
+            {events.map((event, idx) => {
+              const isSoldOut = event.ticketTypes?.every((t) => t.soldOut) ?? false;
+              const priceDisplay = event.price || (event.ticketTypes?.length ? `$${Math.min(...event.ticketTypes.map((t) => t.price))}` : 'Free');
+
+              return (
               <div 
                 key={event.id}
                 className="bg-white rounded-3xl overflow-hidden shadow-md card-hover cursor-pointer border border-slate-100 animate-fadeInUp"
@@ -343,7 +347,7 @@ const EventsPage = () => {
                     </div>
                   )}
 
-                  {event.is_sold_out && (
+                  {isSoldOut && (
                     <div className="absolute top-4 right-4 bg-slate-900/95 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center">
                       <span className="text-white text-xs font-bold">Sold Out</span>
                     </div>
@@ -352,7 +356,7 @@ const EventsPage = () => {
                   <div className="absolute bottom-4 left-4 right-4">
                     <div className="flex items-center text-white text-sm mb-2">
                       <Calendar size={14} className="mr-1.5" />
-                      <span className="font-semibold">{event.start_date}</span>
+                      <span className="font-semibold">{event.date}</span>
                     </div>
                   </div>
                 </div>
@@ -364,7 +368,7 @@ const EventsPage = () => {
                   
                   <div className="flex items-center text-slate-600 text-sm mb-2">
                     <MapPin size={16} className="mr-1.5 text-slate-400" />
-                    <span>{event.venue}, {event.location}</span>
+                    <span>{event.location_details.address}, {event.location_details.city}</span>
                   </div>
                   
                   <div className="flex items-center justify-between mb-4">
@@ -375,7 +379,7 @@ const EventsPage = () => {
                     
                     <div className="flex items-center text-slate-500 text-sm">
                       <Users size={14} className="mr-1.5" />
-                      <span>{event.attendees.toLocaleString()} going</span>
+                      <span>{parseInt(event.attendees || '0').toLocaleString()} going</span>
                     </div>
                   </div>
                   
@@ -383,26 +387,27 @@ const EventsPage = () => {
                     <div>
                       <div className="text-sm text-slate-500 mb-0.5">From</div>
                       <div className="text-2xl font-display text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600">
-                        {event.price}
+                        {priceDisplay}
                       </div>
                     </div>
                     
                     <button
-                      disabled={event.is_sold_out}
-                      onClick={() => !event.is_sold_out && navigate(`/event/booking/${event.id}`)}
+                      disabled={isSoldOut}
+                      onClick={() => !isSoldOut && navigate(`/event/booking/${event.id}`)}
                       className={`flex items-center font-bold px-5 py-3 rounded-xl transition-all group ${
-                        event.is_sold_out
+                        isSoldOut
                           ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
                           : 'bg-linear-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
                       }`}
                     >
-                      <Ticket size={18} className={`mr-2 ${!event.is_sold_out && 'group-hover:rotate-12 transition-transform'}`} />
-                      {event.is_sold_out ? 'Sold Out' : 'Get Tickets'}
+                      <Ticket size={18} className={`mr-2 ${!isSoldOut && 'group-hover:rotate-12 transition-transform'}`} />
+                      {isSoldOut ? 'Sold Out' : 'Get Tickets'}
                     </button>
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
 

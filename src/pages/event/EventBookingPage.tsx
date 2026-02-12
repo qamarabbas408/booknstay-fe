@@ -237,7 +237,7 @@ const EventBookingPage: React.FC = () => {
               </div>
               <div className="flex items-center">
                 <MapPin size={20} className="mr-2 flex-shrink-0" />
-                <span className="font-medium">{event.venue}, {event.location}</span>
+                <span className="font-medium">{event.location_details.address}, {event.location_details.city}</span>
               </div>
             </div>
 
@@ -322,8 +322,8 @@ const EventBookingPage: React.FC = () => {
                     <div className="h-64 bg-slate-200 flex items-center justify-center">
                       <div className="text-center">
                         <MapPin size={48} className="text-slate-400 mx-auto mb-3" />
-                        <p className="text-slate-600 font-semibold">{event.venue}</p>
-                        <p className="text-slate-500 text-sm">{event.location}</p>
+                        <p className="text-slate-600 font-semibold">{event.location_details.city}</p>
+                        <p className="text-slate-500 text-sm">{event.location_details.address}</p>
                         <button
                           onClick={() => setShowMap(true)}
                           className="mt-4 text-indigo-600 font-semibold hover:text-indigo-700"

@@ -147,7 +147,7 @@ const EventDetails = () => {
         
         <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-6 pb-8">
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="bg-purple-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">Music</span>
+            <span className="bg-purple-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">{event.category}</span>
             <span className="bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-bold flex items-center animate-pulse-scale">
               <PartyPopper size={14} className="mr-1.5" />
               Trending
@@ -168,7 +168,7 @@ const EventDetails = () => {
             </div>
             <div className="flex items-center">
               <MapPin size={18} className="mr-2" />
-              <span className="font-semibold">{event.venue}, {event.location}</span>
+              <span className="font-semibold">{event.location_details.address}, {event.location_details.city}</span>
             </div>
           </div>
         </div>
@@ -244,8 +244,8 @@ const EventDetails = () => {
                 <div className="h-64 bg-slate-200 flex items-center justify-center">
                   <div className="text-center">
                     <MapPin size={48} className="text-slate-400 mx-auto mb-3" />
-                    <p className="text-slate-600 font-semibold">Wembley Arena</p>
-                    <p className="text-slate-500 text-sm">Empire Way, Wembley, London HA9 0DH</p>
+                    <p className="text-slate-600 font-semibold">{event.location_details.city}</p>
+                    <p className="text-slate-500 text-sm">{event.location_details.address}</p>
                     <button 
                       onClick={() => setShowMap(true)}
                       className="mt-4 text-purple-600 font-semibold hover:text-purple-700"

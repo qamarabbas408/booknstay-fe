@@ -54,11 +54,11 @@ const Homepage: React.FC = () => {
     id: event.id,
     type: 'event',
     title: event.title,
-    location: event.location,
-    price: event.price,
+    location: `${event.location_details.city}, ${event.location_details.country}`,
+    price: event.ticketTypes && event.ticketTypes.length > 0 ? `$${Math.min(...event.ticketTypes.map((t) => t.price))}` : 'Free',
     rating: event.rating,
     image: event.image ? (event.image.startsWith('http') ? event.image : `${APIENDPOINTS.content_url}${event.image}`) : AppImages.placeholders.event_placeholder,
-    date: event.start_date,
+    date: event.date,
     featured: event.featured,
     data: event,
   })) || [];
@@ -209,21 +209,21 @@ const Homepage: React.FC = () => {
                     id={item.data.id}
                     title={item.data.title}
                     category={item.data.category || 'Music'}
-                    location={item.data.location}
-                    venue={item.data.venue || item.data.location}
-                    price={item.data.price || '$0'}
-                    start_date={item.data.start_date}
-                    end_date={item.data.end_date || item.data.start_date}
+                    location={`${item.data.location_details.city}, ${item.data.location_details.country}`}
+                    venue={item.data.location_details.address}
+                    price={item.price}
+                    start_date={item.data.date}
+                    end_date={item.data.date}
                     image={item.image}
                     rating={item.data.rating || 0}
                     onView={(id) => navigate(`/event/${id}`)}
-                    is_past={new Date(item.data.end_date || item.data.start_date) < new Date()}
+                    is_past={item.data.is_past}
                     highlights={item.data.highlights || []}
                     description={item.data.description || 'Join us for an exciting event!'}
-                    total_capacity={item.data.total_capacity || 100}
-                    tickets_left={item.data.tickets_left || 50}
-                    is_sold_out={item.data.is_sold_out || false}
-                    attendees={item.data.attendees || 0}
+                    total_capacity={item.data.ticketTypes?.reduce((acc: number, t: any) => acc + t.available, 0) || 0}
+                    tickets_left={item.data.ticketTypes?.reduce((acc: number, t: any) => acc + t.available, 0) || 0}
+                    is_sold_out={item.data.ticketTypes?.every((t: any) => t.soldOut) || false}
+                    attendees={parseInt(item.data.attendees) || 0}
                     featured={item.data.featured || false}
                     trending={item.data.trending || false}
                     ticketTypes={item.data.ticketTypes || []}
