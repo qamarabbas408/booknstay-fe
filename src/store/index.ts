@@ -2,6 +2,7 @@ import { configureStore,combineReducers } from '@reduxjs/toolkit';
 // import { setupListeners } from '@reduxjs/toolkit/query';
 import { api } from './services/api';
 import authReducer from './slices/authSlice';
+import bookingReducer from './slices/bookingSlice';
 import logger from 'redux-logger';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
@@ -11,6 +12,7 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage for
 const appReducer = combineReducers({
   [api.reducerPath]: api.reducer,
   auth: authReducer,
+  booking: bookingReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {

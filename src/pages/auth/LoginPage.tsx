@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import { useLoginMutation } from '../../store/services/AuthApi';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Sparkles, Chrome, Apple, Loader2 } from 'lucide-react';
@@ -8,41 +9,46 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const navigate = useNavigate();
   const [login, { isLoading }] = useLoginMutation();
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const { user } = await login({ email, password }).unwrap();
-    
-    showToast.success('Login successful!');
+  const { pendingBooking } = useSelector((state: any) => state.booking || {});
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { user } = await login({ email, password }).unwrap();
 
-    // 1. Business Logic: Check Vendor Status
-    if (user.role === 'vendor') {
-      if (user.status === 'pending') {
-        // Redirect to your "Waiting Room" UI
-        navigate('/registration-pending', { replace: true });
-      } else {
-        // Approved vendors go to dashboard
-        navigate('/vendor/dashboard', { replace: true });
+      showToast.success('Login successful!');
+
+      // 1. Business Logic: Check Vendor Status
+      if (user.role === 'vendor') {
+        if (user.status === 'pending') {
+          // Redirect to your "Waiting Room" UI
+          navigate('/registration-pending', { replace: true });
+        } else {
+          // Approved vendors go to dashboard
+          navigate('/vendor/dashboard', { replace: true });
+        }
+        return; // Exit
       }
-      return; // Exit
-    }
 
-    // 2. Logic for Guests
-    if (user.role === 'guest') {
-      navigate('/dashboard', { replace: true });
-      return;
-    }
+      // 2. Logic for Guests
+      if (user.role === 'guest') {
+        if (pendingBooking?.eventId) {
+          navigate(`/event/booking/${pendingBooking.eventId}`, { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+        return;
+      }
 
-  } catch (err: any) {
-    // If Laravel returns 403 (Forbidden) because of status, 
-    // it will be caught here.
-    const errorMessage = err.data?.message || 'Invalid credentials';
-    showToast.error(errorMessage);
-  }
-};
+    } catch (err: any) {
+      // If Laravel returns 403 (Forbidden) because of status, 
+      // it will be caught here.
+      const errorMessage = err.data?.message || 'Invalid credentials';
+      showToast.error(errorMessage);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex items-center justify-center p-4">
@@ -176,35 +182,35 @@ const handleSubmit = async (e: React.FormEvent) => {
       {/* Background decorative elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-pink-400/10 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}}></div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-pink-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
       </div>
 
       {/* Main Container */}
       <div className="w-full max-w-6xl flex flex-col lg:flex-row items-stretch gap-8 relative z-10">
-        
+
         {/* Left Side - Branding & Info */}
         <div className="lg:w-1/2 flex flex-col justify-center p-8 lg:p-12 animate-slideInLeft">
           <a href="/" className="inline-flex items-center text-slate-700 hover:text-indigo-600 transition-colors mb-8 group">
             <ArrowLeft size={20} className="mr-2 group-hover:-translate-x-1 transition-transform" />
             <span className="font-semibold">Back to Home</span>
           </a>
-          
+
           <div className="mb-8">
             <div className="flex items-center space-x-2 mb-6">
               <div className="text-4xl font-display gradient-text">BookNStay</div>
               <Sparkles className="text-indigo-500" size={24} />
             </div>
-            
+
             <h1 className="text-5xl lg:text-6xl font-display text-slate-900 mb-6 leading-tight">
               Welcome Back
             </h1>
-            
+
             <p className="text-xl text-slate-600 font-serif leading-relaxed max-w-md">
               Sign in to unlock exclusive deals, manage your bookings, and continue your journey with us.
             </p>
           </div>
-          
+
           {/* Feature highlights */}
           <div className="space-y-4 max-w-md">
             <div className="flex items-start space-x-3">
@@ -216,7 +222,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <p className="text-slate-600 text-sm">Get immediate confirmation for all your reservations</p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0 mt-1">
                 <span className="text-white text-lg">✓</span>
@@ -226,7 +232,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <p className="text-slate-600 text-sm">Access special rates and early-bird event tickets</p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <div className="w-8 h-8 rounded-lg bg-linear-to-br from-pink-500 to-orange-600 flex items-center justify-center flex-shrink-0 mt-1">
                 <span className="text-white text-lg">✓</span>
@@ -345,7 +351,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <Chrome size={20} className="text-slate-600 group-hover:text-indigo-600 transition-colors" />
                 <span className="font-semibold text-slate-700">Google</span>
               </button>
-              
+
               <button className="flex items-center justify-center space-x-2 py-3 px-4 bg-white border-2 border-slate-200 rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-all group">
                 <Apple size={20} className="text-slate-600 group-hover:text-slate-900 transition-colors" />
                 <span className="font-semibold text-slate-700">Apple</span>

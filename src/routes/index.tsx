@@ -57,6 +57,7 @@ export const router = createBrowserRouter([
       // Waiting 
       { path: AppRoutes.registrationPending, element: <WaitingApprovalPage /> },
 
+      { path: AppRoutes.eventBooking, element: <EventBookingPage /> },
 
       // 2. GUEST PROTECTED ROUTES (Need to be logged in as 'guest' or 'vendor')
       {
@@ -64,7 +65,6 @@ export const router = createBrowserRouter([
         children: [
           { path: AppRoutes.guestDashboard, element: <MyBookingsPage /> },
           { path: AppRoutes.addBooking, element: <AddBooking /> },
-          { path: AppRoutes.eventBooking, element: <EventBookingPage /> },
 
         ],
       },

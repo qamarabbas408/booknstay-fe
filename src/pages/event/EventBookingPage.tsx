@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { Calendar, MapPin, Ticket, Users, AlertCircle, ChevronRight, Sparkles, Clock, Star, Heart, Share2, Plus, Minus, Tag, Shield, CreditCard, Info, TrendingUp, CheckCircle, Loader2 } from 'lucide-react';
 import { useGetEventByIdQuery, useCreateEventBookingMutation } from '../../store/services/eventApi';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
 import { AppImages } from '../../utils/AppImages';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
+import { setPendingBooking, clearPendingBooking } from '../../store/slices/bookingSlice';
 
 const EventBookingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +17,10 @@ const EventBookingPage: React.FC = () => {
   });
   const [createEventBooking, { isLoading: isBooking }] = useCreateEventBookingMutation();
   const event = eventResponse?.data;
+  const dispatch = useDispatch();
+  const { user, token } = useSelector((state: any) => state.auth || {});
+  const pendingBooking = useSelector((state: any) => state.booking?.pendingBooking);
+  const isAuthenticated = !!token;
 
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [promoCode, setPromoCode] = useState('');
@@ -22,6 +28,14 @@ const EventBookingPage: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (pendingBooking && pendingBooking.eventId === id) {
+      setQuantities(pendingBooking.quantities);
+      // Clear the pending booking from store once restored so it doesn't persist indefinitely
+      dispatch(clearPendingBooking());
+    }
+  }, [id, pendingBooking, dispatch]);
 
   const updateQuantity = (ticketId: number, delta: number) => {
     setQuantities(prev => {
@@ -55,6 +69,21 @@ const EventBookingPage: React.FC = () => {
 
     if (selections.length === 0) {
       showToast.error("Please select at least one ticket.");
+      return;
+    }
+
+    if (!isAuthenticated) {
+      dispatch(setPendingBooking({
+        eventId: id,
+        quantities
+      }));
+      showToast.error("Please login to complete your booking.");
+      navigate(`/login?redirect=/event/booking/${id}`);
+      return;
+    }
+
+    if (user?.role === 'vendor') {
+      showToast.error("Vendors cannot book tickets. Please use a guest account.");
       return;
     }
 
@@ -626,7 +655,7 @@ const EventBookingPage: React.FC = () => {
                       <Loader2 className="animate-spin" size={24} />
                     ) : (
                       <>
-                        <span>Proceed to Checkout</span>
+                        <span>{isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}</span>
                         <ChevronRight size={22} className="ml-2 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
