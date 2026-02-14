@@ -1,7 +1,7 @@
 import React from 'react';
 import { Building2, X, AlertCircle } from 'lucide-react';
 import RoomCard from './vendor/RoomCard';
-import SectionHeader from './vendor/SectionHeader';
+import SectionHeader from './SectionHeader';
 import { type Hotel } from './HotelSelectionModal';
 
 interface RoomType {

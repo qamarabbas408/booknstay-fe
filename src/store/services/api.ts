@@ -5,6 +5,6 @@ export const api = createApi({
   reducerPath: 'api',
   // Use Axios instead of fetchBaseQuery
   baseQuery: axiosBaseQuery(),
-  tagTypes: ['Hotel', 'Event', 'Booking', 'VendorEvents', 'VendorEvent', 'VendorHotels'],
+  tagTypes: ['Hotel', 'Event', 'Booking', 'VendorEvents', 'VendorEvent', 'VendorHotels','VendorBookings'],
   endpoints: () => ({}),
 });

@@ -21,6 +21,7 @@ const EventBookingPage: React.FC = () => {
   const { user, token } = useSelector((state: any) => state.auth || {});
   const pendingBooking = useSelector((state: any) => state.booking?.pendingBooking);
   const isAuthenticated = !!token;
+  const isVendor = user?.role === 'vendor';
 
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [promoCode, setPromoCode] = useState('');
@@ -82,7 +83,7 @@ const EventBookingPage: React.FC = () => {
       return;
     }
 
-    if (user?.role === 'vendor') {
+    if (isVendor) {
       showToast.error("Vendors cannot book tickets. Please use a guest account.");
       return;
     }
@@ -647,16 +648,24 @@ const EventBookingPage: React.FC = () => {
 
                   {/* Checkout Button */}
                   <button
-                    className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all flex items-center justify-center group mb-4"
-                    disabled={!hasSelection || isBooking}
+                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center group mb-4 ${
+                      isVendor
+                        ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:shadow-xl hover:shadow-indigo-500/40'
+                    }`}
+                    disabled={!hasSelection || isBooking || isVendor}
                     onClick={handleCheckout}
                   >
                     {isBooking ? (
                       <Loader2 className="animate-spin" size={24} />
                     ) : (
                       <>
-                        <span>{isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}</span>
-                        <ChevronRight size={22} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                        <span>
+                          {isVendor
+                            ? 'Vendors Cannot Book'
+                            : isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}
+                        </span>
+                        {!isVendor && <ChevronRight size={22} className="ml-2 group-hover:translate-x-1 transition-transform" />}
                       </>
                     )}
                   </button>

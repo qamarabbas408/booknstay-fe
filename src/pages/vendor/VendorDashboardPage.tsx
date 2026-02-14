@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import RoomCard from '../../components/vendor/RoomCard';
-import SectionHeader from '../../components/vendor/SectionHeader';
+import SectionHeader from '../../components/SectionHeader';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
 import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut, Ticket, Building2, Home } from 'lucide-react';
-import { useGetVendorEventsQuery, useDeleteEventMutation } from '../../store/services/eventApi';
+import { useDeleteEventMutation } from '../../store/services/eventApi';
 import { useDeleteHotelMutation, useGetVendorHotelsQuery } from '../../store/services/hotelApi';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
 import PulseLoader from '../../components/PulseLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import VendorPropertiesPage from './VendorPropertiesPage';
 import SkeletonLoader from '../../components/SkeletonLoader';
-import EventCard from '../../components/vendor/EventCard';
 import { AppRoutes } from '../../utils/AppRoutes';
 import HotelSelectionModal, {type  HotelType } from '../../components/HotelSelectionModal';
 import RoomManagementSection from '../../components/RoomManagementSection';
@@ -22,6 +21,9 @@ import ConfirmationModal from '../../components/vendor/ConfirmationModal';
 // import VendorHotelDetailsModal from '../../components/vendor/VendorHotelDetailsModal';
 import VendorHotelDetailsModal from '../../components/vendor/VendorHotelDetailsModal';
 import RoomTiersModal from '../../components/vendor/RoomTierModal';
+import VendorAnalyticsDashboard from '../../components/vendor/AnalyticsDashboard';
+import VendorBookingsPage from '../../components/vendor/VendorBookingsPage';
+import VendorEventsPage from '../../components/vendor/VendorEventsPage';
 
 // Mock data for hotel vendor dashboard
 interface Stat {
@@ -217,7 +219,6 @@ const VendorDashboardPage: React.FC = () => {
   const [selectedHotelIdForDetails, setSelectedHotelIdForDetails] = useState<number | null>(null);
   const [hotelNameToDelete, setHotelNameToDelete] = useState<string>('');
 
-  const { data: vendorEventsData, isLoading: isLoadingEvents } = useGetVendorEventsQuery();
   const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
   const [deleteRoomType, { isLoading: isDeletingRoom }] = useDeleteRoomTypeMutation();
   const { data: vendorHotelsData, isLoading: isLoadingHotels } = useGetVendorHotelsQuery({});
@@ -227,8 +228,6 @@ const VendorDashboardPage: React.FC = () => {
   });
 
   const [deleteHotel, { isLoading: isDeletingHotel }] = useDeleteHotelMutation();
-
-  const vendorEvents = vendorEventsData?.data || [];
 
   const handleLogout = () => {
     dispatch(logout());
@@ -489,46 +488,8 @@ const VendorDashboardPage: React.FC = () => {
               )}
             </div>
           ) : activeSection === 'events' ? (
-            <div className="animate-fadeIn">
-
-              <SectionHeader
-                icon={<Building2 size={24} className="text-white" />}
-                title="Event Management"
-                description="Manage your events, tickets, and listings"
-                buttonText="Add an Event"
-                onButtonClick={() => navigate('/vendor/event')}
-                gradientFrom="from-purple-600"
-                gradientTo="to-pink-600"
-              />
-
-              {isLoadingEvents ? (
-                <div className="flex justify-center py-12">
-                  <PulseLoader />
-                </div>
-              ) : vendorEvents.length === 0 ? (
-                <div className="text-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-200">
-                  <p>No events found. Create your first event to get started!</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {vendorEvents.map(event => (
-                    <EventCard
-                      key={event.id}
-                      id={event.id}
-                      title={event.title}
-                      startDate={event.start_date}
-                      status={event.status}
-                      category={event.category}
-                      ticketsSold={event.tickets_sold}
-                      revenue={event.revenue}
-                      onEdit={(id) => navigate(`/vendor/event/edit/${id}`)}
-                      onDelete={(id) => handleDeleteClick(id)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : activeSection === 'rooms' ? (
+            <VendorEventsPage />
+          ) : activeSection === 'rooms' ? ( 
             isLoadingInitialHotel ? (
               <div className="animate-fadeIn space-y-8">
                 {/* Header Skeleton */}
@@ -602,253 +563,10 @@ const VendorDashboardPage: React.FC = () => {
             </>
             )
           ) : activeSection === 'bookings' ? (
-            <div>booking</div>
+            <VendorBookingsPage />
           ) : (
             <>
-              {/* Welcome Header */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Welcome back, Qamar</h1>
-                  <p className="text-slate-600">Here's what's happening with your hotel today</p>
-                </div>
-                <div className="flex gap-3">
-                  <button className="px-4 py-2 bg-white border border-slate-300 rounded-xl hover:shadow-md transition-all flex items-center gap-2">
-                    <Download size={18} />
-                    <span className="hidden md:inline">Export</span>
-                  </button>
-                  <button className="px-4 py-2 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
-                    <Plus size={18} />
-                    <span className="hidden md:inline">New Booking</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Stats Overview */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                {mockStats.map((stat, idx) => (
-                  <div key={idx} className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-200 shadow-lg hover:shadow-xl transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-indigo-50 rounded-xl">
-                        {stat.icon}
-                      </div>
-                      <div className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg ${stat.positive ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
-                        }`}>
-                        {stat.positive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                        {stat.change}
-                      </div>
-                    </div>
-                    <h3 className="text-sm text-slate-600 mb-1">{stat.title}</h3>
-                    <div className="text-3xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                      {stat.value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bg-linear-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 mb-8 text-white">
-                <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-4 rounded-xl transition-all text-center">
-                    <Calendar className="mx-auto mb-2" size={24} />
-                    <span className="text-sm font-medium">Check-ins Today</span>
-                    <p className="text-2xl font-bold mt-1">3</p>
-                  </button>
-                  <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-4 rounded-xl transition-all text-center">
-                    <Clock className="mx-auto mb-2" size={24} />
-                    <span className="text-sm font-medium">Check-outs Today</span>
-                    <p className="text-2xl font-bold mt-1">5</p>
-                  </button>
-                  <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-4 rounded-xl transition-all text-center">
-                    <AlertTriangle className="mx-auto mb-2" size={24} />
-                    <span className="text-sm font-medium">Pending Tasks</span>
-                    <p className="text-2xl font-bold mt-1">2</p>
-                  </button>
-                  <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-4 rounded-xl transition-all text-center">
-                    <MessageSquare className="mx-auto mb-2" size={24} />
-                    <span className="text-sm font-medium">New Messages</span>
-                    <p className="text-2xl font-bold mt-1">7</p>
-                  </button>
-                </div>
-              </div>
-
-              {/* Mobile Search */}
-              <div className="md:hidden mb-6">
-                <div className="flex items-center bg-white rounded-xl px-4 py-3 border border-slate-200">
-                  <Search size={18} className="text-slate-400 mr-2" />
-                  <input
-                    type="text"
-                    placeholder="Search bookings..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-transparent outline-none text-sm w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Recent Bookings */}
-              <section className="mb-8">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                  <h2 className="text-2xl font-bold text-slate-900 flex items-center">
-                    <Calendar className="text-indigo-600 mr-3" size={24} />
-                    Recent Bookings
-                  </h2>
-                  <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-white border border-slate-300 rounded-xl hover:shadow-md transition-all flex items-center gap-2">
-                      <Filter size={18} />
-                      Filter
-                    </button>
-                    <button className="text-indigo-600 font-medium hover:underline flex items-center">
-                      View All
-                      <ChevronRight size={18} className="ml-1" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Desktop Table View */}
-                <div className="hidden md:block overflow-x-auto bg-white rounded-2xl shadow-lg border border-slate-200">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-slate-50 text-left text-sm text-slate-600 border-b border-slate-200">
-                        <th className="p-4 font-semibold">Guest</th>
-                        <th className="p-4 font-semibold">Check-in</th>
-                        <th className="p-4 font-semibold">Check-out</th>
-                        <th className="p-4 font-semibold">Room Type</th>
-                        <th className="p-4 font-semibold">Status</th>
-                        <th className="p-4 font-semibold">Amount</th>
-                        <th className="p-4 font-semibold">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredBookings.map(booking => (
-                        <tr key={booking.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                          <td className="p-4">
-                            <div className="font-medium text-slate-900">{booking.guestName}</div>
-                            <div className="text-sm text-slate-500">{booking.email}</div>
-                          </td>
-                          <td className="p-4 text-slate-700">{booking.checkIn}</td>
-                          <td className="p-4 text-slate-700">{booking.checkOut}</td>
-                          <td className="p-4 text-slate-700">{booking.roomType}</td>
-                          <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                              booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                                booking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
-                                  'bg-red-100 text-red-700'
-                              }`}>
-                              {booking.status === 'confirmed' && <CheckCircle size={14} />}
-                              {booking.status === 'pending' && <Clock size={14} />}
-                              {booking.status === 'cancelled' && <X size={14} />}
-                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                            </span>
-                          </td>
-                          <td className="p-4 font-bold text-slate-900">{booking.amount}</td>
-                          <td className="p-4">
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => setSelectedBooking(booking)}
-                                className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"
-                                title="View Details"
-                              >
-                                <Eye size={16} />
-                              </button>
-                              <button className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors" title="Edit">
-                                <Edit size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile Card View */}
-                <div className="md:hidden space-y-4">
-                  {filteredBookings.map(booking => (
-                    <div key={booking.id} className="bg-white p-4 rounded-xl shadow-md border border-slate-200">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-bold text-slate-900">{booking.guestName}</h3>
-                          <p className="text-sm text-slate-500">{booking.roomType}</p>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                          booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                            booking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
-                              'bg-red-100 text-red-700'
-                          }`}>
-                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                        </span>
-                      </div>
-                      <div className="space-y-2 text-sm text-slate-600 mb-3">
-                        <div className="flex justify-between">
-                          <span>Check-in:</span>
-                          <span className="font-medium">{booking.checkIn}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Check-out:</span>
-                          <span className="font-medium">{booking.checkOut}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Amount:</span>
-                          <span className="font-bold text-slate-900">{booking.amount}</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 pt-3 border-t border-slate-200">
-                        <button className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium">
-                          View Details
-                        </button>
-                        <button className="px-3 py-2 border border-slate-300 rounded-lg text-sm">
-                          <Edit size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-
-              {/* Recent Reviews */}
-              <section>
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                  <h2 className="text-2xl font-bold text-slate-900 flex items-center">
-                    <MessageSquare className="text-indigo-600 mr-3" size={24} />
-                    Recent Reviews
-                  </h2>
-                  <button className="text-indigo-600 font-medium hover:underline flex items-center">
-                    View All
-                    <ChevronRight size={18} className="ml-1" />
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                  {mockReviews.map(review => (
-                    <div key={review.id} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 hover:shadow-xl transition-all">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center bg-amber-50 px-3 py-1 rounded-lg">
-                            <Star size={16} fill="#f59e0b" className="text-amber-500 mr-1" />
-                            <span className="font-bold text-amber-700">{review.rating}</span>
-                          </div>
-                          {review.responded && (
-                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
-                              Responded
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-sm text-slate-500">{review.date}</span>
-                      </div>
-                      <p className="text-slate-700 mb-4 leading-relaxed">{review.comment}</p>
-                      <div className="flex justify-between items-center pt-4 border-t border-slate-200">
-                        <p className="text-sm font-medium text-slate-900">- {review.guestName}</p>
-                        {!review.responded && (
-                          <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all">
-                            Reply
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+              <VendorAnalyticsDashboard />
             </>
           )}
         </div>

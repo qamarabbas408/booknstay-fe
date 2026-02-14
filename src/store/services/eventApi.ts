@@ -74,9 +74,9 @@ export interface VendorEvent extends BaseEvent {
   start_date: string;
   end_date: string;
   total_capacity: number;
-  tickets_sold: number;
+  tickets_sold: number | string;
   revenue: number;
-  images: VendorImage[];
+  gallery: VendorImage[];
   tickets: VendorTicket[];
 }
 
