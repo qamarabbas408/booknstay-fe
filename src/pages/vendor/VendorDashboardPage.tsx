@@ -204,7 +204,14 @@ const mockNotifications: Notification[] = [
 const VendorDashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState(() => {
+    return localStorage.getItem('vendor_dashboard_active_section') || 'overview';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('vendor_dashboard_active_section', activeSection);
+  }, [activeSection]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -230,6 +237,7 @@ const VendorDashboardPage: React.FC = () => {
   const [deleteHotel, { isLoading: isDeletingHotel }] = useDeleteHotelMutation();
 
   const handleLogout = () => {
+    localStorage.removeItem('vendor_dashboard_active_section');
     dispatch(logout());
     navigate('/login');
   };
