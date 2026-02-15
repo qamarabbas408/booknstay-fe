@@ -1,205 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import RoomCard from '../../components/vendor/RoomCard';
-import SectionHeader from '../../components/SectionHeader';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
-import { Calendar, Users, Star, DollarSign, BarChart2, Hotel, MessageSquare, Settings, ChevronRight, AlertTriangle, CheckCircle, Clock, Bell, Search, Filter, Download, TrendingUp, TrendingDown, Menu, X, Phone, Mail, MapPin, Edit, Trash2, Plus, Eye, LogOut, Ticket, Building2, Home } from 'lucide-react';
-import { useDeleteEventMutation } from '../../store/services/eventApi';
-import { useDeleteHotelMutation, useGetVendorHotelsQuery } from '../../store/services/hotelApi';
+import { Calendar, BarChart2, Hotel, LogOut, Ticket, Building2, Menu } from 'lucide-react';
+import { useGetVendorHotelsQuery } from '../../store/services/hotelApi';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
-import PulseLoader from '../../components/PulseLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
-import VendorPropertiesPage from './VendorPropertiesPage';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import { AppRoutes } from '../../utils/AppRoutes';
-import HotelSelectionModal, {type  HotelType } from '../../components/HotelSelectionModal';
+import HotelSelectionModal from '../../components/HotelSelectionModal';
 import RoomManagementSection from '../../components/RoomManagementSection';
-import { useDeleteRoomTypeMutation, useGetRoomTiersByHotelIdQuery } from '../../store/services/roomApi';
-import VendorHotelCard from '../../components/vendor/VendorHotelCard';
+import { useDeleteRoomTypeMutation } from '../../store/services/roomApi';
 import ConfirmationModal from '../../components/vendor/ConfirmationModal';
-// import VendorHotelDetailsModal from '../../components/vendor/VendorHotelDetailsModal';
-import VendorHotelDetailsModal from '../../components/vendor/VendorHotelDetailsModal';
-import RoomTiersModal from '../../components/vendor/RoomTierModal';
 import VendorAnalyticsDashboard from '../../components/vendor/AnalyticsDashboard';
 import VendorBookingsPage from '../../components/vendor/VendorBookingsPage';
 import VendorEventsPage from '../../components/vendor/VendorEventsPage';
-
-// Mock data for hotel vendor dashboard
-interface Stat {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  change?: string;
-  positive?: boolean;
-}
-
-const mockStats: Stat[] = [
-  {
-    title: 'Total Bookings',
-    value: 156,
-    icon: <Calendar className="text-indigo-600" size={24} />,
-    change: '+12%',
-    positive: true,
-  },
-  {
-    title: 'Occupancy Rate',
-    value: '78%',
-    icon: <Users className="text-indigo-600" size={24} />,
-    change: '+5%',
-    positive: true,
-  },
-  {
-    title: 'Revenue This Month',
-    value: '$42,500',
-    icon: <DollarSign className="text-indigo-600" size={24} />,
-    change: '-2%',
-    positive: false,
-  },
-  {
-    title: 'Average Rating',
-    value: 4.7,
-    icon: <Star className="text-indigo-600" size={24} />,
-    change: '+0.2',
-    positive: true,
-  },
-];
-
-interface Booking {
-  id: number;
-  guestName: string;
-  checkIn: string;
-  checkOut: string;
-  roomType: string;
-  status: 'confirmed' | 'pending' | 'cancelled' | 'checked-in';
-  amount: string;
-  phone?: string;
-  email?: string;
-}
-
-const mockBookings: Booking[] = [
-  {
-    id: 1,
-    guestName: 'Ahmed Khan',
-    checkIn: 'Jan 28, 2026',
-    checkOut: 'Feb 2, 2026',
-    roomType: 'Deluxe Suite',
-    status: 'confirmed',
-    amount: '$1,250',
-    phone: '+92 300 1234567',
-    email: 'ahmed@example.com',
-  },
-  {
-    id: 2,
-    guestName: 'Sara Ali',
-    checkIn: 'Jan 30, 2026',
-    checkOut: 'Feb 1, 2026',
-    roomType: 'Standard Room',
-    status: 'pending',
-    amount: '$380',
-    phone: '+92 301 7654321',
-    email: 'sara@example.com',
-  },
-  {
-    id: 3,
-    guestName: 'John Doe',
-    checkIn: 'Feb 5, 2026',
-    checkOut: 'Feb 10, 2026',
-    roomType: 'Executive Villa',
-    status: 'confirmed',
-    amount: '$2,100',
-    phone: '+1 555 123 4567',
-    email: 'john@example.com',
-  },
-  {
-    id: 4,
-    guestName: 'Maria Garcia',
-    checkIn: 'Jan 28, 2026',
-    checkOut: 'Jan 29, 2026',
-    roomType: 'Standard Room',
-    status: 'checked-in',
-    amount: '$190',
-    phone: '+34 600 111 222',
-    email: 'maria@example.com',
-  },
-];
-
-
-
-interface Review {
-  id: number;
-  guestName: string;
-  rating: number;
-  comment: string;
-  date: string;
-  responded: boolean;
-}
-
-const mockReviews: Review[] = [
-  {
-    id: 1,
-    guestName: 'Ahmed Khan',
-    rating: 5,
-    comment: 'Amazing stay! Staff was wonderful and the room was spotless.',
-    date: 'Jan 20, 2026',
-    responded: true,
-  },
-  {
-    id: 2,
-    guestName: 'Sara Ali',
-    rating: 4.5,
-    comment: 'Great location, rooms were clean. Minor issue with WiFi.',
-    date: 'Jan 15, 2026',
-    responded: false,
-  },
-  {
-    id: 3,
-    guestName: 'John Doe',
-    rating: 4,
-    comment: 'Good value for money. Breakfast could be improved.',
-    date: 'Jan 10, 2026',
-    responded: true,
-  },
-];
-
-interface Notification {
-  id: number;
-  type: 'booking' | 'review' | 'maintenance' | 'payment';
-  message: string;
-  time: string;
-  read: boolean;
-}
-
-const mockNotifications: Notification[] = [
-  {
-    id: 1,
-    type: 'booking',
-    message: 'New booking from Sara Ali',
-    time: '5 mins ago',
-    read: false,
-  },
-  {
-    id: 2,
-    type: 'review',
-    message: 'New review received (4.5 stars)',
-    time: '1 hour ago',
-    read: false,
-  },
-  {
-    id: 3,
-    type: 'maintenance',
-    message: 'Room 305 maintenance completed',
-    time: '2 hours ago',
-    read: true,
-  },
-  {
-    id: 4,
-    type: 'payment',
-    message: 'Payment received: $1,250',
-    time: '3 hours ago',
-    read: true,
-  },
-];
+import VendorHotelsPage from '../../components/vendor/VendorsHotelsPage';
+import type { VendorHotel } from '../../store/services/hotelApi';
 
 const VendorDashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -213,28 +30,10 @@ const VendorDashboardPage: React.FC = () => {
   }, [activeSection]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [eventToDelete, setEventToDelete] = useState<number | null>(null);
   const [showHotelModal, setShowHotelModal] = useState(false);
-  const [selectedHotel, setSelectedHotel] = useState<any | null>(null);
+  const [selectedHotel, setSelectedHotel] = useState<VendorHotel | null>(null);
   const [roomToDelete, setRoomToDelete] = useState<number | null>(null);
-  const [hotelToDelete, setHotelToDelete] = useState<number | null>(null);
-  const [selectedHotelIdForTiers, setSelectedHotelIdForTiers] = useState<number | null>(null);
-  const [showHotelDetailsModal, setShowHotelDetailsModal] = useState(false);
-  const [selectedHotelIdForDetails, setSelectedHotelIdForDetails] = useState<number | null>(null);
-  const [hotelNameToDelete, setHotelNameToDelete] = useState<string>('');
-
-  const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
   const [deleteRoomType, { isLoading: isDeletingRoom }] = useDeleteRoomTypeMutation();
-  const { data: vendorHotelsData, isLoading: isLoadingHotels } = useGetVendorHotelsQuery({});
-
-  const { data: roomTiersData, isLoading: isLoadingRoomTiers } = useGetRoomTiersByHotelIdQuery(selectedHotelIdForTiers!, {
-    skip: !selectedHotelIdForTiers,
-  });
-
-  const [deleteHotel, { isLoading: isDeletingHotel }] = useDeleteHotelMutation();
 
   const handleLogout = () => {
     localStorage.removeItem('vendor_dashboard_active_section');
@@ -260,30 +59,6 @@ const VendorDashboardPage: React.FC = () => {
     }
   }, [activeSection, initialHotelData, selectedHotel]);
 
-  const unreadNotifications = mockNotifications.filter(n => !n.read).length;
-
-  const filteredBookings = mockBookings.filter(booking =>
-    booking.guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    booking.roomType.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleDeleteClick = (id: number) => {
-    setEventToDelete(id);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (eventToDelete) {
-      try {
-        await deleteEvent(eventToDelete).unwrap();
-        showToast.success('Event deleted successfully');
-        setEventToDelete(null);
-      } catch (error) {
-        console.error('Failed to delete event:', error);
-        showToast.error('Failed to delete event');
-      }
-    }
-  };
-
   const handleConfirmDeleteRoom = async () => {
     if (roomToDelete && selectedHotel) {
       try {
@@ -305,87 +80,38 @@ const VendorDashboardPage: React.FC = () => {
     }
   };
 
-  const handleDeleteRoomTierDirectly = async (tierId: number) => {
-    try {
-      await deleteRoomType(tierId).unwrap();
-      showToast.success('Room type deleted successfully');
-    } catch (error: any) {
-      console.error('Failed to delete room tier:', error);
-      showToast.error(error?.data?.message || 'Failed to delete room type');
-    }
-  };
-
   const getImageUrl = (path: string | null | undefined) => {
     if (!path) return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
     if (path.startsWith('http')) return path;
     return `${APIENDPOINTS.content_url}${path}`;
   };
 
-  const handleEditHotel = (hotelId: number) => {
-    navigate(`/vendor/hotel/${hotelId}/edit`);
-  };
-
-  const handleDeleteHotel = (hotelId: number) => {
-    const hotel = vendorHotelsData?.data?.find((h: any) => h.id === hotelId);
-    if (hotel) {
-      setHotelToDelete(hotelId);
-      setHotelNameToDelete(hotel.name);
-    }
-  };
-
-  const handleConfirmDeleteHotel = async () => {
-    if (hotelToDelete) {
-      try {
-        await deleteHotel(hotelToDelete).unwrap();
-        showToast.success('Hotel deleted successfully');
-        setHotelToDelete(null);
-        setHotelNameToDelete('');
-      } catch (error) {
-        console.error('Failed to delete Hotel:', error);
-        showToast.error('Failed to delete hotel');
-      }
-    }
-  };
-
-  const handleCancelDeleteHotel = () => {
-    setHotelToDelete(null);
-    setHotelNameToDelete('');
-  };
-
-  const handleToggleHotelStatus = (hotelId: number) => {
-    console.log("Toggle status for hotel:", hotelId);
-    // TODO: Implement status toggle API call
-     
-  };
-
-  const handleManageTier = (hotelId: number) => {
-    setSelectedHotelIdForTiers(hotelId);
-  };
-
-  const handleViewHotelDetails = (hotelId: number) => {
-    setSelectedHotelIdForDetails(hotelId);
-    setShowHotelDetailsModal(true);
-  };
-
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <CustomToaster />
   
+      {/* Mobile Sidebar Toggle */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-40">
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
+          aria-label="Toggle Dashboard Menu"
+        >
+          <Menu size={24} />
+        </button>
+      </div>
 
       {/* Sidebar */}
-      <aside className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white/90 backdrop-blur-md border-r border-slate-200 shadow-lg z-30 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      <aside className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white/80 backdrop-blur-xl border-r border-white/40 shadow-xl z-30 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}>
         <div className="p-6 h-full flex flex-col">
-          <nav className="space-y-2 flex-1">
+          <nav className="space-y-2 flex-1 overflow-y-auto py-2 custom-scrollbar">
             {[
               { id: 'overview', label: 'Overview', icon: <BarChart2 size={20} /> },
-              { id: 'bookings', label: 'Bookings', icon: <Calendar size={20} /> },
-              { id: 'properties', label: 'Hotel Management', icon: <Building2 size={20} /> },
-              { id: 'events', label: 'Event Management', icon: <Ticket size={20} /> },
+              { id: 'bookings', label: 'My Bookings', icon: <Calendar size={20} /> },
+              { id: 'properties', label: 'My Hotels', icon: <Building2 size={20} /> },
+              { id: 'events', label: 'My Events', icon: <Ticket size={20} /> },
               { id: 'rooms', label: 'Room Management', icon: <Hotel size={20} /> },
-              // { id: 'reviews', label: 'Reviews & Ratings', icon: <Star size={20} /> },
-              // { id: 'analytics', label: 'Analytics', icon: <TrendingUp size={20} /> },
-              // { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
             ].map(item => (
               <button
                 key={item.id}
@@ -393,18 +119,18 @@ const VendorDashboardPage: React.FC = () => {
                   setActiveSection(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${activeSection === item.id
-                  ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-                  : 'text-slate-700 hover:bg-slate-100'
+                className={`w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group ${activeSection === item.id
+                  ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
                   }`}
               >
-                {item.icon}
+                <span className={`transition-transform duration-200 ${activeSection === item.id ? 'scale-110' : 'group-hover:scale-110'}`}>{item.icon}</span>
                 <span className="ml-3 font-medium">{item.label}</span>
               </button>
             ))}
           </nav>
 
-          <div className="pt-4 border-t border-slate-200">
+          <div className="pt-4 border-t border-slate-200/60 mt-auto">
             <button
               onClick={handleLogout}
               className="w-full flex items-center px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all"
@@ -428,73 +154,7 @@ const VendorDashboardPage: React.FC = () => {
       <main className="lg:ml-64 pt-24 pb-20 px-4 lg:px-6">
         <div className="max-w-7xl mx-auto">
           {activeSection === 'properties' ? (
-            <div style={{
-              animationDelay: '0s'
-            }} className="glass rounded-3xl overflow-hidden shadow-lg hover:shadow-xl card-hover border border-white/40 animate-fadeInUp">
-              <SectionHeader
-                icon={<Building2 size={24} className="text-white" />}
-                title="Your Properties"
-                description="Manage your hotels, tickets, and listings"
-                buttonText="Add your Hotel"
-                onButtonClick={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddHotel}`)}
-                gradientFrom="from-purple-600"
-                gradientTo="to-pink-600"
-              />
-
-              {isLoadingHotels ? (
-                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {[...Array(4)].map((_, i) => (
-                    <SkeletonLoader key={i} type="hotel" />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {vendorHotelsData?.data.map((hotel: any) => (
-                    <VendorHotelCard
-                      key={hotel.id}
-                      hotel={{
-                        id: hotel.id,
-                        name: hotel.name,
-                        description: hotel.description,
-                        image: hotel.images?.[0]?.path || '',
-                        thumbnail: hotel.images?.[0]?.path || '',
-                        room_tiers: hotel.room_tiers || [],
-                        gallery: hotel.images?.map((img: any, index: number) => ({ id: img.id, url: img.path, is_primary: index === 0 })) || [],
-                        location: {
-                          country: hotel.location?.country || '',
-                          city: hotel.location?.city || hotel.city || '',
-                          full_address: hotel.location?.full_address || hotel.address || '',
-                          zip_code: hotel.location?.zip_code || '',
-                          latitude: Number(hotel.location?.latitude) || 0,
-                          longitude: Number(hotel.location?.longitude) || 0,
-                        },
-                        amenities: hotel.amenities || [],
-                        location_summary: `${hotel.city}, ${hotel.location?.country || ''}`,
-                        stars: hotel.star_rating || 0,
-                        status: hotel.status,
-                        pricePerNight: hotel.room_types_min_base_price || 0,
-                        bookings: hotel.bookings_count || 0,
-                        revenue: hotel.bookings_sum_total_price || 0,
-                        rating: hotel.reviews_avg_rating || 0,
-                        reviews: hotel.reviews_count || 0,
-                        createdAt: hotel.createdAt,
-                      }}
-                      baseImageUrl={APIENDPOINTS.content_url}
-                      onEdit={handleEditHotel}
-                      onDelete={handleDeleteHotel}
-                      onToggleStatus={handleToggleHotelStatus}
-                      onTierManage={handleManageTier}
-                      onViewDetails={handleViewHotelDetails}
-                    />
-                  ))}
-                  {(!vendorHotelsData?.data || vendorHotelsData.data.length === 0) && (
-                    <div className="text-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-200">
-                      <p>No properties found. Add your first hotel to get started!</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+            <VendorHotelsPage />
           ) : activeSection === 'events' ? (
             <VendorEventsPage />
           ) : activeSection === 'rooms' ? ( 
@@ -526,9 +186,9 @@ const VendorDashboardPage: React.FC = () => {
                 selectedHotel={selectedHotel ? {
                   id: selectedHotel.id,
                   name: selectedHotel.name,
-                  location: selectedHotel.city,
-                  rating: selectedHotel.reviews_avg_rating || 0,
-                  image: getImageUrl(selectedHotel.images?.[0]?.path),
+                  location: selectedHotel.location?.city,
+                  rating: selectedHotel.rating || 0,
+                  image: getImageUrl(selectedHotel.image),
                   roomCount: selectedHotel.room_tiers?.length || 0
                 } : null}
                 rooms={selectedHotel?.room_tiers?.map((tier: any) => ({
@@ -552,17 +212,17 @@ const VendorDashboardPage: React.FC = () => {
               />
               <HotelSelectionModal
                 isOpen={showHotelModal}
-                hotels={allHotelsData?.data?.map((h: any) => ({
+                hotels={allHotelsData?.data?.map((h: VendorHotel) => ({
                   id: h.id,
                   name: h.name,
-                  location: h.city,
-                  rating: h.reviews_avg_rating || 0,
-                  image: getImageUrl(h.images?.[0]?.path),
+                  location: h.location?.city,
+                  rating: h.rating || 0,
+                  image: getImageUrl(h.image),
                   roomCount: h.room_tiers?.length || 0
                 })) || []}
                 onClose={() => setShowHotelModal(false)}
                 onSelect={(hotel) => {
-                  const fullHotel = allHotelsData?.data?.find((h: any) => h.id === hotel.id);
+                  const fullHotel = allHotelsData?.data?.find((h: VendorHotel) => h.id === hotel.id);
                   if (fullHotel) setSelectedHotel(fullHotel);
                   setShowHotelModal(false);
                 }}
@@ -580,114 +240,6 @@ const VendorDashboardPage: React.FC = () => {
         </div>
       </main>
 
-      {/* Booking Details Modal */}
-      {selectedBooking && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedBooking(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-              <h3 className="text-2xl font-bold text-slate-900">Booking Details</h3>
-              <button onClick={() => setSelectedBooking(null)} className="p-2 hover:bg-slate-100 rounded-lg">
-                <X size={24} />
-              </button>
-            </div>
-            <div className="p-6">
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-semibold text-slate-900 mb-3 text-lg">Guest Information</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-slate-700">
-                      <Users size={18} className="text-indigo-600" />
-                      <span>{selectedBooking.guestName}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-slate-700">
-                      <Mail size={18} className="text-indigo-600" />
-                      <span>{selectedBooking.email}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-slate-700">
-                      <Phone size={18} className="text-indigo-600" />
-                      <span>{selectedBooking.phone}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-200 pt-6">
-                  <h4 className="font-semibold text-slate-900 mb-3 text-lg">Booking Information</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-slate-600 mb-1">Check-in</p>
-                      <p className="font-semibold text-slate-900">{selectedBooking.checkIn}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-600 mb-1">Check-out</p>
-                      <p className="font-semibold text-slate-900">{selectedBooking.checkOut}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-600 mb-1">Room Type</p>
-                      <p className="font-semibold text-slate-900">{selectedBooking.roomType}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-600 mb-1">Status</p>
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${selectedBooking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                        selectedBooking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                          selectedBooking.status === 'checked-in' ? 'bg-blue-100 text-blue-700' :
-                            'bg-red-100 text-red-700'
-                        }`}>
-                        {selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-600 mb-1">Total Amount</p>
-                      <p className="text-2xl font-bold text-indigo-600">{selectedBooking.amount}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 pt-6 border-t border-slate-200">
-                  <button className="flex-1 px-4 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
-                    Confirm Booking
-                  </button>
-                  <button className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl font-semibold hover:shadow-md transition-all">
-                    Cancel Booking
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {eventToDelete && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setEventToDelete(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle size={32} className="text-red-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Delete Event?</h3>
-              <p className="text-slate-600">
-                Are you sure you want to delete this event? This action cannot be undone.
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setEventToDelete(null)}
-                className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all flex items-center justify-center gap-2"
-              >
-                {isDeleting ? 'Deleting...' : 'Delete Event'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Delete Room Confirmation Modal */}
       <ConfirmationModal
         title="Delete Room Type?"
@@ -699,39 +251,6 @@ const VendorDashboardPage: React.FC = () => {
         confirmText="Delete Room"
         isDangerous={true}
       />
-
-      {/* Delete Hotel Confirmation Modal */}
-      <ConfirmationModal
-        title="Delete Hotel?"
-        message={`Are you sure you want to delete "${hotelNameToDelete}"? This action cannot be undone.`}
-        isOpen={!!hotelToDelete}
-        isLoading={isDeletingHotel}
-        onConfirm={handleConfirmDeleteHotel}
-        onCancel={handleCancelDeleteHotel}
-        confirmText="Delete Hotel"
-        isDangerous={true}
-      />
-
-      {/* Hotel Details Modal */}
-      <VendorHotelDetailsModal
-        isOpen={showHotelDetailsModal}
-        hotelId={selectedHotelIdForDetails}
-        onClose={() => setShowHotelDetailsModal(false)}
-      />
-
-      {/* Room Tiers Management Modal */}
-      {selectedHotelIdForTiers && (
-        <RoomTiersModal
-          isOpen={!!selectedHotelIdForTiers}
-          onClose={() => setSelectedHotelIdForTiers(null)}
-          hotelName={vendorHotelsData?.data.find((h: any) => h.id === selectedHotelIdForTiers)?.name || 'Hotel'}
-          roomTiers={roomTiersData?.data || []}
-          isLoading={isLoadingRoomTiers}
-          onAddTier={() => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.vendorAddRoomtier}/${selectedHotelIdForTiers}`)}
-          onEditTier={(tierId) => navigate(`/${AppRoutes.vendorBase}/${AppRoutes.editRoomtier}/${tierId}`)}
-          onDeleteTier={handleDeleteRoomTierDirectly}
-        />
-      )}
           
     </div>
 

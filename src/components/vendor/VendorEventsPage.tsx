@@ -28,10 +28,11 @@ import { useGetVendorEventsQuery, useDeleteEventMutation, type VendorEvent } fro
 import { showToast } from '../CustomToaster';
 import { Loader2 } from 'lucide-react';
 import PulseLoader from '../PulseLoader';
+import ConfirmationModal from './ConfirmationModal';
 
 const VendorEventsPage: React.FC = () => {
     const { data: eventsData, isLoading } = useGetVendorEventsQuery();
-    const [deleteEvent] = useDeleteEventMutation();
+    const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
 
     const events = eventsData?.data || [];
 
@@ -40,6 +41,7 @@ const VendorEventsPage: React.FC = () => {
     const [actionMenuId, setActionMenuId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [eventToDelete, setEventToDelete] = useState<number | null>(null);
 
     const statusColors: Record<string, string> = {
         active: 'bg-green-100 text-green-700 border-green-200',
@@ -59,16 +61,21 @@ const VendorEventsPage: React.FC = () => {
         setActionMenuId(null);
     };
 
-    const handleDelete = async (eventId: number) => {
-        if (window.confirm('Are you sure you want to delete this event?')) {
+    const handleDeleteClick = (eventId: number) => {
+        setEventToDelete(eventId);
+        setActionMenuId(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (eventToDelete) {
             try {
-                await deleteEvent(eventId).unwrap();
+                await deleteEvent(eventToDelete).unwrap();
                 showToast.success('Event deleted successfully');
-                setActionMenuId(null);
-                if (selectedEvent?.id === eventId) {
+                if (selectedEvent?.id === eventToDelete) {
                     setShowDetailModal(false);
                     setSelectedEvent(null);
                 }
+                setEventToDelete(null);
             } catch (error) {
                 showToast.error('Failed to delete event');
             }
@@ -107,49 +114,7 @@ const VendorEventsPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20 p-4 md:p-6 lg:p-8 ">
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap');
-        
-        * {
-          font-family: 'Archivo', -apple-system, sans-serif;
-        }
-        
-        .font-display {
-          font-family: 'Archivo', sans-serif;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-        
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-        }
-        
-        .glass {
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-      `}</style>
+       
 
             <div className="max-w-7xl mx-auto">
 
@@ -438,7 +403,7 @@ const VendorEventsPage: React.FC = () => {
                                                                         </Link>
 
                                                                         <button
-                                                                            onClick={() => handleDelete(event.id)}
+                                                                            onClick={() => handleDeleteClick(event.id)}
                                                                             className="w-full flex items-center space-x-2 px-4 py-3 hover:bg-red-50 transition-colors text-left border-t border-slate-100"
                                                                         >
                                                                             <Trash2 size={16} className="text-red-600" />
@@ -472,11 +437,22 @@ const VendorEventsPage: React.FC = () => {
                         setShowDetailModal(false);
                     }}
                     onDelete={() => {
-                        handleDelete(selectedEvent.id);
+                        handleDeleteClick(selectedEvent.id);
                         setShowDetailModal(false);
                     }}
                 />
             )}
+
+            <ConfirmationModal
+                isOpen={!!eventToDelete}
+                title="Delete Event"
+                message="Are you sure you want to delete this event? This action cannot be undone."
+                confirmText="Delete Event"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setEventToDelete(null)}
+                isLoading={isDeleting}
+                isDangerous={true}
+            />
         </div>
     );
 };

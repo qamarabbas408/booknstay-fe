@@ -224,7 +224,8 @@ const VendorAnalyticsDashboard: React.FC = () => {
         <div className="glass rounded-2xl p-6 md:p-8 shadow-lg border border-white/40 mb-8 animate-fadeInUp" style={{animationDelay: '0.7s'}}>
           <h2 className="text-2xl font-display text-slate-900 mb-6">Revenue by Month</h2>
           
-          <div className="flex items-end justify-between h-64 space-x-2">
+          <div className="overflow-x-auto pb-2">
+            <div className="flex items-end justify-between h-64 space-x-2 min-w-[600px] md:min-w-0">
             {analyticsData.charts.revenue_by_month.map((month, index) => {
               const heightPercentage = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0;
               
@@ -260,16 +261,17 @@ const VendorAnalyticsDashboard: React.FC = () => {
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
 
         {/* Performance Section */}
         <div className="glass rounded-2xl p-6 md:p-8 shadow-lg border border-white/40 animate-fadeInUp" style={{animationDelay: '0.8s'}}>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-2xl font-display text-slate-900">Top Performers</h2>
             
             {/* Tab Switcher */}
-            <div className="flex items-center bg-slate-100 rounded-xl p-1">
+            <div className="flex items-center bg-slate-100 rounded-xl p-1 overflow-x-auto max-w-full">
               <button
                 onClick={() => setSelectedTab('hotels')}
                 className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${

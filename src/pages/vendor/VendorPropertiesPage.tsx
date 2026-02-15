@@ -6,6 +6,8 @@ import { APIENDPOINTS } from '../../utils/ApiConstants';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import { AppRoutes } from '../../utils/AppRoutes';
 import { useNavigate } from 'react-router-dom';
+import type { VendorHotel } from '../../store/services/hotelApi';
+
 const VendorPropertiesPage = () => {
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
@@ -28,16 +30,16 @@ const VendorPropertiesPage = () => {
   });
 
   const vendorProperties = data?.data || [];
-  const meta = data?.meta;
+  const pagination = data?.pagination;
 
   // Calculate stats from the fetched data (or use separate API for stats if available)
   // For now, we can only calculate based on the current page or fetched data, 
   // but ideally stats should come from a dashboard API. 
   // We'll use the fetched list for simple stats or 0 if empty.
-  const totalRevenue = vendorProperties.reduce((sum, p) => sum + (p.bookings_sum_total_price || 0), 0);
-  const totalBookings = vendorProperties.reduce((sum, p) => sum + p.bookings_count, 0);
+  const totalRevenue = vendorProperties.reduce((sum, p) => sum + (p.revenue || 0), 0);
+  const totalBookings = vendorProperties.reduce((sum, p) => sum + (p.bookings || 0), 0);
   const activeProperties = vendorProperties.filter(p => p.status === 'active').length;
-  const totalProperties = meta?.total || vendorProperties.length;
+  const totalProperties = pagination?.total || vendorProperties.length;
 
   const handleViewProperty = (id: number) => {
     console.log('View property:', id);
@@ -57,75 +59,7 @@ const VendorPropertiesPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
-        
-        * {
-          font-family: 'Archivo', -apple-system, sans-serif;
-        }
-        
-        .font-display {
-          font-family: 'Archivo', sans-serif;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-        }
-        
-        .font-serif {
-          font-family: 'Crimson Pro', serif;
-        }
-        
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fadeInUp {
-          animation: fadeInUp 0.6s ease-out forwards;
-        }
-
-        .animate-slideUp {
-          animation: slideUp 0.4s ease-out;
-        }
-        
-        .card-hover {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-        }
-        
-        .glass {
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .gradient-text {
-          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-      `}</style>
+     
 
       {/* Header Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white py-16">
@@ -222,7 +156,7 @@ const VendorPropertiesPage = () => {
               </button>
               
               <div className="text-slate-600">
-                <span className="font-bold text-slate-900 text-lg">{meta?.total || 0}</span>
+                <span className="font-bold text-slate-900 text-lg">{pagination?.total || 0}</span>
                 <span className="ml-1">properties</span>
               </div>
             </div>
@@ -324,34 +258,34 @@ const VendorPropertiesPage = () => {
               </div>
             ) : (
               <div className="space-y-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {vendorProperties.map((property, index) => (
+                {vendorProperties.map((property: VendorHotel) => (
                   <VendorHotelCard
                     key={property.id}
                     hotel={{
                       id: property.id,
                       name: property.name,
-                      image: property.images?.[0]?.path || '',
-                      thumbnail: property.images?.[0]?.path || '',
+                      image: property.image || '',
+                      thumbnail: property.thumbnail || '',
                       description: property.description,
-                      room_tiers: property.room_tiers || [],
-                      gallery: property.images?.map((img: any, index: number) => ({ id: img.id, url: img.path, is_primary: index === 0 })) || [],
+                      room_tiers: property.room_tiers?.map(tier => ({...tier, description: tier.description || '', status: tier.status as 'active' | 'inactive'})) || [],
+                      gallery: property.gallery || [],
                       location: {
                         country: property.location?.country || '',
-                        city: property.location?.city || property.city || '',
-                        full_address: property.location?.full_address || property.address || '',
+                        city: property.location?.city || '',
+                        full_address: property.location?.full_address || '',
                         zip_code: property.location?.zip_code || '',
                         latitude: Number(property.location?.latitude) || 0,
                         longitude: Number(property.location?.longitude) || 0,
                       },
                       amenities: property.amenities || [],
-                      location_summary: `${property.city}, ${property.location?.country || ''}`,
-                      stars: property.star_rating || 0,
-                      status: property.status,
-                      pricePerNight: property.room_types_min_base_price || 0,
-                      bookings: property.bookings_count || 0,
-                      revenue: property.bookings_sum_total_price || 0,
-                      rating: property.reviews_avg_rating || 0,
-                      reviews: property.reviews_count || 0,
+                      location_summary: property.location_summary || `${property.location?.city}, ${property.location?.country}`,
+                      stars: property.stars || 0,
+                      status: property.status as 'active' | 'inactive' | 'pending',
+                      pricePerNight: property.pricePerNight || 0,
+                      bookings: property.bookings || 0,
+                      revenue: property.revenue || 0,
+                      rating: property.rating || 0,
+                      reviews: property.reviews || 0,
                       createdAt: property.createdAt,
                     }}
                     baseImageUrl={APIENDPOINTS.content_url}

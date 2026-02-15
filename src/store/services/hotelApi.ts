@@ -73,37 +73,60 @@ export interface Hotel {
   roomTiers?: RoomTier[];
 }
 
+export interface VendorAmenity {
+  id: number;
+  name: string;
+  icon: string;
+  slug: string;
+}
+
+export interface VendorLocation {
+  country: string;
+  city: string;
+  full_address: string;
+  zip_code: string | null;
+  latitude: number;
+  longitude: number;
+}
+
+export interface VendorGalleryImage {
+  id: number;
+  url: string;
+  is_primary: boolean;
+}
+
+export interface VendorRoomTier {
+  id: number;
+  type: string;
+  description: string | null;
+  base_price: number;
+  max_occupancy: number;
+  total_inventory: number;
+  status: string;
+  available: number;
+  is_locked: boolean;
+  active_bookings_count: number;
+}
+
 export interface VendorHotel {
   id: number;
   name: string;
-  city: string;
-  address: string;
+  image: string;
   description: string;
-  status: 'active' | 'pending' | 'inactive';
-  room_types_min_base_price: number;
-  bookings_count: number;
-  bookings_sum_total_price: number;
-  reviews_count: number;
-  reviews_avg_rating: number;
+  thumbnail: string;
+  room_tiers: VendorRoomTier[];
+  gallery: VendorGalleryImage[];
+  location: VendorLocation;
+  amenities: VendorAmenity[];
+  location_summary: string;
+  stars: number;
+  status: string;
+  pricePerNight: number;
+  bookings: number;
+  revenue: number;
+  rating: number;
+  reviews: number;
   createdAt: string;
-  room_types_count: number;
-  images: { id: number; path: string }[];
-  gallery: Gallery[];
-  location: HotelLocation;
-  amenities: HotelAmenity[];
-  star_rating?: number;
-  room_tiers?: RoomTier[];
-  property_type?: string;
-  total_rooms?: number;
-  base_price?: number;
-  currency?: string;
-  tax_rate?: number;
-  service_charge?: number;
-  cancellation_policy?: string;
-  house_rules?: string;
-  contact_email?: string;
-  contact_phone?: string;
-  website?: string;
 }
 
 export interface HotelAvailabilityRoomTier {
@@ -142,11 +165,11 @@ export interface HotelsResponse {
 export interface VendorHotelsResponse {
   status: string;
   data: VendorHotel[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
+  pagination: {
     total: number;
+    perPage: number;
+    currentPage: number;
+    lastPage: number;
   };
 }
 
@@ -167,6 +190,8 @@ export interface VendorHotelQueryParams {
   sort_by?: 'recent' | 'price_high' | 'price_low';
   limit?: number;
   page?: number;
+  min_price?: number;
+  max_price?: number;
 }
 
 export interface RoomTierPayload {
