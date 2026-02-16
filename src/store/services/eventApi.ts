@@ -80,6 +80,24 @@ export interface VendorEvent extends BaseEvent {
   tickets: VendorTicket[];
 }
 
+export interface VendorEventsResponse {
+  status: string;
+  data: VendorEvent[];
+  pagination: {
+    total: number;
+    perPage: number;
+    currentPage: number;
+    lastPage: number;
+  };
+}
+
+export interface VendorEventQueryParams {
+  search?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+}
+
 export interface EventsResponse {
   status: string;
   data: Event[];
@@ -131,10 +149,11 @@ export const eventApi = api.injectEndpoints({
       }),
       invalidatesTags: ['VendorEvents'],
     }),
-    getVendorEvents: builder.query<{ data: VendorEvent[] }, void>({
-      query: () => ({
+    getVendorEvents: builder.query<VendorEventsResponse, VendorEventQueryParams>({
+      query: (params) => ({
         url: '/vendor/events', //fetch vendor events 
         method: 'GET',
+        params,
       }),
       providesTags: ['VendorEvents'],
     }),

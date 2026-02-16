@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import { useLoginMutation } from '../../store/services/AuthApi';
@@ -362,9 +362,9 @@ const LoginPage: React.FC = () => {
             <div className="mt-8 text-center">
               <p className="text-slate-600">
                 Don't have an account?{' '}
-                <a href="/register" className="text-indigo-600 hover:text-indigo-700 font-bold hover:underline">
+                <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-bold hover:underline">
                   Sign Up Free
-                </a>
+                </Link>
               </p>
             </div>
 

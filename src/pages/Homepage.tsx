@@ -8,6 +8,7 @@ import { useGetEventsQuery } from '../store/services/eventApi';
 import SkeletonLoader from '../components/SkeletonLoader';
 import HotelCard from '../components/guest/HotelCard';
 import EventCard from '../components/guest/EventCard';
+import Button from '../components/Button';
 
 // Mock data interfaces for type safety
 interface Item {
@@ -38,7 +39,7 @@ const Homepage: React.FC = () => {
   const { data: hotelsData, isLoading: isLoadingHotels } = useGetHotelsQuery({ limit: 3 });
   const { data: eventsData, isLoading: isLoadingEvents } = useGetEventsQuery({ limit: 3 });
 
-  const hotels: Item[] = hotelsData?.data?.map((hotel) => ({
+  const hotels: any[] = hotelsData?.data?.map((hotel) => ({
     id: hotel.id,
     type: 'hotel',
     title: hotel.name,
@@ -131,10 +132,12 @@ const Homepage: React.FC = () => {
                   />
                 </div>
 
-                <button className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 group">
-                  <Search className="mr-2 group-hover:scale-110 transition-transform" size={22} />
-                  <span>Explore</span>
-                </button>
+                <Button
+                  className="px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 group hover:from-indigo-700 hover:to-purple-700"
+                  icon={<Search className="group-hover:scale-110 transition-transform" size={22} />}
+                >
+                  Explore
+                </Button>
               </div>
             </div>
           </div>
@@ -170,16 +173,14 @@ const Homepage: React.FC = () => {
 
           <div className="hidden md:flex items-center space-x-2 bg-white/80 backdrop-blur-sm p-1.5 rounded-xl shadow-sm border border-slate-200">
             {(['all', 'hotels', 'events'] as const).map((tab) => (
-              <button
+              <Button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-2.5 rounded-lg font-semibold capitalize transition-all ${activeTab === tab
-                    ? 'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
+                variant={activeTab === tab ? 'primary' : 'ghost'}
+                className={`px-6 py-2.5 rounded-lg font-semibold capitalize ${activeTab === tab ? 'shadow-md' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
               >
                 {tab}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -303,18 +304,22 @@ const Homepage: React.FC = () => {
                     </div>
 
                     {item.type === 'event' ? (
-                      <button onClick={() => navigate(`/event/booking/${item.id}`)} className="flex items-center font-bold bg-linear-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all group">
-                        <Ticket size={18} className="mr-2 group-hover:rotate-12 transition-transform" />
-                        Get Tickets
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => navigate(`/hotel/${item.id}`)}
-                        className="flex items-center font-bold bg-linear-to-r from-indigo-600 to-blue-600 text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all group"
+                      <Button
+                        onClick={() => navigate(`/event/booking/${item.id}`)}
+                        className="from-purple-600 to-pink-600 px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 group"
+                        icon={<Ticket size={18} className="group-hover:rotate-12 transition-transform" />}
                       >
-                        <span>Book Now</span>
-                        <ChevronRight size={20} className="ml-1 group-hover:translate-x-1 transition-transform" />
-                      </button>
+                        Get Tickets
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => navigate(`/hotel/${item.id}`)}
+                        className="from-indigo-600 to-blue-600 px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 group"
+                        icon={<ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />}
+                        iconPosition="right"
+                      >
+                        Book Now
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -326,12 +331,13 @@ const Homepage: React.FC = () => {
 
         {/* Load More */}
         <div className="text-center mt-12">
-          <button
+          <Button
             onClick={() => navigate(activeTab === 'events' ? '/events' : '/hotels')}
-            className="bg-slate-900 text-white px-10 py-4 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl"
+            variant="outline"
+            className="bg-slate-900 cursor-pointer px-10 py-4 rounded-xl font-bold hover:bg-slate-800 hover:text-amber-50 shadow-lg hover:shadow-xl"
           >
             Discover More Experiences
-          </button>
+          </Button>
         </div>
       </main>
 
@@ -375,12 +381,12 @@ const Homepage: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 flex-shrink-0">
-                <button className="bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                <Button variant="secondary" className="text-indigo-600 px-8 py-4 rounded-xl font-bold hover:bg-slate-50 shadow-xl hover:shadow-2xl hover:-translate-y-1">
                   Register Now
-                </button>
-                <button className="border-2 border-white/40 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/10 transition-all backdrop-blur-sm">
+                </Button>
+                <Button variant="ghost" className="border-2 border-white/40 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/10 backdrop-blur-sm">
                   Learn More
-                </button>
+                </Button>
               </div>
             </div>
           </div>

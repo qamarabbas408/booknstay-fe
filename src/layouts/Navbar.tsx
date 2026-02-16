@@ -1,6 +1,6 @@
   import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sparkles, Menu, X, Home, Building2, Calendar, BookOpen, User, LogIn, LogOut, LayoutDashboard, ChevronDown, Hotel, Ticket, Settings, CreditCard, Users, PlusCircle, TrendingUp, ChevronRight } from 'lucide-react';
+import { Sparkles, Menu, X, Home, Building2, Calendar, BookOpen, HelpCircle, User, LogIn, LogOut, LayoutDashboard, ChevronDown, Hotel, Ticket, Settings, CreditCard, Users, PlusCircle, ChevronRight, User2, Search } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
 import './Navbar.css';
@@ -12,11 +12,10 @@ const Navbar: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const authModalRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = () => {
     dispatch(logout());
@@ -25,11 +24,25 @@ const Navbar: React.FC = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/explore?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleVendorNavigation = (section: string) => {
+    localStorage.setItem('vendor_dashboard_active_section', section);
+    window.dispatchEvent(new Event('vendor_dashboard_section_update'));
+    navigate('/vendor/dashboard');
+    setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
+  };
+
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsProfileOpen(false);
-    setShowAuthModal(false);
   }, [location]);
 
   // Handle scroll effect
@@ -59,33 +72,21 @@ const Navbar: React.FC = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
       }
-      if (authModalRef.current && !authModalRef.current.contains(event.target as Node)) {
-        setShowAuthModal(false);
-      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Guest navigation links
-  const guestNavLinks = [
-    { to: '/', label: 'Home', icon: Home },
+  // Navigation links
+  const navLinks = [
+    { to: '/explore', label: 'Explore', icon: Home },
     { to: '/hotels', label: 'Hotels', icon: Building2 },
     { to: '/events', label: 'Events', icon: Calendar },
-    { to: '/dashboard', label: 'My Bookings', icon: BookOpen },
-  ];
+    // { to: '/dashboard', label: 'My Bookings', icon: BookOpen },
+    { to: '/help', label: 'Help Center', icon: Calendar },
 
-  // Vendor navigation links
-  const vendorNavLinks = [
-    { to: '/', label: 'Home', icon: Home },
-    { to: '/vendor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/vendor/properties', label: 'My Properties', icon: Hotel },
-    { to: '/vendor/bookings', label: 'Bookings', icon: BookOpen },
-    { to: '/vendor/analytics', label: 'Analytics', icon: TrendingUp },
   ];
-
-  const currentNavLinks = user?.role === 'vendor' ? vendorNavLinks : guestNavLinks;
 
   return (
     <>
@@ -99,13 +100,29 @@ const Navbar: React.FC = () => {
             <Sparkles className="text-indigo-500 group-hover:rotate-12 transition-transform" size={20} />
           </Link>
           
-          {/* Desktop Navigation - Role-based */}
+          {/* Search Bar */}
+          {/* <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
+            <form onSubmit={handleSearch} className="relative w-full group">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl leading-5 bg-slate-50/50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all"
+                placeholder="Search hotels, events..."
+              />
+            </form>
+          </div> */}
+
+          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
-            {currentNavLinks.slice(1, user?.role === 'vendor' ? undefined : -1).map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`text-slate-700 font-medium hover:text-indigo-600 transition-colors relative group ${
+                className={`text-slate-700 font-normal text-sm hover:text-indigo-600 transition-colors relative group ${
                   location.pathname === link.to ? 'text-indigo-600' : ''
                 }`}
               >
@@ -188,30 +205,27 @@ const Navbar: React.FC = () => {
                       <div className="p-2">
                         {user.role === 'vendor' ? (
                           <>
-                            <Link
-                              to="/vendor/dashboard"
-                              className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
-                              onClick={() => setIsProfileOpen(false)}
+                            <button
+                              onClick={() => handleVendorNavigation('overview')}
+                              className="w-full flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors text-left"
                             >
                               <LayoutDashboard size={18} className="mr-3" />
-                              Dashboard
-                            </Link>
-                            <Link
-                              to="/vendor/properties"
-                              className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
-                              onClick={() => setIsProfileOpen(false)}
+                              Analytics
+                            </button>
+                            <button
+                              onClick={() => handleVendorNavigation('properties')}
+                              className="w-full flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors text-left"
                             >
                               <Hotel size={18} className="mr-3" />
                               My Properties
-                            </Link>
-                            <Link
-                              to="/vendor/bookings"
-                              className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
-                              onClick={() => setIsProfileOpen(false)}
+                            </button>
+                            <button
+                              onClick={() => handleVendorNavigation('bookings')}
+                              className="w-full flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors text-left"
                             >
                               <BookOpen size={18} className="mr-3" />
                               Bookings
-                            </Link>
+                            </button>
                             <Link
                               to="/vendor/earnings"
                               className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
@@ -285,86 +299,13 @@ const Navbar: React.FC = () => {
               </>
             ) : (
               <>
-                {/* Auth Modal Trigger */}
-                <div className="relative" ref={authModalRef}>
-                  <button
-                    onClick={() => setShowAuthModal(!showAuthModal)}
-                    className="bg-linear-to-r from-indigo-600 to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 flex items-center space-x-2"
-                  >
-                    <LogIn size={18} />
-                    <span>Get Started</span>
-                    <ChevronDown size={16} className={`transition-transform duration-200 ${showAuthModal ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {/* Auth Type Selector Dropdown */}
-                  {showAuthModal && (
-                    <div className="dropdown-enter absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-                      <div className="p-4 bg-linear-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
-                        <h3 className="font-bold text-slate-900 mb-1">Choose Account Type</h3>
-                        <p className="text-xs text-slate-600">Select how you want to use BookNStay</p>
-                      </div>
-
-                      <div className="p-3 space-y-2">
-                        {/* Guest Account */}
-                        <Link
-                          to="/register/guest"
-                          className="block p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all group"
-                          onClick={() => setShowAuthModal(false)}
-                        >
-                          <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 rounded-xl bg-linear-to-r from-indigo-600 to-blue-600 flex items-center justify-center text-white flex-shrink-0">
-                              <User size={24} />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between mb-1">
-                                <h4 className="font-bold text-slate-900">Guest Account</h4>
-                                <ChevronRight size={18} className="text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
-                              </div>
-                              <p className="text-xs text-slate-600 leading-relaxed">
-                                Book hotels and event tickets for your travels
-                              </p>
-                            </div>
-                          </div>
-                        </Link>
-
-                        {/* Vendor Account */}
-                        <Link
-                          to="/register/vendor"
-                          className="block p-4 rounded-xl border-2 border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 transition-all group"
-                          onClick={() => setShowAuthModal(false)}
-                        >
-                          <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 rounded-xl bg-linear-to-r from-purple-600 to-pink-600 flex items-center justify-center text-white flex-shrink-0">
-                              <Building2 size={24} />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between mb-1">
-                                <h4 className="font-bold text-slate-900">Vendor Account</h4>
-                                <ChevronRight size={18} className="text-slate-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
-                              </div>
-                              <p className="text-xs text-slate-600 leading-relaxed">
-                                List properties and manage bookings for your business
-                              </p>
-                            </div>
-                          </div>
-                        </Link>
-                      </div>
-
-                      <div className="p-3 bg-slate-50 border-t border-slate-100">
-                        <p className="text-xs text-center text-slate-600">
-                          Already have an account?{' '}
-                          <Link
-                            to="/login"
-                            className="text-indigo-600 hover:text-indigo-700 font-semibold"
-                            onClick={() => setShowAuthModal(false)}
-                          >
-                            Login
-                          </Link>
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <Link
+                  to="/login"
+                  className="bg-linear-to-r from-indigo-600 to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 flex items-center space-x-2"
+                >
+                  <LogIn size={18} />
+                  <span>Get Started</span>
+                </Link>
               </>
             )}
           </div>
@@ -445,7 +386,7 @@ const Navbar: React.FC = () => {
                 )}
 
                 <div className="space-y-2 px-4">
-                  {currentNavLinks.map((link, index) => {
+                  {navLinks.map((link, index) => {
                     const Icon = link.icon;
                     const isActive = location.pathname === link.to;
                     
@@ -531,30 +472,19 @@ const Navbar: React.FC = () => {
                   </button>
                 ) : (
                   <>
-                    {/* Guest Login */}
-                    <Link
-                      to="/login?type=guest"
-                      className="mobile-menu-item flex items-center justify-between w-full bg-linear-to-r from-indigo-600 to-blue-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <User size={20} />
-                        <span>Guest Login</span>
-                      </div>
-                      <ChevronRight size={20} />
-                    </Link>
-
+                    
                     {/* Vendor Login */}
                     <Link
                       to="/login?type=vendor"
-                      className="mobile-menu-item flex items-center justify-between w-full bg-linear-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
+                      className="mobile-menu-item flex items-center justify-center w-full bg-linear-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
                     >
                       <div className="flex items-center space-x-3">
-                        <Building2 size={20} />
-                        <span>Vendor Login</span>
+                        <User2 size={20} />
+                        <span>Login Now</span>
                       </div>
                       <ChevronRight size={20} />
                     </Link>
-
+                      <div className='text-center text-sm text-slate-700'>OR</div>
                     {/* Register Link */}
                     <Link
                       to="/register"

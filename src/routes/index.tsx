@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -6,6 +6,7 @@ import ProtectedRoute from './ProtectedRoute';
 import Homepage from '../pages/Homepage';
 import LoginPage from '../pages/auth/LoginPage';
 import GuestRegistrationPage from '../pages/auth/GuestRegistrationPage';
+import RegisterPage from '../pages/auth/RegisterPage';
 // import VendorRegistrationPage from '../pages/VendorRegistrationPage';
 import VendorRegistrationPage from '../pages/v2/VendorRegistrationPage';
 import HelpCenter from '../pages/HelpCenter';
@@ -38,8 +39,10 @@ export const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       // 1. PUBLIC ROUTES
-      { index: true, element: <Homepage /> },
+      { index: true, element: <Navigate to="/explore" replace /> },
+      { path: '/explore', element: <Homepage /> },
       { path: AppRoutes.login, element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
       { path: AppRoutes.registerVendor, element: <VendorRegistrationPage /> },
       { path: AppRoutes.registerGuest, element: <GuestRegistrationPage /> },
       { path: AppRoutes.help, element: <HelpCenter /> },

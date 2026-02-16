@@ -58,3 +58,16 @@
 .animate-fadeInUp { animation: fadeInUp 0.8s ease-out forwards; }
 .animate-slideInRight { animation: slideInRight 0.6s ease-out forwards; }
 .animate-float { animation: float 3s ease-in-out infinite; }
+
+/* Add this in your global CSS file */
+::-webkit-scrollbar {
+  @apply w-2; /* scrollbar width */
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100; /* track color */
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full; /* thumb styling */
+}

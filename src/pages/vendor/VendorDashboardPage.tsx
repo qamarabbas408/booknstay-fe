@@ -2,14 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
-import { Calendar, BarChart2, Hotel, LogOut, Ticket, Building2, Menu } from 'lucide-react';
-import { useGetVendorHotelsQuery } from '../../store/services/hotelApi';
+import { Calendar, BarChart2, LogOut, Ticket, Building2, ChevronLeft, ChevronRight, Menu, Settings } from 'lucide-react';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
-import SkeletonLoader from '../../components/SkeletonLoader';
-import { AppRoutes } from '../../utils/AppRoutes';
-import HotelSelectionModal from '../../components/HotelSelectionModal';
-import RoomManagementSection from '../../components/RoomManagementSection';
+
 import { useDeleteRoomTypeMutation } from '../../store/services/roomApi';
 import ConfirmationModal from '../../components/vendor/ConfirmationModal';
 import VendorAnalyticsDashboard from '../../components/vendor/AnalyticsDashboard';
@@ -29,8 +25,17 @@ const VendorDashboardPage: React.FC = () => {
     localStorage.setItem('vendor_dashboard_active_section', activeSection);
   }, [activeSection]);
 
+  useEffect(() => {
+    const handleSectionUpdate = () => {
+      const section = localStorage.getItem('vendor_dashboard_active_section');
+      if (section) setActiveSection(section);
+    };
+    window.addEventListener('vendor_dashboard_section_update', handleSectionUpdate);
+    return () => window.removeEventListener('vendor_dashboard_section_update', handleSectionUpdate);
+  }, []);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showHotelModal, setShowHotelModal] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [selectedHotel, setSelectedHotel] = useState<VendorHotel | null>(null);
   const [roomToDelete, setRoomToDelete] = useState<number | null>(null);
   const [deleteRoomType, { isLoading: isDeletingRoom }] = useDeleteRoomTypeMutation();
@@ -41,37 +46,20 @@ const VendorDashboardPage: React.FC = () => {
     navigate('/login');
   };
 
-  // Fetch initial hotel for Room Management (limit 1)
-  const { data: initialHotelData, isLoading: isLoadingInitialHotel } = useGetVendorHotelsQuery(
-    { limit: 1 },
-    { skip: activeSection !== 'rooms' || !!selectedHotel }
-  );
-
-  // Fetch all hotels for selection modal
-  const { data: allHotelsData, isLoading: isLoadingAllHotels } = useGetVendorHotelsQuery(
-    { limit: 100 },
-    { skip: !showHotelModal }
-  );
-
-  useEffect(() => {
-    if (activeSection === 'rooms' && !selectedHotel && initialHotelData && initialHotelData?.data?.length > 0) {
-      setSelectedHotel(initialHotelData?.data[0]);
-    }
-  }, [activeSection, initialHotelData, selectedHotel]);
 
   const handleConfirmDeleteRoom = async () => {
     if (roomToDelete && selectedHotel) {
       try {
         await deleteRoomType(roomToDelete).unwrap();
         showToast.success('Room type deleted successfully');
-        
+
         // Update local state to remove the deleted room immediately
         const updatedRoomTiers = selectedHotel.room_tiers.filter((tier: any) => tier.id !== roomToDelete);
         setSelectedHotel({
           ...selectedHotel,
           room_tiers: updatedRoomTiers
         });
-        
+
         setRoomToDelete(null);
       } catch (error: any) {
         console.error('Failed to delete room:', error);
@@ -89,7 +77,7 @@ const VendorDashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <CustomToaster />
-  
+
       {/* Mobile Sidebar Toggle */}
       <div className="lg:hidden fixed bottom-6 right-6 z-40">
         <button
@@ -102,8 +90,9 @@ const VendorDashboardPage: React.FC = () => {
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white/80 backdrop-blur-xl border-r border-white/40 shadow-xl z-30 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      <aside className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white/80 backdrop-blur-xl border-r border-white/40 shadow-xl z-30 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${desktopSidebarOpen ? 'lg:translate-x-0' : 'lg:-translate-x-full'
         }`}>
+
         <div className="p-6 h-full flex flex-col">
           <nav className="space-y-2 flex-1 overflow-y-auto py-2 custom-scrollbar">
             {[
@@ -111,7 +100,8 @@ const VendorDashboardPage: React.FC = () => {
               { id: 'bookings', label: 'My Bookings', icon: <Calendar size={20} /> },
               { id: 'properties', label: 'My Hotels', icon: <Building2 size={20} /> },
               { id: 'events', label: 'My Events', icon: <Ticket size={20} /> },
-              { id: 'rooms', label: 'Room Management', icon: <Hotel size={20} /> },
+              { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
+
             ].map(item => (
               <button
                 key={item.id}
@@ -150,91 +140,42 @@ const VendorDashboardPage: React.FC = () => {
         ></div>
       )}
 
+      {/* Desktop Sidebar Toggle Button (Fixed) */}
+      <div className="hidden lg:flex fixed top-24 z-40 items-center group" style={{ left: desktopSidebarOpen ? '288px' : '24px' }}>
+        <button
+          onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+          className="bg-white/90 backdrop-blur-sm border-2 border-indigo-200 p-3 rounded-lg hover:bg-indigo-50 text-indigo-600 transition-all duration-300 shadow-lg hover:shadow-indigo-500/30 hover:scale-110 active:scale-95"
+          title={desktopSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+        >
+          {desktopSidebarOpen ? (
+            <ChevronLeft size={24} className="transition-transform duration-500" />
+          ) : (
+            <ChevronRight size={24} className="transition-transform duration-500" />
+          )}
+        </button>
+
+        {/* Tooltip Badge */}
+        <div className="ml-3 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          {desktopSidebarOpen ? 'Click to Collapse' : 'Click to Expand'}
+        </div>
+      </div>
+
       {/* Main Content */}
-      <main className="lg:ml-64 pt-24 pb-20 px-4 lg:px-6">
+      <main className={` pb-20 pt-12 px-4 lg:px-6 transition-all duration-300 ${desktopSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'}`}>
         <div className="max-w-7xl mx-auto">
+          {/* Desktop Sidebar Toggle */}
+
           {activeSection === 'properties' ? (
             <VendorHotelsPage />
           ) : activeSection === 'events' ? (
             <VendorEventsPage />
-          ) : activeSection === 'rooms' ? ( 
-            isLoadingInitialHotel ? (
-              <div className="animate-fadeIn space-y-8">
-                {/* Header Skeleton */}
-                <div className="h-32 bg-slate-100 rounded-2xl animate-pulse border border-slate-200"></div>
-                
-                {/* Stats Skeleton */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-24 bg-white rounded-2xl animate-pulse border border-slate-200"></div>
-                  ))}
-                </div>
-
-                {/* Room Cards Skeleton */}
-                <div>
-                  <div className="h-8 w-48 bg-slate-200 rounded-lg mb-6 animate-pulse"></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {[...Array(3)].map((_, i) => (
-                      <SkeletonLoader key={i} type="hotel" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-            <>
-              <RoomManagementSection
-                selectedHotel={selectedHotel ? {
-                  id: selectedHotel.id,
-                  name: selectedHotel.name,
-                  location: selectedHotel.location?.city,
-                  rating: selectedHotel.rating || 0,
-                  image: getImageUrl(selectedHotel.image),
-                  roomCount: selectedHotel.room_tiers?.length || 0
-                } : null}
-                rooms={selectedHotel?.room_tiers?.map((tier: any) => ({
-                  id: tier.id,
-                  type: tier.type,
-                  total: tier.total_inventory,
-                  available: tier.available,
-                  pricePerNight: `$${tier.base_price}`,
-                  status: tier.status,
-                  amenities: []
-                })) || []}
-                onChangeHotel={() => setShowHotelModal(true)}
-                onEditRoom={(roomId) => {
-                  if (selectedHotel) {
-                    navigate(`/${AppRoutes.vendorBase}/${AppRoutes.editRoomtier}${roomId}`);
-                  }
-                }}
-                onDeleteRoom={(roomId) => {
-                  setRoomToDelete(roomId);
-                }}
-              />
-              <HotelSelectionModal
-                isOpen={showHotelModal}
-                hotels={allHotelsData?.data?.map((h: VendorHotel) => ({
-                  id: h.id,
-                  name: h.name,
-                  location: h.location?.city,
-                  rating: h.rating || 0,
-                  image: getImageUrl(h.image),
-                  roomCount: h.room_tiers?.length || 0
-                })) || []}
-                onClose={() => setShowHotelModal(false)}
-                onSelect={(hotel) => {
-                  const fullHotel = allHotelsData?.data?.find((h: VendorHotel) => h.id === hotel.id);
-                  if (fullHotel) setSelectedHotel(fullHotel);
-                  setShowHotelModal(false);
-                }}
-                isLoading={isLoadingAllHotels}
-              />
-            </>
-            )
           ) : activeSection === 'bookings' ? (
             <VendorBookingsPage />
+          ) : activeSection === 'settings'? (
+            <div>Settings</div>
           ) : (
             <>
-              <VendorAnalyticsDashboard />
+              <VendorAnalyticsDashboard viewAllBookings={() => setActiveSection('bookings')} />
             </>
           )}
         </div>
@@ -251,7 +192,7 @@ const VendorDashboardPage: React.FC = () => {
         confirmText="Delete Room"
         isDangerous={true}
       />
-          
+
     </div>
 
 

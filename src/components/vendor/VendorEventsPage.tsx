@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Eye,
     Edit2,
@@ -31,17 +31,34 @@ import PulseLoader from '../PulseLoader';
 import ConfirmationModal from './ConfirmationModal';
 
 const VendorEventsPage: React.FC = () => {
-    const { data: eventsData, isLoading } = useGetVendorEventsQuery();
-    const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
-
-    const events = eventsData?.data || [];
-
     const [selectedEvent, setSelectedEvent] = useState<VendorEvent | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [actionMenuId, setActionMenuId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [currentPage, setCurrentPage] = useState(1);
     const [eventToDelete, setEventToDelete] = useState<number | null>(null);
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setCurrentPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const { data: eventsData, isLoading } = useGetVendorEventsQuery({
+        page: currentPage,
+        limit: 10,
+        search: debouncedSearch || undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+    });
+    const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
+
+    const events = eventsData?.data || [];
+    const pagination = eventsData?.pagination || { total: 0, perPage: 10, currentPage: 1, lastPage: 1 };
 
     const statusColors: Record<string, string> = {
         active: 'bg-green-100 text-green-700 border-green-200',
@@ -102,15 +119,8 @@ const VendorEventsPage: React.FC = () => {
         });
     };
 
-    const filteredEvents = events.filter(event => {
-        const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            event.category.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
-
-    const totalRevenue = filteredEvents.reduce((sum, e) => sum + e.revenue, 0);
-    const totalTicketsSold = filteredEvents.reduce((sum, e) => sum + Number(e.tickets_sold), 0);
+    const totalRevenue = events.reduce((sum, e) => sum + e.revenue, 0);
+    const totalTicketsSold = events.reduce((sum, e) => sum + Number(e.tickets_sold), 0);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20 p-4 md:p-6 lg:p-8 ">
@@ -161,7 +171,7 @@ const VendorEventsPage: React.FC = () => {
                         <div className="md:w-48">
                             <select
                                 value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
+                                onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
                                 className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-purple-400 transition-all appearance-none cursor-pointer"
                             >
                                 <option value="all">All Status</option>
@@ -177,12 +187,12 @@ const VendorEventsPage: React.FC = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200">
                         <div>
                             <div className="text-xs text-slate-600 mb-1">Total Events</div>
-                            <div className="text-2xl font-display text-slate-900">{filteredEvents.length}</div>
+                            <div className="text-2xl font-display text-slate-900">{pagination.total}</div>
                         </div>
                         <div>
                             <div className="text-xs text-slate-600 mb-1">Active Events</div>
                             <div className="text-2xl font-display text-green-600">
-                                {filteredEvents.filter(e => e.status === 'active').length}
+                                {events.filter(e => e.status === 'active').length}
                             </div>
                         </div>
                         <div>
@@ -225,7 +235,7 @@ const VendorEventsPage: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredEvents.map((event) => {
+                                    {events.map((event) => {
                                         const soldPercentage = (Number(event.tickets_sold) / event.total_capacity) * 100;
                                         const primaryImage = event.gallery?.find(img => img.is_primary === 1) || event.gallery?.[0];
 
@@ -422,6 +432,50 @@ const VendorEventsPage: React.FC = () => {
                             </table>
                         )}
                     </div>
+
+                    {/* Pagination */}
+                    {!isLoading && events.length > 0 && (
+                        <div className="flex items-center justify-between p-6 border-t border-slate-200 bg-slate-50">
+                            <div className="text-sm text-slate-600">
+                                Showing <span className="font-semibold">{(currentPage - 1) * pagination.perPage + 1}</span> to{' '}
+                                <span className="font-semibold">
+                                    {Math.min(currentPage * pagination.perPage, pagination.total)}
+                                </span>{' '}
+                                of <span className="font-semibold">{pagination.total}</span> events
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="w-10 h-10 flex items-center justify-center rounded-lg border-2 border-slate-200 hover:border-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronLeft size={18} />
+                                </button>
+
+                                {[...Array(pagination.lastPage)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        className={`w-10 h-10 flex items-center justify-center rounded-lg font-semibold transition-all ${currentPage === i + 1
+                                                ? 'bg-purple-600 text-white'
+                                                : 'border-2 border-slate-200 hover:border-purple-400'
+                                            }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.lastPage))}
+                                    disabled={currentPage === pagination.lastPage}
+                                    className="w-10 h-10 flex items-center justify-center rounded-lg border-2 border-slate-200 hover:border-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronRight size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
