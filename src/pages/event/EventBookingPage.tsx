@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Calendar, MapPin, Ticket, Users, AlertCircle, ChevronRight, Sparkles, Clock, Star, Heart, Share2, Plus, Minus, Tag, Shield, CreditCard, Info, TrendingUp, CheckCircle, Loader2 } from 'lucide-react';
+import { Calendar, MapPin, Ticket, Users, AlertCircle, ChevronRight, Sparkles, Clock, Star, Heart, Share2, Plus, Minus, Tag, Shield, CreditCard, Info, TrendingUp, CheckCircle, Loader2, X } from 'lucide-react';
 import { useGetEventByIdQuery, useCreateEventBookingMutation } from '../../store/services/eventApi';
 import { APIENDPOINTS } from '../../utils/ApiConstants';
 import { AppImages } from '../../utils/AppImages';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import { CustomToaster, showToast } from '../../components/CustomToaster';
 import { setPendingBooking, clearPendingBooking } from '../../store/slices/bookingSlice';
+import StayPlayBundle from '../../components/vendor/StayPlayBundle';
+import LocationComponent from '../../components/LocationComponent';
 
 const EventBookingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +30,7 @@ const EventBookingPage: React.FC = () => {
   const [promoApplied, setPromoApplied] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  const [showBundleModal, setShowBundleModal] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -37,6 +40,16 @@ const EventBookingPage: React.FC = () => {
       dispatch(clearPendingBooking());
     }
   }, [id, pendingBooking, dispatch]);
+
+  useEffect(() => {
+    if (event?.bundles && event.bundles.length > 0) {
+      const hasSeenBundleModal = sessionStorage.getItem(`seenBundleModal_event_${id}`);
+      if (!hasSeenBundleModal) {
+        setShowBundleModal(true);
+        sessionStorage.setItem(`seenBundleModal_event_${id}`, 'true');
+      }
+    }
+  }, [event, id]);
 
   const updateQuantity = (ticketId: number, delta: number) => {
     setQuantities(prev => {
@@ -109,11 +122,7 @@ const EventBookingPage: React.FC = () => {
     { time: '11:30 PM', title: 'Event Ends', description: 'Last call and venue closing' }
   ];
 
-  const reviews = [
-    { name: 'Alex Johnson', rating: 5, date: 'Previous Event', text: 'Best concert experience ever! The venue was amazing and the sound quality was incredible. Can\'t wait for the next one!', avatar: 'https://i.pravatar.cc/150?img=11' },
-    { name: 'Maria Garcia', rating: 5, date: 'Previous Event', text: 'Absolutely worth it! VIP package was excellent. Great organization and fantastic atmosphere.', avatar: 'https://i.pravatar.cc/150?img=5' },
-    { name: 'David Lee', rating: 4, date: 'Previous Event', text: 'Amazing performances and good crowd. Only downside was long lines for drinks, but overall great!', avatar: 'https://i.pravatar.cc/150?img=12' }
-  ];
+
 
   if (isLoading) {
     return (
@@ -151,6 +160,43 @@ const EventBookingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <CustomToaster />
+
+      {/* Bundle Modal */}
+      {showBundleModal && event?.bundles && event.bundles.length > 0 && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div
+            className="glass rounded-3xl shadow-2xl border border-white/40 w-full max-w-2xl max-h-[90vh] flex flex-col pointer-events-auto animate-slideUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-end p-2 px-4 border-b border-slate-200">
+              {/* <h2 className="text-2xl font-display text-slate-900">Bundle Offer</h2> */}
+              <button
+                onClick={() => setShowBundleModal(false)}
+                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X size={24} className="text-slate-600" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <StayPlayBundle
+                event={event}
+                bundles={event.bundles} onSelectBundle={(bundle) => {
+                  console.log('Bundle selected from modal:', bundle);
+                  // Potentially close modal and update something in the checkout state
+                  setShowBundleModal(false);
+                  showToast.success(`${bundle.offer_title} added to your cart!`);
+                }}
+
+                onSkip={() => setShowBundleModal(false)} />
+
+            </div>
+            <div className="flex items-center justify-end p-2 px-4  border-slate-200">
+              {/* <h2 className="text-2xl font-display text-slate-900">Bundle Offer</h2> */}
+            </div>
+
+          </div>
+        </div>
+      )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600&display=swap');
         
@@ -340,50 +386,14 @@ const EventBookingPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Venue Information */}
-            <div className="glass rounded-3xl border border-white/40 shadow-lg animate-fadeInUp overflow-hidden">
-              <button onClick={() => toggleSection('venue')} className="w-full flex items-center justify-between p-6 md:p-8 text-left">
-                <h2 className="text-2xl font-display text-slate-900">Venue Information</h2>
-                <ChevronRight size={24} className={`text-slate-500 transition-transform duration-300 ${!collapsedSections.venue ? 'rotate-90' : ''}`} />
-              </button>
-              <div className={`transition-all duration-500 ease-in-out ${collapsedSections.venue ? 'max-h-0' : 'max-h-[1000px]'}`}>
-                <div className="px-6 md:px-8 pb-8">
-                  <div className="bg-white/50 rounded-2xl overflow-hidden border border-white/50">
-                    <div className="h-64 bg-slate-200 flex items-center justify-center">
-                      <div className="text-center">
-                        <MapPin size={48} className="text-slate-400 mx-auto mb-3" />
-                        <p className="text-slate-600 font-semibold">{event.location_details.city}</p>
-                        <p className="text-slate-500 text-sm">{event.location_details.address}</p>
-                        <button
-                          onClick={() => setShowMap(true)}
-                          className="mt-4 text-indigo-600 font-semibold hover:text-indigo-700"
-                        >
-                          View on Map
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-6">
-                      <h4 className="font-bold text-slate-900 mb-3">Getting There</h4>
-                      <div className="space-y-2 text-slate-600">
-                        <p className="flex items-start">
-                          <CheckCircle size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Wembley Park Station - 5 min walk</span>
-                        </p>
-                        <p className="flex items-start">
-                          <CheckCircle size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Parking available - £20 per vehicle</span>
-                        </p>
-                        <p className="flex items-start">
-                          <CheckCircle size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Accessible facilities available</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <LocationComponent location={{
+              address: event.location_details.address,
+              city: event.location_details.city,
+              country: event.location_details.country,
+              lat: event.location_details.lat,
+              lng: event.location_details.lng
+              // lng: 13.4132
+            }} />
 
             {/* Important Information */}
             <div className="glass rounded-3xl border border-white/40 shadow-lg animate-fadeInUp overflow-hidden">
@@ -426,6 +436,7 @@ const EventBookingPage: React.FC = () => {
                 )}
               </div>
 
+
               <div className="space-y-4">
                 {event.ticketTypes.map((ticket, index) => {
                   const isSelected = (quantities[ticket.id] || 0) > 0;
@@ -434,10 +445,10 @@ const EventBookingPage: React.FC = () => {
                     <div
                       key={ticket.id}
                       className={`ticket-card p-5 md:p-6 rounded-2xl border-2 bg-white ${ticket.soldOut
-                          ? 'opacity-60 border-slate-200'
-                          : isSelected
-                            ? 'selected border-indigo-500'
-                            : 'border-slate-200 hover:border-slate-300'
+                        ? 'opacity-60 border-slate-200'
+                        : isSelected
+                          ? 'selected border-indigo-500'
+                          : 'border-slate-200 hover:border-slate-300'
                         } transition-all animate-fadeInUp`}
                       style={{ animationDelay: `${0.2 + index * 0.1}s` }}
                     >
@@ -527,6 +538,7 @@ const EventBookingPage: React.FC = () => {
                 })}
               </div>
             </div>
+
 
             {/* Promo Code */}
             <div className="glass p-6 rounded-3xl border border-white/40 shadow-lg animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
@@ -648,11 +660,10 @@ const EventBookingPage: React.FC = () => {
 
                   {/* Checkout Button */}
                   <button
-                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center group mb-4 ${
-                      isVendor
-                        ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                        : 'bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:shadow-xl hover:shadow-indigo-500/40'
-                    }`}
+                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center group mb-4 ${isVendor
+                      ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                      : 'bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:shadow-xl hover:shadow-indigo-500/40'
+                      }`}
                     disabled={!hasSelection || isBooking || isVendor}
                     onClick={handleCheckout}
                   >

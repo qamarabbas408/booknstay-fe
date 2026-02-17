@@ -52,8 +52,22 @@ export interface Event {
   featured?: boolean;
   trending?: boolean;
   price?: string;
+  bundles : Bundle[];
 }
-
+export interface Bundle {
+  bundle_id: number;
+  offer_title: string;
+  hotel : {
+    id : number;
+    name : string;
+    stars : number;
+    city : string;
+    image : string;
+    original_price : number;
+    bundle_price : number;
+    currency : string;
+  }
+}
 export interface VendorTicket extends TicketBase {
   quantity: number;
   sold_count: number;
@@ -78,6 +92,7 @@ export interface VendorEvent extends BaseEvent {
   revenue: number;
   gallery: VendorImage[];
   tickets: VendorTicket[];
+  bundles: Bundle[];
 }
 
 export interface VendorEventsResponse {

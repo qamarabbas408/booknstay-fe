@@ -217,7 +217,7 @@ const Homepage: React.FC = () => {
                     end_date={item.data.date}
                     image={item.image}
                     rating={item.data.rating || 0}
-                    onView={(id) => navigate(`/event/${id}`)}
+                    onView={(id) => navigate(`/event/booking/${id}`)}
                     is_past={item.data.is_past}
                     highlights={item.data.highlights || []}
                     description={item.data.description || 'Join us for an exciting event!'}
