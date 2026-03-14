@@ -377,38 +377,3 @@ const StayPlayBundle: React.FC<StayPlayBundleProps> = ({ bundles, event, onSelec
 
 export default StayPlayBundle;
 
-
-// ─── USAGE inside EventDetails.tsx ────────────────────────────────────────────
-// Drop this section right after your ticket selector section:
-//
-//  {/* Stay + Play Bundles */}
-//  {bundleData?.data?.length > 0 && (
-//    <StayPlayBundle
-//      bundles={bundleData.data}
-//      onSelectBundle={(bundle) => {
-//        console.log('Bundle selected:', bundle);
-//        // add to cart, navigate to checkout, etc.
-//      }}
-//    />
-//  )}
-//
-// Static mock usage (for now):
-//
-//  const MOCK_BUNDLES = [
-//    {
-//      id: 1,
-//      event_id: 10,
-//      hotel_id: 7,
-//      discount_percentage: "8.00",
-//      offer_title: "AI Enthusiasts Offer",
-//      is_active: 1,
-//      event: { id: 10, title: "AI In Germany", base_price: "20.00" },
-//      hotel: {
-//        id: 7, name: "Hotel Germany", star_rating: 4,
-//        description: "A 4-star boutique hotel in the heart of the city.",
-//        base_price: "100.00", status: "pending", tax_rate: "18.00", service_fee: "25.00"
-//      }
-//    }
-//  ];
-//
-//  <StayPlayBundle bundles={MOCK_BUNDLES} onSelectBundle={...} />

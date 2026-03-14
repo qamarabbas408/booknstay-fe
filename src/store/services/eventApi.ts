@@ -1,3 +1,4 @@
+import { APIENDPOINTS } from '../../utils/ApiConstants';
 import { api } from './api';
 
 export interface EventLocation {
@@ -57,6 +58,7 @@ export interface Event {
 export interface Bundle {
   bundle_id: number;
   offer_title: string;
+  discount_percentage:number; 
   hotel : {
     id : number;
     name : string;
@@ -136,6 +138,19 @@ export interface EventQueryParams {
   page?: number;
   limit?: number;
 }
+export interface EventBundleOfferFormData {
+  hotel_id:number, 
+  check_in:string, 
+  check_out:string, 
+  guests_count:number, 
+  rooms_count:number, 
+  room_type_id:number,
+}
+export interface EventBookingFormData {
+  event_id:number, 
+  selections : { ticket_id : number, quantity : number }[],
+  bundle_offer? : EventBundleOfferFormData
+}
 
 export type EventTicketType = PublicTicket;
 
@@ -201,9 +216,9 @@ export const eventApi = api.injectEndpoints({
       }),
       providesTags: (_result, _error, id) => [{ type: 'Event', id }],
     }),
-    createEventBooking: builder.mutation<any, { event_id: number; selections: { ticket_id: number; quantity: number }[] }>({
+    createEventBooking: builder.mutation<any, EventBookingFormData>({
       query: (data) => ({
-        url: '/guest/event/booking',
+        url: APIENDPOINTS.base_url_v2+'/guest/event/booking',
         method: 'POST',
         data,
       }),
